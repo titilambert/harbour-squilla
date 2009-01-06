@@ -56,7 +56,7 @@ class Scheduler(QtCore.QThread):
             sleep(1)
         self.waiting_authorized_contact = False
 
-        bonjour_auth_username = str(self.parent.bonjour_auth_user)
+        bonjour_auth_username = unicode(self.parent.bonjour_auth_user).encode("utf-8")
         self.auth_user = {bonjour_auth_username:
                             self.parent.bonjour_users[bonjour_auth_username]}
 
@@ -102,7 +102,7 @@ class Scheduler(QtCore.QThread):
             while self.parent.bonjour_auth_user == '':
                 logger.debug("Waiting selection of an authorized bonjour contact")
                 sleep(1)
-            bonjour_auth_username = str(self.parent.bonjour_auth_user)
+            bonjour_auth_username = unicode(self.parent.bonjour_auth_user).encode("utf-8")
             auth_user = {bonjour_auth_username:
                             self.parent.bonjour_users[bonjour_auth_username]}
             new_friend = Friend(fullname, number, auth_user)
@@ -115,7 +115,7 @@ class Scheduler(QtCore.QThread):
             new_friend.start()
 
     def set_auth(self, bonjour_auth_user):
-        bonjour_auth_username = str(bonjour_auth_user)
+        bonjour_auth_username = unicode(self.parent.bonjour_auth_user).encode("utf-8")
         if bonjour_auth_username:
             auth_user = {bonjour_auth_username:
                      self.parent.bonjour_users[bonjour_auth_username]}

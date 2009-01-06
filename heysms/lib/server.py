@@ -58,7 +58,7 @@ class Bonjour_server():
         """
         attrs = dict(soup.first().attrs)
         if 'from' in attrs.keys():
-            if attrs['from'] == self.auth_user:
+            if attrs['from'] == unicode(self.auth_user):
                 return True
         return False
 

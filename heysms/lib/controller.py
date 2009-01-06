@@ -111,6 +111,8 @@ class Controller(QtCore.QThread):
         logger.debug("Forward controller reply to bonjour")
         msg = msg.replace("<", "&lt;")
         msg = msg.replace(">", "&gt;")
+        if isinstance(msg, QtCore.QString):
+            msg = unicode(msg)
         # Waiting self is bonjour registered
         while self.is_ready == False:
             logger.debug("Waiting bonjour contact "
@@ -132,7 +134,8 @@ class Controller(QtCore.QThread):
 
         # Prepare variables
         username = self.auth_user.keys()[0]
-        dic = {"to": username,
+
+        dic = {"to": username.decode("utf-8"),
                "from": self.node,
                "msg": msg,
                "id": self.id}
