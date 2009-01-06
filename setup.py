@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix UTF-8 bug.'
+changes = '* add changelog file\nFix bug with special caracters since translation (Thanks to Simó Albert i Beltran)'
  
 setup(name='heysms',
-      version='1.7.1',
+      version='1.7.2',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
