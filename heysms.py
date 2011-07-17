@@ -1,0 +1,125 @@
+#!/usr/bin/python
+
+import sys
+import os
+from datetime import datetime
+from time import sleep
+
+from PyQt4 import QtCore, QtGui
+try:
+    import osso
+except:
+    pass
+from lib.lib import *
+from lib.server import *
+from lib.sms_listener import *
+from lib.friend import *
+from lib.scheduler import *
+
+class MenuBar(QtGui.QMenuBar):
+    def __init__(self, parent=None, ):
+        QtGui.QMenuBar.__init__(self, parent)
+        self.setObjectName("Menu")
+        ### Bus lines
+        #self.bus_lines = self.addAction(self.tr("&Bus Lines"))
+        ## Quit
+        self.quit = self.addAction(self.tr("&Quit"))
+
+class Central_widget(QtGui.QWidget):
+    def __init__(self, parent):
+        QtGui.QWidget.__init__(self)
+        self.parent = parent
+
+        # Load gui items
+        self.bonjour_users_label = QtGui.QLabel('Select your id')
+        self.bonjour_users = QtGui.QComboBox()
+        self.start_server_button = QtGui.QPushButton('Start server')
+        mainLayout = QtGui.QGridLayout()
+        mainLayout.addWidget(self.bonjour_users_label, 0, 0)
+        mainLayout.addWidget(self.bonjour_users, 0, 1)
+        mainLayout.addWidget(self.start_server_button, 1, 1)
+        self.setLayout(mainLayout)
+        self.reload_contacts()
+
+    def reload_contacts(self):
+        self.parent.bonjour_users = list_presence_users()
+        for bonjour_user, info in self.parent.bonjour_users.items():
+            self.bonjour_users.addItem(bonjour_user)
+        self.parent.bonjour_auth_user = self.bonjour_users.currentText()
+
+class Ui_MainWindow(QtCore.QObject):
+    def __init__(self, app):
+        QtCore.QObject.__init__(self)
+        self.app = app
+        self.friend_list = []
+        self.bonjour_auth_user = ''
+        self.bonjour_users = {}
+        #self.config = config.Config(parent=self)
+
+    def setupUi(self, main_window):
+        self.main_window = main_window
+        self.main_window.setObjectName("MainWindow")
+        self.main_window.resize(800, 400)
+
+        self.central_widget = Central_widget(self)
+        self.main_window.setCentralWidget(self.central_widget)
+
+        ### Menu
+        self.menubar = MenuBar(self.main_window)
+        self.main_window.setMenuBar(self.menubar)
+
+        QtCore.QMetaObject.connectSlotsByName(self.main_window)
+    
+        # Signals
+        QtCore.QObject.connect(self.central_widget.start_server_button,
+                               QtCore.SIGNAL("pressed ()"),
+                               self.toggle_server)
+        QtCore.QObject.connect(self.central_widget.bonjour_users,
+                               QtCore.SIGNAL("currentIndexChanged (const QString&)"),
+                               self.change_bonjour_user)
+        ## Quit
+        QtCore.QObject.connect(self.menubar.quit, QtCore.SIGNAL("triggered()"), self.app.quit)
+
+    def toggle_server(self):
+        if not hasattr(self, 'bs'):
+            self.bonjour_auth_user = self.central_widget.bonjour_users.currentText()
+            self.bs = Bonjour_server(self.bonjour_auth_user)
+        if self.bs.is_running():
+            self.bs.stop()
+            self.central_widget.start_server_button.setText("Start Server")
+        else:
+            self.central_widget.start_server_button.setText("Stop Server")
+            self.bs.listen()
+
+    def change_bonjour_user(self, new_bonjour_user):
+        if not hasattr(self, 'bs'):
+            self.toggle_server()
+        else:
+            self.bs.set_auth(new_bonjour_user)
+            
+
+def main():
+    app = QtGui.QApplication(sys.argv)
+#    app.setOrganizationName("HeySms")
+#    app.setOrganizationDomain("HeySms")
+    app.setApplicationName("HeySms")
+    main_window = QtGui.QMainWindow()
+    ui = Ui_MainWindow(app)
+    ui.setupUi(main_window)
+
+    sms_listener = Sms_listener(ui)
+    sms_listener.start()
+    scheduler = Scheduler(ui)
+    scheduler.start()
+
+    main_window.setWindowTitle("HeySms")
+#    main_window.setAttribute(QtCore.Qt.WA_Maemo5StackedWindow, True)
+# QtCore.Qt.WA_Maemo5AutoOrientation
+# QtCore.Qt.WA_Maemo5NonComposited
+# QtCore.Qt.WA_Maemo5ShowProgressIndicator
+# QtCore.Qt.WA_Maemo5LandscapeOrientation
+# QtCore.Qt.WA_Maemo5PortraitOrientation
+# QtCore.Qt.WA_Maemo5StackedWindow   
+    main_window.show()
+    sys.exit(app.exec_())
+
