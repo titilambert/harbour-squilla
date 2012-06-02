@@ -1,3 +1,153 @@
+GSM_DEFAULT_ALPHABET = [
+    u"@",
+    u"\u00a3",
+    u"$",
+    u"\u00a5",
+    u"\u00e8",
+    u"\u00e9",
+    u"\u00f9",
+    u"\u00ec",
+    u"\u00f2",
+    u"\u00c7",
+    u"\n",
+    u"\u00d8",
+    u"\u00f8",
+    u"\r",
+    u"\u00c5",
+    u"\u00e5",
+
+    u"\u0394",
+    u"_",
+    u"\u03a6",
+    u"\u0393",
+    u"\u039b",
+    u"\u03a9",
+    u"\u03a0",
+    u"\u03a8",
+    u"\u03a3",
+    u"\u0398",
+    u"\u039e",
+    u" ",
+    u"\u00c6",
+    u"\u00e6",
+    u"\u00df",
+    u"\u00c9",
+
+    u" ",
+    u"!",
+    u"\"",
+    u"#",
+    u"\u00a4",
+    u"%",
+    u"&",
+    u"'",
+    u"(",
+    u")",
+    u"*",
+    u"+",
+    u",",
+    u"-",
+    u".",
+    u"/",
+
+    u"0",
+    u"1",
+    u"2",
+    u"3",
+    u"4",
+    u"5",
+    u"6",
+    u"7",
+    u"8",
+    u"9",
+    u":",
+    u";",
+    u"<",
+    u"=",
+    u">",
+    u"?",
+
+    u"\u00a1",
+    u"A",
+    u"B",
+    u"C",
+    u"D",
+    u"E",
+    u"F",
+    u"G",
+    u"H",
+    u"I",
+    u"J",
+    u"K",
+    u"L",
+    u"M",
+    u"N",
+    u"O",
+   
+    u"P",
+    u"Q",
+    u"R",
+    u"S",
+    u"T",
+    u"U",
+    u"V",
+    u"W",
+    u"X",
+    u"Y",
+    u"Z",
+    u"\u00c4",
+    u"\u00d6",
+    u"\u00d1",
+    u"\u00dc",
+    u"\u00a7",
+
+    u"\u00bf",
+    u"a",
+    u"b",
+    u"c",
+    u"d",
+    u"e",
+    u"f",
+    u"g",
+    u"h",
+    u"i",
+    u"j",
+    u"k",
+    u"l",
+    u"m",
+    u"n",
+    u"o",
+
+    u"p",
+    u"q",
+    u"r",
+    u"s",
+    u"t",
+    u"u",
+    u"v",
+    u"w",
+    u"x",
+    u"y",
+    u"z",
+    u"\u00e4",
+    u"\u00f6",
+    u"\u00f1",
+    u"\u00fc",
+    u"\u00e0"
+]
+
+def _decode_language(s, lang):
+    return _decode_default_alphabet(s)
+
+
+def _decode_default_alphabet(s):
+
+    # ought to be all in the 7 bit GSM character map
+    # modem is in 8 bit mode, so it makes 7 bit unpacking itself
+    chars = [ GSM_DEFAULT_ALPHABET[ord(c)] for c in s ]
+    u_str = "".join(chars)
+    return u_str.encode("utf-8")
+
 def octify(str):
         '''     
         Returns a list of octet bytes representing
@@ -49,7 +199,6 @@ def semi_octify(str):
         return octet
 
 def deoctify(arr):
-
         referencebit = 1
         doctect = []
         bnext = 0x00
@@ -70,7 +219,7 @@ def deoctify(arr):
                         bnext = 0x00
                         referencebit = 1
 
-        return ''.join([chr(i) for i in doctect])
+        return _decode_default_alphabet(''.join([chr(i) for i in doctect])).decode('utf-8')
 
 def createPDUmessage(number, msg):
         '''                       

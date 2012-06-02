@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-import pybonjour
 import select
 import socket
 from time import sleep
+import bsddb
+import re
 
 import dbus, avahi
 from dbus import DBusException
 from dbus.mainloop.glib import DBusGMainLoop
 
-debug = True
+import pybonjour
 
-import bsddb
+debug = True
 
 
 def search_contact(phone_number):
@@ -27,11 +28,11 @@ def search_contact(phone_number):
             break
 
     ret = ret.decode('utf-8')
-    ret = ret.replace("+", "")
-    ret = ret.replace("_", "")
-    ret = ret.replace(" ", "")
+#    bad_char = ['+', '_', ' ']
+#    for c in bad_char:
+#        ret = ret.replace(c, "")
     #import pdb;pdb.set_trace()
-    ret = ret.replace(u"é", "e")
+#    ret = ret.replace(u"é", "e")
     print type(ret)
 
     print "contact name : ", ret
@@ -116,6 +117,10 @@ def resolve(name, interface):
     return ret
 
 
+def ascii_to_char(match):
+    import string
+    # replace ascii code with corresponding ASCII character
+    return chr(int(match.group(1)))
 
 def list_presence_users(regtype='_presence._tcp', nb_try=10):
     resolved = []
@@ -128,8 +133,8 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
             tmp = pybonjour.TXTRecord.parse(txtRecord)
 
             username = fullname.split(".")[0]
-            username = username.replace("\\064", "@")
-            username = username.replace("\\032", " ")
+            ascii_pattern = re.compile(r"\\(\d\d\d)")
+            username = ascii_pattern.sub(ascii_to_char, username)
             ip = resolve(username, interfaceIndex)
 
             names[username] = {'host': ip,

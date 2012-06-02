@@ -6,7 +6,7 @@ from PyQt4 import QtCore
 from lib_sms import *
 
 from scheduler import recv_sms_q
- 
+
 class Sms_listener(QtCore.QThread):
     def __init__(self, parent):
         QtCore.QThread.__init__(self)
@@ -17,7 +17,7 @@ class Sms_listener(QtCore.QThread):
         msglength = int(pdumsg[18])
         msgarray = pdumsg[19:len(pdumsg)]
 
-        msg = deoctify(msgarray)
+        msg =  deoctify(msgarray)
 
         if msg > 0:
            print 'New message received from', sendernumber

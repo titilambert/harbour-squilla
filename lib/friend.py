@@ -91,7 +91,7 @@ class Friend(QtCore.QThread):
         # Dont need this !?
         so.setblocking(1)
         so.settimeout(2)
-        
+
         # Prepare variables
         username = self.auth_user.keys()[0]
         dic = {"to": username,
