@@ -4,9 +4,12 @@ from time import sleep
 
 from friend import Friend
 from lib import search_contact
+from history import insert_sms_in_history
 
 recv_sms_q = Queue.Queue()
 send_sms_q = Queue.Queue()
+sms_history_q = Queue.Queue()
+
 
 class Scheduler(QtCore.QThread):
     def __init__(self, parent):
@@ -27,6 +30,11 @@ class Scheduler(QtCore.QThread):
                 self.send_sms(new_sms['to'],
                               new_sms['message'])
                 send_sms_q.task_done()
+            if not sms_history_q.empty():
+                sms = sms_history_q.get()
+                insert_sms_in_history(sms)
+                sms_history_q.task_done()
+
 
     def send_sms(self, to, msg):
         print "send sms to ", to
@@ -39,6 +47,7 @@ class Scheduler(QtCore.QThread):
             print "User not find in list"
         friend = self.friend_list[i]
         friend.send_sms(msg)
+        sms_history_q.put({'message': msg, 'num': friend.number})
 
 
     def sms_received(self, sender, msg):
