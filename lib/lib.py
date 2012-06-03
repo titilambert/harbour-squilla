@@ -4,6 +4,7 @@ import socket
 from time import sleep
 import bsddb
 import re
+import osso
 
 import dbus, avahi
 from dbus import DBusException
@@ -28,11 +29,6 @@ def search_contact(phone_number):
             break
 
     ret = ret.decode('utf-8')
-#    bad_char = ['+', '_', ' ']
-#    for c in bad_char:
-#        ret = ret.replace(c, "")
-    #import pdb;pdb.set_trace()
-#    ret = ret.replace(u"é", "e")
     print type(ret)
 
     print "contact name : ", ret
@@ -124,7 +120,7 @@ def ascii_to_char(match):
 
 def list_presence_users(regtype='_presence._tcp', nb_try=10):
     resolved = []
-    timeout = 2
+    timeout = 1
     names = {}
 
     def resolve_callback(sdRef, flags, interfaceIndex, errorCode, fullname,
@@ -177,7 +173,7 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
     try:
         try:
             for i in xrange(nb_try):
-                ready = select.select([browse_sdRef], [], [])
+                ready = select.select([browse_sdRef], [], [], timeout)
                 if browse_sdRef in ready[0]:
                     pybonjour.DNSServiceProcessResult(browse_sdRef)
         except KeyboardInterrupt:
@@ -186,3 +182,9 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
         browse_sdRef.close()
 
     return names
+
+
+def banner_notification(message):
+      osso_c = osso.Context("heysms_notif", "0.0.1", False)
+      note = osso.SystemNote(osso_c)
+      note.system_note_infoprint(message)
