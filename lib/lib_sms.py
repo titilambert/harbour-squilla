@@ -83,7 +83,7 @@ GSM_DEFAULT_ALPHABET = [
     u"M",
     u"N",
     u"O",
-   
+
     u"P",
     u"Q",
     u"R",
@@ -136,6 +136,7 @@ GSM_DEFAULT_ALPHABET = [
     u"\u00e0"
 ]
 
+
 def _decode_default_alphabet(s):
 
     # ought to be all in the 7 bit GSM character map
@@ -143,6 +144,7 @@ def _decode_default_alphabet(s):
     chars = [ GSM_DEFAULT_ALPHABET[ord(c)] for c in s ]
     u_str = "".join(chars)
     return u_str.encode("utf-8")
+
 
 def octify(str):
         '''     
