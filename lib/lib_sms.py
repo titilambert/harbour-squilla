@@ -136,10 +136,6 @@ GSM_DEFAULT_ALPHABET = [
     u"\u00e0"
 ]
 
-def _decode_language(s, lang):
-    return _decode_default_alphabet(s)
-
-
 def _decode_default_alphabet(s):
 
     # ought to be all in the 7 bit GSM character map
@@ -153,8 +149,11 @@ def octify(str):
         Returns a list of octet bytes representing
         each char of the input str.               
         '''
-
-        bytes = map(ord, str)
+        try:
+            bytes = map(GSM_DEFAULT_ALPHABET.index, str)
+        except ValueError, e:
+            bytes = map(ord, str)
+        
         bitsconsumed = 0
         referencebit = 7
         octets = []
@@ -225,6 +224,9 @@ def createPDUmessage(number, msg):
         '''                       
         Returns a list of bytes to represent a valid PDU message
         '''
+        #prepare for accentd
+        msg = msg.decode('utf-8')
+        
         numlength = len(number)
         if (numlength % 2) == 0:
                 rangelength = numlength
