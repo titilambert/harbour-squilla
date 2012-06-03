@@ -6,7 +6,7 @@ from PyQt4 import QtCore
 from lib_sms import *
 
 from scheduler import recv_sms_q
- 
+
 class Sms_listener(QtCore.QThread):
     def __init__(self, parent):
         QtCore.QThread.__init__(self)
