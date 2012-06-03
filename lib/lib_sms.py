@@ -153,6 +153,7 @@ def octify(str):
         '''
         try:
             bytes = map(GSM_DEFAULT_ALPHABET.index, str)
+            bytes = [b if b !=27 else 32 for b in bytes]
         except ValueError, e:
             bytes = map(ord, str)
         

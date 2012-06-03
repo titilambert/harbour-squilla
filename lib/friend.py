@@ -57,7 +57,7 @@ class Friend(QtCore.QThread):
         bus = dbus.SystemBus()
         smsobject = bus.get_object('com.nokia.phone.SMS', '/com/nokia/phone/SMS/ba212ae1')
         smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
-        message = str(message)
+        message = message.encode('utf-8')
         print "send_sms"
         print message
         print "to"

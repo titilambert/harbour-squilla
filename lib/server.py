@@ -107,9 +107,9 @@ class Bonjour_server():
 #                    print user
 
                     # First reply
-                    sendData = """<?xml version='1.0' encoding='UTF-8'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to="%s" from="%s" version="1.0">""" % (self.auth_user, user)
+                    sendData = u"""<?xml version='1.0' encoding='UTF-8'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to="%s" from="%s" version="1.0">""" % (self.auth_user, user)
 #                    print "senddata ", sendData
-                    channel.send(sendData)
+                    channel.send(sendData.encode('utf-8'))
 
                     recvData = channel.recv(2000)
 #                    print recvData
