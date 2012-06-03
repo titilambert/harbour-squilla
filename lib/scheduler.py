@@ -22,9 +22,10 @@ class Scheduler(QtCore.QThread):
             sleep(1)
             if not recv_sms_q.empty():
                 new_sms = recv_sms_q.get()
-                self.sms_received(new_sms['phone_number'],
+                status = self.sms_received(new_sms['phone_number'],
                               new_sms['message'])
-                recv_sms_q.task_done()
+                if status:
+                    recv_sms_q.task_done()
             if not send_sms_q.empty():
                 new_sms = send_sms_q.get()
                 self.send_sms(new_sms['to'],
@@ -76,4 +77,4 @@ class Scheduler(QtCore.QThread):
             print "new sms from an old friend : ", friend.number
         # SMS to jabber
         print 'send sms'
-        friend.sms_to_bonjour(msg)
+        return friend.sms_to_bonjour(msg)

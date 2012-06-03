@@ -87,7 +87,10 @@ class Friend(QtCore.QThread):
         host = self.auth_user.values()[0]['host']
         port = self.auth_user.values()[0]['port']
         so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        so.connect((host, port))
+        try:
+            so.connect((host, port))
+        except TypeError:
+            return False
         # Dont need this !?
         so.setblocking(1)
         so.settimeout(2)
