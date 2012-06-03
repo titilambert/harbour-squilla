@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-#    mt_loader.py
+#    heysms_loader.py
 #
-#    This file is part of Mass-Transit
+#    This file is part of HeySms
 #
-#    Copyright (C) 2010 Thibault Cohen
+#    Copyright (C) 2012 Thibault Cohen
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
