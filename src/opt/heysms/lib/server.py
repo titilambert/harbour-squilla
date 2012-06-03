@@ -24,17 +24,19 @@
 
 
 import socket
-from PyQt4 import QtCore
 from time import sleep
-from BeautifulSoup import BeautifulSoup 
 
+from PyQt4 import QtCore
+
+from BeautifulSoup import BeautifulSoup
 from scheduler import send_sms_q
- 
+
+
 class Bonjour_server():
     def __init__(self, auth_user):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = '0.0.0.0'
-        self.port= 5299
+        self.port = 5299
         self.maxClient = 999
         self.running = True
         self.auth_user = auth_user
@@ -98,8 +100,8 @@ class Bonjour_server():
                         i = i + 1
                         continue
                 print "PORT :", self.port + i
-                break;
-                
+                break
+
             self.server.listen(int(self.maxClient))
             self._isrunning = True
 #            try:
@@ -110,7 +112,7 @@ class Bonjour_server():
                 channel, details = self.server.accept()
 #                except socket.timeout, e:
 #                    continue
-                channel.setblocking( 1 )
+                channel.setblocking(1)
                 print "Waiting2"
                 recvData = channel.recv(2000)
                 print "=======rec1==========="
@@ -132,7 +134,11 @@ class Bonjour_server():
 #                    print user
 
                     # First reply
-                    sendData = u"""<?xml version='1.0' encoding='UTF-8'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to="%s" from="%s" version="1.0">""" % (self.auth_user, user)
+                    sendData = (u"""<?xml version='1.0' encoding='UTF-8'?>"""
+                         u"""<stream:stream xmlns='jabber:client' """
+                         u"""xmlns:stream='http://etherx.jabber.org/streams'"""
+                         u""" to="%s" from="%s" version="1.0">"""
+                         % (self.auth_user, user))
 #                    print "senddata ", sendData
                     channel.send(sendData.encode('utf-8'))
 

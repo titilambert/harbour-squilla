@@ -23,17 +23,19 @@
 #
 
 
-from PyQt4 import QtCore, QtNetwork
-import pybonjour
 import select
 import random
-import dbus
 import socket
 from time import sleep
 
+import dbus
+from PyQt4 import QtCore, QtNetwork
+
+import pybonjour
 from lib_sms import *
 
 port = 5299
+
 
 class Friend(QtCore.QThread):
     def __init__(self, fullname, number, auth_user, parent=None):
@@ -44,11 +46,12 @@ class Friend(QtCore.QThread):
         self.auth_user = auth_user
 
         self.parent = parent
-        self.client = None # Bonjour socket client
+        self.client = None  # Bonjour socket client
         self.is_ready = False
         self.id = 0
 
-    def _register_callback(self, sdRef, flags, errorCode, name, regtype, domain):
+    def _register_callback(self, sdRef, flags, errorCode,
+                           name, regtype, domain):
         # Set variable when sel is registered
         sleep(1)
         self.is_ready = True
@@ -65,11 +68,11 @@ class Friend(QtCore.QThread):
 
         txt = pybonjour.TXTRecord(txt, strict=True)
 
-        self.sdRef = pybonjour.DNSServiceRegister(name = self.fullname,
-                                regtype = '_presence._tcp',
-                                port = self.port,
-                                txtRecord = txt,
-                                callBack = self._register_callback
+        self.sdRef = pybonjour.DNSServiceRegister(name=self.fullname,
+                                regtype='_presence._tcp',
+                                port=self.port,
+                                txtRecord=txt,
+                                callBack=self._register_callback
                                 )
        # Bonjour chat handcheck
         while True:
@@ -79,22 +82,23 @@ class Friend(QtCore.QThread):
 
     def send_sms(self, message):
         bus = dbus.SystemBus()
-        smsobject = bus.get_object('com.nokia.phone.SMS', '/com/nokia/phone/SMS/ba212ae1')
+        smsobject = bus.get_object('com.nokia.phone.SMS',
+                                   '/com/nokia/phone/SMS/ba212ae1')
         smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
         message = message.encode('utf-8')
         print "send_sms"
         print message
         print "to"
         print self.number[2:].replace('+', '00')
-        arr = dbus.Array(createPDUmessage(self.number[2:].replace('+', '00'), message))
-        #arr = dbus.Array(createPDUmessage(self.number.replace('+', '00'), message))
+        arr = dbus.Array(createPDUmessage(self.number[2:].replace('+', '00'),
+                                          message))
 
         msg = dbus.Array([arr])
         while True:
             try:
-                smsiface.Send(msg,'')
+                smsiface.Send(msg, '')
                 break
-            except dbus.exceptions.DBusException,e :
+            except dbus.exceptions.DBusException, e:
                 print e
                 print "sending sms failed, retry"
                 pass
@@ -127,7 +131,10 @@ class Friend(QtCore.QThread):
                "id": self.id}
         # Hand check
         # Send data
-        xml = u"""<?xml version='1.0' encoding='UTF-8'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to="%(to)s" from="%(from)s" version="1.0">""" % dic
+        xml = (u"""<?xml version='1.0' encoding='UTF-8'?><stream:stream """
+               u"""xmlns='jabber:client' """
+               u"""xmlns:stream='http://etherx.jabber.org/streams' """
+               u"""to="%(to)s" from="%(from)s" version="1.0">""" % dic)
         so.send(xml.encode('utf-8'))
 
         # Read data
@@ -150,7 +157,11 @@ class Friend(QtCore.QThread):
             pass
 
         # Send data
-        xml = u"""<message from="%(from)s" to="%(to)s" type="chat" id="%(id)s"><body>%(msg)s</body><html xmlns="http://jabber.org/protocol/xhtml-im"><body xmlns="http://www.w3.org/1999/xhtml">%(msg)s</body></html></message>""" % dic
+        xml = (u"""<message from="%(from)s" to="%(to)s" type="chat" """
+               u"""id="%(id)s"><body>%(msg)s</body><html """
+               u"""xmlns="http://jabber.org/protocol/xhtml-im"><body """
+               u"""xmlns="http://www.w3.org/1999/xhtml">%(msg)s</body>"""
+               u"""</html></message>""" % dic)
         so.send(xml.encode('utf-8'))
         print "LAST"
         try:

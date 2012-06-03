@@ -23,9 +23,10 @@
 #
 
 
-from PyQt4 import QtCore
 import Queue
 from time import sleep
+
+from PyQt4 import QtCore
 
 from friend import Friend
 from lib import search_contact
@@ -61,7 +62,6 @@ class Scheduler(QtCore.QThread):
                 insert_sms_in_history(sms)
                 sms_history_q.task_done()
 
-
     def send_sms(self, to, msg):
         print "send sms to ", to
         print "content ", msg
@@ -75,7 +75,6 @@ class Scheduler(QtCore.QThread):
         friend.send_sms(msg)
         sms_history_q.put({'message': msg, 'num': friend.number})
 
-
     def sms_received(self, sender, msg):
         number_list = [friend.number for friend in self.friend_list]
         print 'sms_received', sender
@@ -88,7 +87,8 @@ class Scheduler(QtCore.QThread):
             number = str(sender)
             # Save it !
             bonjour_auth_username = str(self.parent.bonjour_auth_user)
-            auth_user = {bonjour_auth_username: self.parent.bonjour_users[bonjour_auth_username]}
+            auth_user = {bonjour_auth_username:
+                            self.parent.bonjour_users[bonjour_auth_username]}
             new_friend = Friend(fullname, number, auth_user)
             # append to friend il
             self.friend_list.append(new_friend)

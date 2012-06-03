@@ -23,7 +23,6 @@
 #
 
 
-
 import sys
 import os
 from datetime import datetime
@@ -34,11 +33,13 @@ try:
     import osso
 except:
     pass
+
 from lib.lib import *
 from lib.server import *
 from lib.sms_listener import *
 from lib.friend import *
 from lib.scheduler import *
+
 
 class MenuBar(QtGui.QMenuBar):
     def __init__(self, parent=None, ):
@@ -47,18 +48,21 @@ class MenuBar(QtGui.QMenuBar):
         ## Quit
         self.quit = self.addAction(self.tr("&Quit"))
 
+
 class Central_widget(QtGui.QWidget):
     def __init__(self, parent):
         QtGui.QWidget.__init__(self)
         self.parent = parent
 
         # Load gui items
-        self.bonjour_users_label = QtGui.QLabel('Select your Bonjour contact id :')
+        self.bonjour_users_label = QtGui.QLabel('Select your Bonjour '
+                                                'contact id :')
         self.empty = QtGui.QLabel('')
         self.bonjour_users_label.setFixedHeight(50)
         self.bonjour_users = QtGui.QComboBox()
         self.start_server_button = QtGui.QPushButton('Start server')
-        icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon/general_refresh.png')
+        icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
+                           '/general_refresh.png')
         self.reload_bonjour_users_button = QtGui.QPushButton()
         self.reload_bonjour_users_button.setIcon(icon)
         self.reload_bonjour_users_button.setFixedWidth(80)
@@ -69,11 +73,13 @@ class Central_widget(QtGui.QWidget):
         mainLayout.addWidget(self.empty, 2, 0, 2, 1)
 #        mainLayout.addWidget(self.start_server_button, 2, 0)
 
-        mainLayout.setRowStretch(0,0);
+        mainLayout.setRowStretch(0, 0)
         self.setLayout(mainLayout)
 
     def reload_contacts(self):
-        self.parent.main_window.setAttribute(QtCore.Qt.WA_Maemo5ShowProgressIndicator, True)
+        self.parent.main_window.setAttribute(
+                                    QtCore.Qt.WA_Maemo5ShowProgressIndicator,
+                                    True)
         self.parent.main_window.repaint()
         banner_notification("Loading Bonjour contacts ...")
         self.parent.bonjour_users = list_presence_users()
@@ -85,7 +91,9 @@ class Central_widget(QtGui.QWidget):
                 self.bonjour_users.addItem(bonjour_user)
             self.parent.bonjour_auth_user = self.bonjour_users.currentText()
             banner_notification("Bonjour contacts loaded !")
-        self.parent.main_window.setAttribute(QtCore.Qt.WA_Maemo5ShowProgressIndicator, False)
+        self.parent.main_window.setAttribute(
+                                    QtCore.Qt.WA_Maemo5ShowProgressIndicator,
+                                    False)
 
 
 class Ui_MainWindow(QtCore.QObject):
@@ -110,7 +118,7 @@ class Ui_MainWindow(QtCore.QObject):
         self.main_window.setMenuBar(self.menubar)
 
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
-    
+
         # Signals
         QtCore.QObject.connect(self.central_widget.reload_bonjour_users_button,
                                QtCore.SIGNAL("pressed ()"),
@@ -119,14 +127,18 @@ class Ui_MainWindow(QtCore.QObject):
                                QtCore.SIGNAL("pressed ()"),
                                self.toggle_server)
         QtCore.QObject.connect(self.central_widget.bonjour_users,
-                               QtCore.SIGNAL("currentIndexChanged (const QString&)"),
+                               QtCore.SIGNAL("currentIndexChanged "
+                                             "(const QString&)"),
                                self.change_bonjour_user)
         ## Quit
-        QtCore.QObject.connect(self.menubar.quit, QtCore.SIGNAL("triggered()"), self.app.quit)
+        QtCore.QObject.connect(self.menubar.quit,
+                               QtCore.SIGNAL("triggered()"),
+                               self.app.quit)
 
     def toggle_server(self):
         if not hasattr(self, 'bs'):
-            self.bonjour_auth_user = self.central_widget.bonjour_users.currentText()
+            self.bonjour_auth_user = self.central_widget.bonjour_users\
+                                         .currentText()
             self.bs = Bonjour_server(self.bonjour_auth_user)
         if self.bs.is_running():
             self.bs.stop()
@@ -159,16 +171,14 @@ def main():
     main_window.setWindowTitle("HeySms")
     main_window.setAttribute(QtCore.Qt.WA_Maemo5AutoOrientation, True)
 #    main_window.setAttribute(QtCore.Qt.WA_Maemo5StackedWindow, True)
-# QtCore.Qt.WA_Maemo5AutoOrientation
 # QtCore.Qt.WA_Maemo5NonComposited
 # QtCore.Qt.WA_Maemo5ShowProgressIndicator
 # QtCore.Qt.WA_Maemo5LandscapeOrientation
 # QtCore.Qt.WA_Maemo5PortraitOrientation
-# QtCore.Qt.WA_Maemo5StackedWindow   
+# QtCore.Qt.WA_Maemo5StackedWindow
     main_window.show()
     main_window.repaint()
     ui.central_widget.repaint()
     ui.central_widget.reload_contacts()
 
     sys.exit(app.exec_())
-

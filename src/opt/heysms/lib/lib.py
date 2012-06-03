@@ -30,18 +30,17 @@ import bsddb
 import re
 import osso
 
-import dbus, avahi
+import dbus
 from dbus import DBusException
 from dbus.mainloop.glib import DBusGMainLoop
+import avahi
 
 import pybonjour
-
-debug = True
 
 
 def search_contact(phone_number):
     db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
-    ret = phone_number.replace("+",'')
+    ret = phone_number.replace("+", '')
     for contact in db.values():
         if contact.find(phone_number) != -1:
             tmp = contact.split("FN:")
@@ -57,7 +56,6 @@ def search_contact(phone_number):
 
     print "contact name : ", ret
     return ret
-            
 
 
 def search_contact_py_osso_abook(phone_number):
@@ -106,9 +104,11 @@ def resolve(name, interface):
         #print 'error_handler'
         #print args[0]
         ml.quit()
-     
+
     def myhandler(interface, protocol, name, stype, domain, flags):
-        #print "Found service '%s' type '%s' domain '%s' " % (name, stype, domain)
+        # print "Found service '%s' type '%s' domain '%s' " % (name,
+        #                                                      stype,
+        #                                                      domain)
 
         print flags
         print avahi.LOOKUP_RESULT_LOCAL
@@ -126,10 +126,17 @@ def resolve(name, interface):
     bus = dbus.SystemBus(mainloop=loop)
     bus = dbus.SystemBus()
 
-    server = dbus.Interface( bus.get_object(avahi.DBUS_NAME, '/'),
-            'org.freedesktop.Avahi.Server')
-    server.ResolveService(interface, 0, name, '_presence._tcp', 'local',
-                             avahi.PROTO_UNSPEC, dbus.UInt32(0),reply_handler=service_resolved, error_handler=print_error)
+    server = dbus.Interface(bus.get_object(avahi.DBUS_NAME, '/'),
+                            'org.freedesktop.Avahi.Server')
+    server.ResolveService(interface,
+                          0,
+                          name,
+                          '_presence._tcp',
+                          'local',
+                          avahi.PROTO_UNSPEC,
+                          dbus.UInt32(0),
+                          reply_handler=service_resolved,
+                          error_handler=print_error)
 
     ml = gobject.MainLoop()
     ml.run()
@@ -141,6 +148,7 @@ def ascii_to_char(match):
     import string
     # replace ascii code with corresponding ASCII character
     return chr(int(match.group(1)))
+
 
 def list_presence_users(regtype='_presence._tcp', nb_try=10):
     resolved = []
@@ -170,7 +178,6 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
             print 'Service removed'
             return
 
-
         resolve_sdRef = pybonjour.DNSServiceResolve(0,
                                                     interfaceIndex,
                                                     serviceName,
@@ -190,9 +197,8 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
         finally:
             resolve_sdRef.close()
 
-
-    browse_sdRef = pybonjour.DNSServiceBrowse(regtype = regtype,
-                                              callBack = browse_callback)
+    browse_sdRef = pybonjour.DNSServiceBrowse(regtype=regtype,
+                                              callBack=browse_callback)
 
     try:
         try:
@@ -209,6 +215,6 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
 
 
 def banner_notification(message):
-      osso_c = osso.Context("heysms_notif", "0.0.1", False)
-      note = osso.SystemNote(osso_c)
-      note.system_note_infoprint(message)
+    osso_c = osso.Context("heysms_notif", "0.0.1", False)
+    note = osso.SystemNote(osso_c)
+    note.system_note_infoprint(message)

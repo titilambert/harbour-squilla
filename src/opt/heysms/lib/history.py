@@ -23,11 +23,13 @@
 #
 
 
-from PyQt4 import QtSql
 import datetime
 
+from PyQt4 import QtSql
+
 db = QtSql.QSqlDatabase("QSQLITE")
-db.setDatabaseName("/home/user/.rtcom-eventlogger/el-v1.db");
+db.setDatabaseName("/home/user/.rtcom-eventlogger/el-v1.db")
+
 
 def insert_sms_in_history(sms):
     global db
