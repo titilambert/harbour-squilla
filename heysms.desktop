@@ -1,9 +1,9 @@
 [Desktop Entry]
-Version=1.0.0
+Version=1.0.3
 Encoding=UTF-8
 Name=HeySms
 Comment=HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.
-Exec=/opt/heysms/heysms_loader.py
+Exec=/usr/bin/heysms
 Icon=heysms
 X-Icon-path=/usr/share/icons
 X-Window-Icon=heysms

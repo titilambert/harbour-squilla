@@ -22,7 +22,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import heysms
 
 
-heysms.main()
+import sys
+sys.path = ['/usr/lib/python2.5/site-packages/heysms'] + sys.path
+
+from heysms import main
+
+main()
