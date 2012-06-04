@@ -62,6 +62,10 @@ class Scheduler(QtCore.QThread):
                 insert_sms_in_history(sms)
                 sms_history_q.task_done()
 
+    def set_auth(self, auth_user):
+        for f in self.friend_list:
+            f.auth_user = auth_user
+
     def send_sms(self, to, msg):
         print "send sms to ", to
         print "content ", msg

@@ -152,6 +152,7 @@ class Ui_MainWindow(QtCore.QObject):
             self.toggle_server()
         else:
             self.bs.set_auth(new_bonjour_user)
+            self.scheduler.set_auth(new_bonjour_user)
 
 
 def main():
@@ -163,10 +164,10 @@ def main():
     ui = Ui_MainWindow(app)
     ui.setupUi(main_window)
 
-    sms_listener = Sms_listener(ui)
-    sms_listener.start()
-    scheduler = Scheduler(ui)
-    scheduler.start()
+    self.sms_listener = Sms_listener(ui)
+    self.sms_listener.start()
+    self.scheduler = Scheduler(ui)
+    self.scheduler.start()
 
     main_window.setWindowTitle("HeySms")
     main_window.setAttribute(QtCore.Qt.WA_Maemo5AutoOrientation, True)
