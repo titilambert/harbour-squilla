@@ -62,7 +62,11 @@ class Scheduler(QtCore.QThread):
                 insert_sms_in_history(sms)
                 sms_history_q.task_done()
 
-    def set_auth(self, auth_user):
+    def set_auth(self, bonjour_auth_user):
+        bonjour_auth_username = str(bonjour_auth_user)
+        auth_user = {bonjour_auth_username:
+                     self.parent.bonjour_users[bonjour_auth_username]}
+        print auth_user
         for f in self.friend_list:
             f.auth_user = auth_user
 
