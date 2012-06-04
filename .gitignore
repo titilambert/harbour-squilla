@@ -4,4 +4,5 @@
 *.changes
 *.dsc
 *.tar.gz
-.py2deb_build_folder/
+dist/
+build/
