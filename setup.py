@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix setup.py'
+changes = '* Fix : Avahi-daemon dependency'
  
 setup(name='heysms',
-      version='1.0.3',
+      version='1.1.1',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -61,23 +61,23 @@ setup(name='heysms',
       cmdclass={'sdist_maemo': _sdist_maemo},
       options = { 'sdist_maemo':{
         'debian_package':'heysms',
-        'buildversion': '2',
-        'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql",
+        'buildversion': '1',
+        'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
         'conflicts': '',
         'Maemo_Bugtracker': 'https://github.com/titilambert/HeySms',
         'Maemo_Display_Name': 'HeySms',
         'Maemo_Icon_26': 'heysms.png',
         'Maemo_Upgrade_Description': '%s' % changes,
-        'section': 'user/utilities',
+        'section': 'user/network',
         'changelog': changes,
         'architecture': 'any',
         'postinst': """""",
         'prere': """""",
         'copyright': 'gpl'},
         'bdist_rpm': {
-            'requires': "python2.5, python-osso, libavahi-compat-libdnssd1,python2.5-qt4-network, python2.5-qt4-sql",
+            'requires': "python2.5, python-osso, libavahi-compat-libdnssd1,python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
             'conflicts': '',
             'icon': 'images/heysms.png',
-            'group': 'Utilities',}
+            'group': 'Network',}
         }
      )
