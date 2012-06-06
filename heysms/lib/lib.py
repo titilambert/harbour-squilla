@@ -197,8 +197,16 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
         finally:
             resolve_sdRef.close()
 
-    browse_sdRef = pybonjour.DNSServiceBrowse(regtype=regtype,
+    try:
+        browse_sdRef = pybonjour.DNSServiceBrowse(regtype=regtype,
                                               callBack=browse_callback)
+    except pybonjour.BonjourError,e :
+        if e.errorCode == -65537:
+            banner_notification("Please start Avahi Daemon:\n"
+                                "sudo gainroot --use-su\n"
+                                "/etc/init.d/avahi-daemon start")
+            sleep(4)
+        return names
 
     try:
         try:

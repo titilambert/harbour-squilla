@@ -29,7 +29,7 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from PyQt4 import QtCore
 
-from lib_sms import *
+from lib_sms import createPDUmessage, deoctify
 from scheduler import recv_sms_q
 
 

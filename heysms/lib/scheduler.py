@@ -29,7 +29,7 @@ from time import sleep
 from PyQt4 import QtCore
 
 from friend import Friend
-from lib import search_contact
+from lib import search_contact, banner_notification
 from history import insert_sms_in_history
 
 recv_sms_q = Queue.Queue()
@@ -64,11 +64,14 @@ class Scheduler(QtCore.QThread):
 
     def set_auth(self, bonjour_auth_user):
         bonjour_auth_username = str(bonjour_auth_user)
-        auth_user = {bonjour_auth_username:
+        if bonjour_auth_username:
+            auth_user = {bonjour_auth_username:
                      self.parent.bonjour_users[bonjour_auth_username]}
-        print auth_user
-        for f in self.friend_list:
-            f.auth_user = auth_user
+            print auth_user
+            for f in self.friend_list:
+                f.auth_user = auth_user
+        else:
+            banner_notification("Avahi error, please restart HeySms")
 
     def send_sms(self, to, msg):
         print "send sms to ", to
@@ -108,6 +111,12 @@ class Scheduler(QtCore.QThread):
             i = number_list.index(sender)
             friend = self.friend_list[i]
             print "new sms from an old friend : ", friend.number
-        # SMS to jabber
-        print 'send sms'
-        return friend.sms_to_bonjour(msg)
+        # SMS to bonjour
+        print 'send sms to bonjour'
+        try:
+            ret = friend.sms_to_bonjour(msg)
+            print "RET", ret
+            return ret
+        except Exception, e:
+            print "ERROR", e
+            return False

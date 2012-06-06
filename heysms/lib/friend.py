@@ -32,7 +32,8 @@ import dbus
 from PyQt4 import QtCore, QtNetwork
 
 import pybonjour
-from lib_sms import *
+from lib_sms import createPDUmessage
+from country_code import country_code
 
 port = 5299
 
@@ -89,14 +90,23 @@ class Friend(QtCore.QThread):
         print "send_sms"
         print message
         print "to"
-        print self.number[2:].replace('+', '00')
-        arr = dbus.Array(createPDUmessage(self.number[2:].replace('+', '00'),
+        print self.number
+        print self.number[1:]
+        if self.number.startswith("+"):
+            for code in country_code:
+                if self.number[1:].startswith(code):
+                    print "CODE", code
+                    print self.number.split(code,1)
+                    print self.number.split(code,1)[-1]
+                    number = self.number.split(code,1)[-1]
+        arr = dbus.Array(createPDUmessage(number,
                                           message))
 
         msg = dbus.Array([arr])
         while True:
             try:
                 smsiface.Send(msg, '')
+                print "sms sent"
                 break
             except dbus.exceptions.DBusException, e:
                 print e
@@ -117,7 +127,8 @@ class Friend(QtCore.QThread):
         so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             so.connect((host, port))
-        except TypeError:
+        except TypeError,e :
+            print "Type Error", e
             return False
         # Dont need this !?
         so.setblocking(1)
@@ -172,3 +183,4 @@ class Friend(QtCore.QThread):
             pass
         # Close connection
         so.close()
+        return True

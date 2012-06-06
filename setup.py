@@ -25,7 +25,7 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix : Avahi-daemon dependency'
+changes = '* Fix send sms for all country\n* Fix : Avahi-daemon dependency'
  
 setup(name='heysms',
       version='1.1.1',
