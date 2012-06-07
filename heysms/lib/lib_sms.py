@@ -22,6 +22,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# See:
+# http://ztbsauer.com/sender.py
+# http://borunov.ural.ru/sender.py
 
 GSM_DEFAULT_ALPHABET = [
     u"@",
@@ -251,34 +254,55 @@ def deoctify(arr):
         doctect = ''.join([chr(i) for i in doctect])
         return _decode_default_alphabet(doctect).decode('utf-8')
 
+def deoctify_int(arr):
+    
+    doctect = [h * 256 + l for h, l in zip(arr[::2], arr[1::2])]
+
+    doctect = ''.join([unichr(i) for i in doctect])
+    return doctect
+
 
 def createPDUmessage(number, msg):
-        '''
-        Returns a list of bytes to represent a valid PDU message
-        '''
-        #prepare for accentd
-        msg = msg.decode('utf-8')
+    '''
+    Returns a list of bytes to represent a valid PDU message
+    '''
+    #prepare for accentd
+    msg = msg.decode('utf-8')
 
-        numlength = len(number)
-        if (numlength % 2) == 0:
-                rangelength = numlength
-        else:
-                number = number + 'F'
-                rangelength = len(number)
+    number = number.replace("+", "")
+    numlength = len(number)
 
-        octifiednumber = [semi_octify(number[i:i + 2])
-                          for i in range(0, rangelength, 2)]
-        octifiedmsg = octify(msg)
-        HEADER = 1
-        FIRSTOCTETOFSMSDELIVERMSG = 10
-        ADDR_TYPE = 129  # unknown format
-        number_length = len(number)
-        msg_length = len(msg)
-        pdu_message = [HEADER, FIRSTOCTETOFSMSDELIVERMSG,
-                       number_length, ADDR_TYPE]
-        pdu_message.extend(octifiednumber)
-        pdu_message.append(0)
-        pdu_message.append(0)
-        pdu_message.append(msg_length)
-        pdu_message.extend(octifiedmsg)
-        return pdu_message
+    number_length = len(number)
+    if (numlength % 2) == 0:
+            rangelength = numlength
+    else:
+            number = number + 'F'
+            rangelength = len(number)
+
+    octifiednumber = [semi_octify(number[i:i + 2])
+                      for i in range(0, rangelength, 2)]
+
+    msg_length = len(msg)*2
+    PDU_TYPE = 0x11 
+    MR = 0
+    ADDR_TYPE = 0x91
+
+    pdu_message = [PDU_TYPE, MR, number_length, ADDR_TYPE]
+    pdu_message.extend(octifiednumber)
+
+    pdu_message.append(0) #PID
+    pdu_message.append(8) #DCS
+
+    pdu_message.append(167) #VP 24 hours
+
+    pdu_message.append(msg_length)
+
+    for i in xrange (len(msg)) :
+        digit = ord(msg[i])
+        h_digit = digit >> 8
+        l_digit = digit & 0xFF
+        pdu_message.append(h_digit)
+        pdu_message.append(l_digit)
+
+    print "sent pdu", pdu_message
+    return pdu_message

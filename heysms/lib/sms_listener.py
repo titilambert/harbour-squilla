@@ -29,7 +29,7 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from PyQt4 import QtCore
 
-from lib_sms import createPDUmessage, deoctify
+from lib_sms import createPDUmessage, deoctify, deoctify_int
 from scheduler import recv_sms_q
 
 
@@ -42,8 +42,13 @@ class Sms_listener(QtCore.QThread):
 
         msglength = int(pdumsg[18])
         msgarray = pdumsg[19:len(pdumsg)]
-
-        msg = deoctify(msgarray)
+        # test for international msg
+        if pdumsg[10] == 8:
+            print "INTERNATIONAL MESSAGE"
+            msg = deoctify_int(msgarray)
+        else:
+            print "LOCAL MESSAGE"
+            msg = deoctify(msgarray)
 
         if msg > 0:
             print 'New message received from', sendernumber

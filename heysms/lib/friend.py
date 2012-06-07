@@ -87,19 +87,9 @@ class Friend(QtCore.QThread):
                                    '/com/nokia/phone/SMS/ba212ae1')
         smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
         message = message.encode('utf-8')
-        print "send_sms"
-        print message
-        print "to"
-        print self.number
-        print self.number[1:]
-        if self.number.startswith("+"):
-            for code in country_code:
-                if self.number[1:].startswith(code):
-                    print "CODE", code
-                    print self.number.split(code,1)
-                    print self.number.split(code,1)[-1]
-                    number = self.number.split(code,1)[-1]
-        arr = dbus.Array(createPDUmessage(number,
+        print "send_sms", message
+        print "to", self.number
+        arr = dbus.Array(createPDUmessage(self.number,
                                           message))
 
         msg = dbus.Array([arr])

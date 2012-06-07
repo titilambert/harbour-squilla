@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix send sms for all country\n* Fix : Avahi-daemon dependency'
+changes = '* Fix send and receive sms from foreign countries'
  
 setup(name='heysms',
-      version='1.1.1',
+      version='1.2.0',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
