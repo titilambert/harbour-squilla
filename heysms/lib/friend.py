@@ -45,6 +45,7 @@ class Friend(QtCore.QThread):
         self.number = number
         self.port = port
         self.auth_user = auth_user
+        self.node = ''.join(c for c in self.fullname if c.isalnum()).lower()
 
         self.parent = parent
         self.client = None  # Bonjour socket client
@@ -53,7 +54,7 @@ class Friend(QtCore.QThread):
 
     def _register_callback(self, sdRef, flags, errorCode,
                            name, regtype, domain):
-        # Set variable when sel is registered
+        # Set variable when self is registered
         sleep(1)
         self.is_ready = True
         print "Registered", self.fullname
@@ -64,12 +65,13 @@ class Friend(QtCore.QThread):
         txt = {}
         txt['status'] = 'avail'
         txt['port.p2pj'] = self.port
+        txt['nick'] = self.fullname
         txt['version'] = 1
         txt['txtvers'] = 1
 
         txt = pybonjour.TXTRecord(txt, strict=True)
 
-        self.sdRef = pybonjour.DNSServiceRegister(name=self.fullname,
+        self.sdRef = pybonjour.DNSServiceRegister(name=self.node,
                                 regtype='_presence._tcp',
                                 port=self.port,
                                 txtRecord=txt,
@@ -127,7 +129,7 @@ class Friend(QtCore.QThread):
         # Prepare variables
         username = self.auth_user.keys()[0]
         dic = {"to": username,
-               "from": self.fullname,
+               "from": self.node,
                "msg": msg,
                "id": self.id}
         # Hand check

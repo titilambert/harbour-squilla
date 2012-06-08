@@ -48,11 +48,9 @@ def search_contact(phone_number):
                 tmp = tmp[1].split("\r\n")
                 if len(tmp) > 1:
                     ret = tmp[0]
-                    print tmp[0]
             break
 
     ret = ret.decode('utf-8')
-    print type(ret)
 
     print "contact name : ", ret
     return ret

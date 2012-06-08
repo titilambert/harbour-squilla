@@ -76,9 +76,9 @@ class Scheduler(QtCore.QThread):
     def send_sms(self, to, msg):
         print "send sms to ", to
         print "content ", msg
-        name_list = [friend.fullname for friend in self.friend_list]
+        node_list = [friend.node for friend in self.friend_list]
         try:
-            i = name_list.index(to)
+            i = node_list.index(to)
         except ValueError:
             # Impossible ?
             print "User not find in list"
@@ -93,8 +93,6 @@ class Scheduler(QtCore.QThread):
             # Create a new friend
             print 'newfriend', sender
             fullname = search_contact(str(sender))
-            name = "lastname"
-            first_name = "firstname"
             number = str(sender)
             # Save it !
             bonjour_auth_username = str(self.parent.bonjour_auth_user)

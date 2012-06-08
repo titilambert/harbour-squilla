@@ -37,7 +37,6 @@ except:
 from lib.lib import banner_notification, list_presence_users
 from lib.server import Bonjour_server
 from lib.sms_listener import Sms_listener
-from lib.friend import Friend
 from lib.scheduler import Scheduler
 
 
