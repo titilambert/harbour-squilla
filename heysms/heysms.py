@@ -84,8 +84,15 @@ class Central_widget(QtGui.QWidget):
         if len(self.parent.bonjour_users) == 0:
             banner_notification("No Bonjour contacts found !")
         else:
+            node_friend_list = [f.node for f in 
+                                self.parent.scheduler.friend_list]
             for bonjour_user, info in self.parent.bonjour_users.items():
+                # if the contact was create by heysms
+                # we don't want to see it in the list
+                if bonjour_user in node_friend_list:
+                        continue
                 self.bonjour_users.addItem(bonjour_user)
+
             self.parent.bonjour_auth_user = self.bonjour_users.currentText()
             banner_notification("Bonjour contacts loaded !")
         self.parent.main_window.setAttribute(
