@@ -26,6 +26,8 @@
 # http://ztbsauer.com/sender.py
 # http://borunov.ural.ru/sender.py
 
+from lib import logger
+
 GSM_DEFAULT_ALPHABET = [
     u"@",
     u"\u00a3",
@@ -304,5 +306,6 @@ def createPDUmessage(number, msg):
         pdu_message.append(h_digit)
         pdu_message.append(l_digit)
 
-    print "sent pdu", pdu_message
+    logger.debug("Sent pdu: %s" % pdu_message)
+
     return pdu_message

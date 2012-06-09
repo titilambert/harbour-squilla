@@ -27,6 +27,7 @@ import sys
 import os
 from datetime import datetime
 from time import sleep
+from optparse import OptionParser
 
 from PyQt4 import QtCore, QtGui
 try:
@@ -38,6 +39,8 @@ from lib.lib import banner_notification, list_presence_users
 from lib.server import Bonjour_server
 from lib.sms_listener import Sms_listener
 from lib.scheduler import Scheduler
+from lib.lib import logger
+
 
 
 class MenuBar(QtGui.QMenuBar):
@@ -157,18 +160,30 @@ class Ui_MainWindow(QtCore.QObject):
 
 
 def main():
+    global debug
+    opt_parser = OptionParser()
+    opt_parser.add_option("-d", "--debug", dest="debug_mode",
+                          action="store_true",
+                          default='False', help="Debug mode")
+
     app = QtGui.QApplication(sys.argv)
 #    app.setOrganizationName("HeySms")
 #    app.setOrganizationDomain("HeySms")
     app.setApplicationName("HeySms")
+    (options, args) = opt_parser.parse_args([str(i) for i in app.arguments()])
+    logger.set_debug = options.debug_mode
+    debug = options.debug_mode
+
     main_window = QtGui.QMainWindow()
     ui = Ui_MainWindow(app)
     ui.setupUi(main_window)
 
     ui.sms_listener = Sms_listener(ui)
     ui.sms_listener.start()
+    logger.debug("Sms_listener started")
     ui.scheduler = Scheduler(ui)
     ui.scheduler.start()
+    logger.debug("Scheduler started")
 
     main_window.setWindowTitle("HeySms")
     main_window.setAttribute(QtCore.Qt.WA_Maemo5AutoOrientation, True)

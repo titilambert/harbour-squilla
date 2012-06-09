@@ -31,6 +31,7 @@ from PyQt4 import QtCore
 
 from lib_sms import createPDUmessage, deoctify, deoctify_int
 from scheduler import recv_sms_q
+from lib import logger
 
 
 class Sms_listener(QtCore.QThread):
@@ -40,19 +41,20 @@ class Sms_listener(QtCore.QThread):
 
     def callback(self, pdumsg, msgcenter, somestring, sendernumber):
 
+        logger.debug("New sms received")
         msglength = int(pdumsg[18])
         msgarray = pdumsg[19:len(pdumsg)]
         # test for international msg
         if pdumsg[10] == 8:
-            print "INTERNATIONAL MESSAGE"
+            logger.debug("International sms received")
             msg = deoctify_int(msgarray)
         else:
-            print "LOCAL MESSAGE"
+            logger.debug("local sms received")
             msg = deoctify(msgarray)
 
         if msg > 0:
-            print 'New message received from', sendernumber
-            print 'new_message', msg
+            logger.debug("Sms from: %s" % sendernumber)
+            logger.debug("Sms content: %s" % msg)
 
         recv_sms_q.put({'phone_number': sendernumber,
                         'message': msg})

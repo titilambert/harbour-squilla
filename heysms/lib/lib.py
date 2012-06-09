@@ -52,7 +52,7 @@ def search_contact(phone_number):
 
     ret = ret.decode('utf-8')
 
-    print "contact name : ", ret
+    logger.debug("contact name: %s" % ret)
     return ret
 
 
@@ -67,14 +67,11 @@ def search_contact_py_osso_abook(phone_number):
     abook = AddressBook.get_default()
 
     def callback(contacts):
-        print "QQQ"
         result.extend(contacts)
         loop.quit()
 
     def run():
-        print "EEE"
         abook.find_contacts_for_phone_number(phone_number, True, callback)
-        print "RRR"
     abook.find_contacts_for_phone_number(phone_number, True, callback)
     gobject.idle_add(run)
     loop.run()
@@ -173,7 +170,7 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
             return
 
         if not (flags & pybonjour.kDNSServiceFlagsAdd):
-            print 'Service removed'
+            logger.debug("Service removed")
             return
 
         resolve_sdRef = pybonjour.DNSServiceResolve(0,
@@ -187,7 +184,7 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
             while not resolved:
                 ready = select.select([resolve_sdRef], [], [], timeout)
                 if resolve_sdRef not in ready[0]:
-                    print 'Resolve timed out'
+                    logger.debug("Resolve timed out")
                     break
                 pybonjour.DNSServiceProcessResult(resolve_sdRef)
             else:
@@ -224,3 +221,18 @@ def banner_notification(message):
     osso_c = osso.Context("heysms_notif", "0.0.1", False)
     note = osso.SystemNote(osso_c)
     note.system_note_infoprint(message)
+
+
+class Log(object):
+    def __init__(self, debug_mode=False):
+        self.debug_mode = debug_mode
+
+    def set_debug(self, debug_mode):
+        self.debug_nmode = debug_mode
+
+    def debug(self, msg):
+        if self.debug:
+            print "DEBUG: " + msg
+
+
+logger = Log()

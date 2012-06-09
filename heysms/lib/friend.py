@@ -34,6 +34,7 @@ from PyQt4 import QtCore, QtNetwork
 import pybonjour
 from lib_sms import createPDUmessage
 from country_code import country_code
+from lib import logger
 
 port = 5299
 
@@ -57,7 +58,7 @@ class Friend(QtCore.QThread):
         # Set variable when self is registered
         sleep(1)
         self.is_ready = True
-        print "Registered", self.fullname
+        logger.debug("Bonjour contact registered: %s" % self.fullname)
 
     def run(self):
         # Register on bonjour chat
@@ -89,30 +90,31 @@ class Friend(QtCore.QThread):
                                    '/com/nokia/phone/SMS/ba212ae1')
         smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
         message = message.encode('utf-8')
-        print "send_sms", message
-        print "to", self.number
+        logger.debug("to: %s " % self.number)
+        logger.debug("send sms: %s " % message)
         arr = dbus.Array(createPDUmessage(self.number,
                                           message))
 
         msg = dbus.Array([arr])
         while True:
             try:
+                logger.debug("Sending sms: %s" % msg)
                 smsiface.Send(msg, '')
-                print "sms sent"
                 break
             except dbus.exceptions.DBusException, e:
-                print e
-                print "sending sms failed, retry"
+                logger.debug("Sending sms failed, error: %s" % str(e))
+                logger.debug("Retrying")
                 pass
-        print "end sending"
+        logger.debug("Sms send: %s" % msg)
 
     def sms_to_bonjour(self, msg):
+        logger.debug("Forword sms to bonjour")
         # Waiting self is bonjour registered
         while self.is_ready == False:
-            print "waiting"
+            logger.debug("Waiting bonjour contact "
+                         "registered: %s" % self.fullname)
             sleep(1)
 
-        #print "QQQ"
         # Connect to bonjour server
         host = self.auth_user.values()[0]['host']
         port = self.auth_user.values()[0]['port']
@@ -120,7 +122,7 @@ class Friend(QtCore.QThread):
         try:
             so.connect((host, port))
         except TypeError,e :
-            print "Type Error", e
+            logger.debug("Connection error: %s" % str(e))
             return False
         # Dont need this !?
         so.setblocking(1)
@@ -138,6 +140,7 @@ class Friend(QtCore.QThread):
                u"""xmlns='jabber:client' """
                u"""xmlns:stream='http://etherx.jabber.org/streams' """
                u"""to="%(to)s" from="%(from)s" version="1.0">""" % dic)
+        logger.debug("Send Handcheck")
         so.send(xml.encode('utf-8'))
 
         # Read data
@@ -165,8 +168,8 @@ class Friend(QtCore.QThread):
                u"""xmlns="http://jabber.org/protocol/xhtml-im"><body """
                u"""xmlns="http://www.w3.org/1999/xhtml">%(msg)s</body>"""
                u"""</html></message>""" % dic)
+        logger.debug("Send message")
         so.send(xml.encode('utf-8'))
-        print "LAST"
         try:
             data = so.recv(1024)
             #print data
@@ -175,4 +178,5 @@ class Friend(QtCore.QThread):
             pass
         # Close connection
         so.close()
+        logger.debug("End foward sms to bonjour")
         return True

@@ -30,6 +30,7 @@ from PyQt4 import QtCore
 
 from BeautifulSoup import BeautifulSoup
 from scheduler import send_sms_q
+from lib import logger
 
 
 class Bonjour_server():
@@ -99,31 +100,27 @@ class Bonjour_server():
                     if e[0] == '98':
                         i = i + 1
                         continue
-                print "PORT :", self.port + i
+                self.port = self.port + i
+                logger.debug("Bonjour server listen on port %s" % self.port)
                 break
 
             self.server.listen(int(self.maxClient))
             self._isrunning = True
-#            try:
             while self._isrunning:
-#                self.server.settimeout(5)
-#                try:
-#                    print "Waiting"
                 channel, details = self.server.accept()
-#                except socket.timeout, e:
-#                    continue
                 channel.setblocking(1)
-                print "Waiting2"
+                logger.debug("Waiting connection")
                 recvData = channel.recv(2000)
-                print "=======rec1==========="
+                ###### First msg ######
+                logger.debug("New Bonjour message received")
                 if recvData.startswith("<?xml version"):
                     # Test if is authorized user
                     soup = BeautifulSoup(recvData)
                     if not self.parent.check_auth(soup):
-#                        print "Unauth user"
+                        logger.debug("Bonjour message received "
+                                     "from unauthorized user")
                         channel.close()
                         continue
-                    #print "auth_user ",self.parent.auth_user
                     self.auth_user = self.parent.auth_user
 
                     # Get target user ( friend cell phone number)
@@ -131,36 +128,28 @@ class Bonjour_server():
                     if user == False:
                         channel.close()
                         continue
-#                    print user
 
+                    logger.debug("Bonjour message received "
+                                 "from authorized user: %s" % str(user))
                     # First reply
                     sendData = (u"""<?xml version='1.0' encoding='UTF-8'?>"""
                          u"""<stream:stream xmlns='jabber:client' """
                          u"""xmlns:stream='http://etherx.jabber.org/streams'"""
                          u""" to="%s" from="%s" version="1.0">"""
                          % (self.auth_user, user))
-#                    print "senddata ", sendData
                     channel.send(sendData.encode('utf-8'))
 
                     recvData = channel.recv(2000)
-#                    print recvData
 
-#                print "=================="
+                ###### Second msg ######
                 if recvData == "<stream:features/>":
-                    #sendData = """<stream:features id="164130694186"/>"""
                     sendData = """<stream:features />"""
                     channel.send(sendData)
-
-                #sendData = """<stream:features id="164130694186"/>"""
-                #channel.send(sendData)
-
-#                print "=================="
                     recvData = channel.recv(2000)
-#                print recvData
+
                 if recvData.startswith("<message"):
                     soup = BeautifulSoup(recvData)
                     if not self.parent.check_auth(soup):
-#                        print "Unauth user"
                         channel.close()
                         continue
                     # Get user whowill receive sms
@@ -169,22 +158,11 @@ class Bonjour_server():
                     root = soup.first()
                     message = root.findChild('body').getString()
 
-                    print user
-                    print "new_message to ", user
-                    print "new_message content ", message
+                    logger.debug("New sms for %s queued" % user)
+                    logger.debug("New sms content %s" % message)
                     # Put message in sms queue
                     send_sms_q.put({'to': user,
                                'message': message
                                })
-#                print recvData
 
                 channel.close()
-
-#        except Exception, e:
-#            print e
-#            channel.close()
-#            self.server.close()
-
-
-#bs = Bonjour_server()
-#bs.listen()

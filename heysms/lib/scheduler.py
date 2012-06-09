@@ -30,6 +30,7 @@ from PyQt4 import QtCore
 
 from friend import Friend
 from lib import search_contact, banner_notification
+from lib import logger
 from history import insert_sms_in_history
 
 recv_sms_q = Queue.Queue()
@@ -67,31 +68,31 @@ class Scheduler(QtCore.QThread):
         if bonjour_auth_username:
             auth_user = {bonjour_auth_username:
                      self.parent.bonjour_users[bonjour_auth_username]}
-            print auth_user
+            logger.debug("Bonjour contact which receive message: %s" % auth_user)
             for f in self.friend_list:
                 f.auth_user = auth_user
         else:
             banner_notification("Avahi error, please restart HeySms")
 
     def send_sms(self, to, msg):
-        print "send sms to ", to
-        print "content ", msg
+        logger.debug("Send sms to: %s" % to)
+        logger.debug("Sms content: %s" % msg)
         node_list = [friend.node for friend in self.friend_list]
         try:
             i = node_list.index(to)
         except ValueError:
             # Impossible ?
-            print "User not find in list"
+            logger.debug("User not find in list: %s" % to)
         friend = self.friend_list[i]
         friend.send_sms(msg)
         sms_history_q.put({'message': msg, 'num': friend.number})
 
     def sms_received(self, sender, msg):
         number_list = [friend.number for friend in self.friend_list]
-        print 'sms_received', sender
+        logger.debug("New sms from: %s" % sender)
         if not sender in number_list:
             # Create a new friend
-            print 'newfriend', sender
+            logger.debug("This is a new friend: %s" % sender)
             fullname = search_contact(str(sender))
             number = str(sender)
             # Save it !
@@ -108,13 +109,13 @@ class Scheduler(QtCore.QThread):
         else:
             i = number_list.index(sender)
             friend = self.friend_list[i]
-            print "new sms from an old friend : ", friend.number
+            logger.debug("This is an old friend: %s" % sender)
         # SMS to bonjour
-        print 'send sms to bonjour'
+        logger.debug("Forward sms to bonjour")
         try:
             ret = friend.sms_to_bonjour(msg)
-            print "RET", ret
+            logger.debug("sms_to_bonjour return: %s" % str(ret))
             return ret
         except Exception, e:
-            print "ERROR", e
+            logger.debug("sms_to_bonjour error: %s" % str(e))
             return False
