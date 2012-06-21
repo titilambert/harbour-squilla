@@ -228,10 +228,10 @@ class Log(object):
         self.debug_mode = debug_mode
 
     def set_debug(self, debug_mode):
-        self.debug_nmode = debug_mode
+        self.debug_mode = debug_mode
 
     def debug(self, msg):
-        if self.debug:
+        if self.debug_mode == True:
             print "DEBUG: " + msg
 
 

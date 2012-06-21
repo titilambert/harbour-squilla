@@ -130,7 +130,7 @@ class Bonjour_server():
                         continue
 
                     logger.debug("Bonjour message received "
-                                 "from authorized user: %s" % str(user))
+                                 "from authorized user: %s" % user)
                     # First reply
                     sendData = (u"""<?xml version='1.0' encoding='UTF-8'?>"""
                          u"""<stream:stream xmlns='jabber:client' """
