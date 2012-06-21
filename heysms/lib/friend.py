@@ -29,7 +29,7 @@ import socket
 from time import sleep
 
 import dbus
-from PyQt4 import QtCore, QtNetwork
+from PyQt4 import QtCore, QtNetwork, QtGui
 
 import pybonjour
 from lib_sms import createPDUmessage
@@ -47,11 +47,26 @@ class Friend(QtCore.QThread):
         self.port = port
         self.auth_user = auth_user
         self.node = ''.join(c for c in self.fullname if c.isalnum()).lower()
+        self.favorite = False
 
         self.parent = parent
         self.client = None  # Bonjour socket client
         self.is_ready = False
         self.id = 0
+
+    def set_data(self, value, attr):
+        """ For view
+        """
+        if attr == "favorite":
+            value, bool = value.toInt()
+            if bool:
+                if value == QtCore.Qt.Checked:
+                    setattr(self, "favorite", QtCore.Qt.Checked)
+                else:
+                    setattr(self, "favorite", QtCore.Qt.Unchecked)
+
+                return True
+        return False
 
     def _register_callback(self, sdRef, flags, errorCode,
                            name, regtype, domain):
@@ -78,11 +93,19 @@ class Friend(QtCore.QThread):
                                 txtRecord=txt,
                                 callBack=self._register_callback
                                 )
-       # Bonjour chat handcheck
-        while True:
-            ready = select.select([self.sdRef], [], [])
+        # Bonjour chat handcheck
+        self.must_run = True
+        while self.must_run:
+            ready = select.select([self.sdRef], [], [], 1)
             if self.sdRef in ready[0]:
                 pybonjour.DNSServiceProcessResult(self.sdRef)
+
+    def close(self):
+        self.must_run = False
+        while self.isRunning():
+            sleep(0.5)
+        logger.debug("Friend closed: %s" % self.fullname)
+        self.sdRef.close()
 
     def send_sms(self, message):
         bus = dbus.SystemBus()

@@ -32,6 +32,7 @@ from friend import Friend
 from lib import search_contact, banner_notification
 from lib import logger
 from history import insert_sms_in_history
+from config import config
 
 recv_sms_q = Queue.Queue()
 send_sms_q = Queue.Queue()
@@ -43,8 +44,10 @@ class Scheduler(QtCore.QThread):
         QtCore.QThread.__init__(self)
         self.friend_list = []
         self.parent = parent
+        self.number_list = [friend.number for friend in self.friend_list]
 
     def run(self):
+        self.add_starting_friends()
         while True:
             sleep(1)
             if not recv_sms_q.empty():
@@ -62,6 +65,27 @@ class Scheduler(QtCore.QThread):
                 sms = sms_history_q.get()
                 insert_sms_in_history(sms)
                 sms_history_q.task_done()
+
+    def add_starting_friends(self):
+        friend_numbers = config.startup_friends
+        for number in friend_numbers:
+            logger.debug("This is a starting friend: %s" % number)
+            fullname = search_contact(number)
+            # Save it !
+            while self.parent.bonjour_auth_user == '':
+                logger.debug("Waiting selection of an authorized bonjour contact")
+                sleep(1)
+            bonjour_auth_username = str(self.parent.bonjour_auth_user)
+            auth_user = {bonjour_auth_username:
+                            self.parent.bonjour_users[bonjour_auth_username]}
+            new_friend = Friend(fullname, number, auth_user)
+            new_friend.favorite = True
+            # Add to friend list in table model
+            self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
+            # append to friend list
+            self.friend_list.append(new_friend)
+            # Register it on bonjour
+            new_friend.start()
 
     def set_auth(self, bonjour_auth_user):
         bonjour_auth_username = str(bonjour_auth_user)
@@ -88,9 +112,8 @@ class Scheduler(QtCore.QThread):
         sms_history_q.put({'message': msg, 'num': friend.number})
 
     def sms_received(self, sender, msg):
-        number_list = [friend.number for friend in self.friend_list]
         logger.debug("New sms from: %s" % sender)
-        if not sender in number_list:
+        if not sender in self.number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
             fullname = search_contact(str(sender))
@@ -100,14 +123,16 @@ class Scheduler(QtCore.QThread):
             auth_user = {bonjour_auth_username:
                             self.parent.bonjour_users[bonjour_auth_username]}
             new_friend = Friend(fullname, number, auth_user)
-            # append to friend il
+            # Add to friend list in table model
+            self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
+            # append to friend list
             self.friend_list.append(new_friend)
             # Register it on bonjour
             new_friend.start()
             friend = new_friend
 
         else:
-            i = number_list.index(sender)
+            i = self.number_list.index(sender)
             friend = self.friend_list[i]
             logger.debug("This is an old friend: %s" % sender)
         # SMS to bonjour

@@ -271,7 +271,16 @@ def createPDUmessage(number, msg):
     #prepare for accentd
     msg = msg.decode('utf-8')
 
-    number = number.replace("+", "")
+    # Unknown type, works with 514 xxx xxxx, 1 514 xxx xxxx
+    #ADDR_TYPE = 0x80
+    # Local works with 1 514 xxx xxxx
+    #ADDR_TYPE = 0xA8
+    # ???????, works with 514 xxx xxxx, 1 514 xxx xxxx
+    ADDR_TYPE = 0x81
+    if number.startswith("+"):
+        ADDR_TYPE = 0x91
+        number = number[1:]
+
     numlength = len(number)
 
     number_length = len(number)
@@ -287,7 +296,6 @@ def createPDUmessage(number, msg):
     msg_length = len(msg)*2
     PDU_TYPE = 0x11 
     MR = 0
-    ADDR_TYPE = 0x91
 
     pdu_message = [PDU_TYPE, MR, number_length, ADDR_TYPE]
     pdu_message.extend(octifiednumber)
