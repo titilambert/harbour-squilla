@@ -50,6 +50,7 @@ class MenuBar(QtGui.QMenuBar):
         QtGui.QMenuBar.__init__(self, parent)
         self.setObjectName("Menu")
         self.preference = self.addAction(self.tr("&Preferences"))
+        self.about = self.addAction(self.tr("&About"))
         ## Quit
         self.quit = self.addAction(self.tr("&Quit"))
 
@@ -132,6 +133,9 @@ class Ui_MainWindow(QtCore.QObject):
         self.main_window = main_window
         self.main_window.setObjectName("MainWindow")
         self.main_window.resize(800, 400)
+        icon = QtGui.QIcon('/usr/share/icons/hicolor/128x128/apps'
+                           '/heysms.png')
+        self.main_window.setWindowIcon(icon)
 
         self.central_widget = Central_widget(self)
         self.main_window.setCentralWidget(self.central_widget)
@@ -157,6 +161,10 @@ class Ui_MainWindow(QtCore.QObject):
         QtCore.QObject.connect(self.menubar.preference,
                                QtCore.SIGNAL("triggered()"),
                                self.main_window.conf_dialog.exec_)
+
+        QtCore.QObject.connect(self.menubar.about,
+                               QtCore.SIGNAL("triggered()"),
+                               self.show_about)
         ## Quit
         QtCore.QObject.connect(self.menubar.quit,
                                QtCore.SIGNAL("triggered()"),
@@ -181,6 +189,24 @@ class Ui_MainWindow(QtCore.QObject):
             self.bonjour_auth_user = new_bonjour_user
             self.scheduler.set_auth(new_bonjour_user)
             config.update_last_authorized_user(new_bonjour_user)
+
+    def show_about(self):
+        icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
+                           '/general_refresh.png')
+        vars = {}
+        vars['version'] = "1.3.0"
+        message = QtCore.QString("""<center><h2>HeySms</h2></center>"""
+                                 """<center>Version: %(version)s</center>"""
+                                 """<br/>Visite web site: <a href="http://talk.maemo.org/showthread.php?t=84705">Here</a> """
+                                 """<br/>Report bugs: <a href="https://github.com/titilambert/HeySms/issues?milestone=&page=1&state=open">Here</a> """
+                                 """<br/>Thanks: """
+                                 """<ul>"""
+                                 """<li>My Doudoune</li>"""
+                                 """<li>David Rodigari</li>"""
+                                 """<li>Oskar Welzl</li>"""
+                                 """</ul>"""
+                                 """ """ % vars)
+        QtGui.QMessageBox.about(self.main_window, "About", message)
 
 
 def main():

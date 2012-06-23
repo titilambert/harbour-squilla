@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* #4 Fix : Heysms show self-created contacts\n* #1 Add debug mode. Launch heysms with -d/--debug option'
+changes = '#2 Add about\n #8 Add active friends'
  
 setup(name='heysms',
-      version='1.2.2',
+      version='1.3.0',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
