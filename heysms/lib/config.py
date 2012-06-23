@@ -64,7 +64,6 @@ class Config(QtCore.QSettings):
         self.sync()
 
     def toggle_profile(self, state=None):
-        # TODO rework PROFILE !!!!!!!!!!!!!!!!!!!!!!!!!!
         if state is None:
             state = self.manage_profile
 
@@ -90,22 +89,29 @@ class Config(QtCore.QSettings):
         self.sync()
 
     def init_profile(self):
-        # TODO rework PROFILE !!!!!!!!!!!!!!!!!!!!!!!!!!
-        s = subprocess.Popen("/usr/bin/dbus-send --type=method_call --print-reply --dest=com.nokia.profiled /com/nokia/profiled com.nokia.profiled.get_profile", shell=True, stdout=subprocess.PIPE)
-        p = s.stdout.readlines()[-1].strip()
-        orig_profile = p.split('"')[1]
+        s = subprocess.Popen("/usr/bin/dbus-send "
+                             "--type=method_call "
+                             "--print-reply "
+                             "--dest=com.nokia.profiled "
+                             "/com/nokia/profiled "
+                             "com.nokia.profiled.get_profile",
+                             shell=True, stdout=subprocess.PIPE)
+        try:
+            p = s.stdout.readlines()[-1].strip()
+            self.orig_profile = p.split('"')[1]
+        except:
+            self.orig_profile = "general"
         if self.manage_profile == QtCore.Qt.Checked:    
             self.toggle_profile()
 
-    def restore_profile(self, profile='general'):
-        # TODO rework PROFILE !!!!!!!!!!!!!!!!!!!!!!!!!!
+    def restore_profile(self):
         if self.manage_profile == QtCore.Qt.Checked:
             r = os.system('/usr/bin/dbus-send '
                       '--type=method_call '
                       '--dest=com.nokia.profiled '
                       '/com/nokia/profiled '
                       'com.nokia.profiled.set_profile '
-                      'string:"%s"' % profile)
+                      'string:"%s"' % self.orig_profile)
 
 
 class Config_dialog(QtGui.QDialog):
