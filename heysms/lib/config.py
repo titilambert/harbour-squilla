@@ -121,7 +121,7 @@ class Config_dialog(QtGui.QDialog):
         self.config = config
         self.silent_label = QtGui.QLabel('Switch in Silent mode when HeySms starts')
         self.silent_checkbox = QtGui.QCheckBox(self)
-        self.silent_checkbox
+        self.silent_checkbox.setCheckState(config.manage_profile)
         self.silent_checkbox.setFixedWidth(70)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.silent_label, 0, 0)
