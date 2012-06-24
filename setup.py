@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '#2 Add about\n #8 Add active friends'
+changes = ' #5 Add "add friend" button'
  
 setup(name='heysms',
-      version='1.3.0',
+      version='1.3.1',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -46,6 +46,8 @@ setup(name='heysms',
                   ('/usr/share/icons/hicolor/128x128/apps', ['images/heysms.png']),
                   ('/usr/share/icons/hicolor/64x64/apps', ['images/heysms_64.png']),
                   ('/usr/share/icons/hicolor/32x32/apps', ['images/heysms_32.png']),
+                  ('/usr/share/icons/hicolor/32x32/apps', ['images/favorite.png']),
+                  ('/usr/share/icons/hicolor/32x32/apps', ['images/non-favorite.png']),
                 ],
       scripts=['scripts/heysms'],
       classifiers=[

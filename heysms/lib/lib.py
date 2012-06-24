@@ -157,7 +157,8 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
 
             username = fullname.split(".")[0]
             ascii_pattern = re.compile(r"\\(\d\d\d)")
-            username = ascii_pattern.sub(ascii_to_char, username)
+            username = ascii_pattern.sub(ascii_to_char,
+                                         username.encode('utf-8'))
             ip = resolve(username, interfaceIndex)
 
             names[username] = {'host': ip,

@@ -26,6 +26,7 @@
 import sys
 import os
 from datetime import datetime
+import bsddb
 from time import sleep
 from optparse import OptionParser
 
@@ -50,6 +51,7 @@ class MenuBar(QtGui.QMenuBar):
         QtGui.QMenuBar.__init__(self, parent)
         self.setObjectName("Menu")
         self.preference = self.addAction(self.tr("&Preferences"))
+        self.add_friend = self.addAction(self.tr("Add &friend"))
         self.about = self.addAction(self.tr("&About"))
         ## Quit
         self.quit = self.addAction(self.tr("&Quit"))
@@ -162,6 +164,10 @@ class Ui_MainWindow(QtCore.QObject):
                                QtCore.SIGNAL("triggered()"),
                                self.main_window.conf_dialog.exec_)
 
+        QtCore.QObject.connect(self.menubar.add_friend,
+                               QtCore.SIGNAL("triggered()"),
+                               self.add_friend)
+
         QtCore.QObject.connect(self.menubar.about,
                                QtCore.SIGNAL("triggered()"),
                                self.show_about)
@@ -189,6 +195,46 @@ class Ui_MainWindow(QtCore.QObject):
             self.bonjour_auth_user = new_bonjour_user
             self.scheduler.set_auth(new_bonjour_user)
             config.update_last_authorized_user(new_bonjour_user)
+
+    def add_friend(self):
+        friends_dialog = QtGui.QInputDialog(self.main_window)
+        friends_dialog.setComboBoxEditable(0)
+        db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
+        friend_list = {}
+        for contact in db.values():
+            tmp = contact.split("FN:")
+            if len(tmp) > 1:
+                tmp = tmp[1].split("\r\n")
+                if len(tmp) > 1:
+                    name = tmp[0].decode('utf-8')
+            tmp = contact.split("CELL:")
+            if len(tmp) > 1:
+                tmp = tmp[1].split("\r\n")
+                if len(tmp) > 1:
+                    num = tmp[0]
+            i = 1
+            while name in friend_list:
+                name = name + str(i)
+                i = i + 1
+
+            friend_list[name] = num
+
+        q_friend_list = QtCore.QStringList(sorted(friend_list.keys()))
+        friends_dialog.setComboBoxItems(q_friend_list)
+        friends_dialog.setWindowTitle("Add a friend")
+        friends_dialog.setLabelText("Select a friend")
+        friends_dialog.exec_()
+        select_friend = unicode(friends_dialog.textValue())
+        number = friend_list[select_friend]
+        auth_user = self.bonjour_auth_user
+
+        new_friend = Friend(select_friend, number, auth_user)
+        # Add to friend list in table model
+        self.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
+        # append to scheduler friend list
+        self.scheduler.friend_list.append(new_friend)
+        # Register it on bonjour
+        new_friend.start()
 
     def show_about(self):
         icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
@@ -255,6 +301,3 @@ def main():
                            exit)
 
     sys.exit(app.exec_())
-
-
-    

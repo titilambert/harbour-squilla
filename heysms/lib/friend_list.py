@@ -60,13 +60,14 @@ class Favorite_button(QtGui.QPushButton):
         self.parent = parent
 
         if friend.favorite == True:
-        #    favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
-        #                   '/starred.png')
-            favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/favorite.png')
+            favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/32x32/apps'
+                                        '/favorite.png')
+            #favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/favorite.png')
         else:
-            #favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
-            #               '/non-starred.png')
-            favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/non-favorite.png')
+        
+            favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/32x32/apps'
+                                        '/non-favorite.png')
+            #favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/non-favorite.png')
         self.setIcon(favorite_icon)
         self.setFixedWidth(80)
 
@@ -76,11 +77,13 @@ class Favorite_button(QtGui.QPushButton):
 
     def toggle_favorite(self):
         if self.friend.favorite == False:
-            favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/favorite.png')
+            favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/32x32/apps'
+                                        '/favorite.png')
             self.friend.favorite = True
             config.add_startup_contacts(self.friend)
         else:
-            favorite_icon = QtGui.QIcon('/home/user/heysms/heysms/images/non-favorite.png')
+            favorite_icon = QtGui.QIcon('/usr/share/icons/hicolor/32x32/apps'
+                                        '/non-favorite.png')
             self.friend.favorite = False
             config.del_startup_contacts(self.friend)
 
