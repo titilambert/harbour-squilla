@@ -27,6 +27,7 @@ import select
 import random
 import socket
 from time import sleep
+import subprocess
 
 import dbus
 from PyQt4 import QtCore, QtNetwork, QtGui
@@ -35,6 +36,7 @@ import pybonjour
 from lib_sms import createPDUmessage
 from country_code import country_code
 from lib import logger
+from config import config
 
 port = 5299
 
@@ -108,27 +110,45 @@ class Friend(QtCore.QThread):
         self.sdRef.close()
 
     def send_sms(self, message):
-        bus = dbus.SystemBus()
-        smsobject = bus.get_object('com.nokia.phone.SMS',
-                                   '/com/nokia/phone/SMS/ba212ae1')
-        smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
-        message = message.encode('utf-8')
-        logger.debug("to: %s " % self.number)
-        logger.debug("send sms: %s " % message)
-        arr = dbus.Array(createPDUmessage(self.number,
-                                          message))
+        if config.use_smssend == 0: 
+            logger.debug("Sending sms using 'dbus'")
+            bus = dbus.SystemBus()
+            smsobject = bus.get_object('com.nokia.phone.SMS',
+                                       '/com/nokia/phone/SMS/ba212ae1')
+            smsiface = dbus.Interface(smsobject, 'com.nokia.csd.SMS.Outgoing')
+            message = message.encode('utf-8')
+            logger.debug("to: %s " % self.number)
+            logger.debug("send sms: %s " % message)
+            arr = dbus.Array(createPDUmessage(self.number,
+                                              message))
 
-        msg = dbus.Array([arr])
-        while True:
-            try:
-                logger.debug("Sending sms: %s" % msg)
-                smsiface.Send(msg, '')
-                break
-            except dbus.exceptions.DBusException, e:
-                logger.debug("Sending sms failed, error: %s" % str(e))
+            msg = dbus.Array([arr])
+            while True:
+                try:
+                    logger.debug("Sending sms: %s" % msg)
+                    smsiface.Send(msg, '')
+                    break
+                except dbus.exceptions.DBusException, e:
+                    logger.debug("Sending sms failed, error: %s" % str(e))
+                    logger.debug("Retrying")
+                    pass
+            logger.debug("Sms send: %s" % msg)
+        else:
+            logger.debug("Sending sms using 'smssend'")
+            s = subprocess.Popen("/usr/bin/smssend "
+                             "-n "
+                             "%s "
+                             "-m "
+                             "%s "
+                             "-s " % (self.number, message),
+                             shell=True, stdout=subprocess.PIPE)
+            res = s.stdout.readlines()
+            if any([i for i in res if i.find('OK') != -1]):
+                logger.debug("Sms send: %s" % message)
+            else:
+                send_sms(msg)
+                logger.debug("Sending sms failed")
                 logger.debug("Retrying")
-                pass
-        logger.debug("Sms send: %s" % msg)
 
     def sms_to_bonjour(self, msg):
         logger.debug("Forword sms to bonjour")

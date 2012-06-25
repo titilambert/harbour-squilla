@@ -108,8 +108,8 @@ class Bonjour_server():
             self._isrunning = True
             while self._isrunning:
                 channel, details = self.server.accept()
-                channel.setblocking(1)
                 logger.debug("Waiting connection")
+                channel.setblocking(1)
                 recvData = channel.recv(2000)
                 ###### First msg ######
                 logger.debug("New Bonjour message received")

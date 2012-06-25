@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = ' Fix manage profile option'
+changes = ' Smssend can be used to send sms'
  
 setup(name='heysms',
-      version='1.3.2',
+      version='1.4.0',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -65,10 +65,11 @@ setup(name='heysms',
         'debian_package':'heysms',
         'buildversion': '1',
         'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
+        'suggests': "smssend",
         'conflicts': '',
         'Maemo_Bugtracker': 'https://github.com/titilambert/HeySms',
         'Maemo_Display_Name': 'HeySms',
-        'Maemo_Icon_26': 'heysms.png',
+        'Maemo_Icon_26': 'images/heysms.png',
         'Maemo_Upgrade_Description': '%s' % changes,
         'section': 'user/network',
         'changelog': changes,

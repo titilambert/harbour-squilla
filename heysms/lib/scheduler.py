@@ -44,12 +44,11 @@ class Scheduler(QtCore.QThread):
         QtCore.QThread.__init__(self)
         self.friend_list = []
         self.parent = parent
-        self.number_list = [friend.number for friend in self.friend_list]
 
     def run(self):
         self.add_starting_friends()
         while True:
-            sleep(1)
+            sleep(0.1)
             if not recv_sms_q.empty():
                 new_sms = recv_sms_q.get()
                 status = self.sms_received(new_sms['phone_number'],
@@ -113,6 +112,7 @@ class Scheduler(QtCore.QThread):
 
     def sms_received(self, sender, msg):
         logger.debug("New sms from: %s" % sender)
+        self.number_list = [friend.number for friend in self.friend_list]
         if not sender in self.number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
@@ -130,7 +130,6 @@ class Scheduler(QtCore.QThread):
             # Register it on bonjour
             new_friend.start()
             friend = new_friend
-
         else:
             i = self.number_list.index(sender)
             friend = self.friend_list[i]

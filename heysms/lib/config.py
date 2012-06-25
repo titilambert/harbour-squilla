@@ -28,6 +28,8 @@ import subprocess
 
 from PyQt4 import QtCore, QtGui
 
+from lib import banner_notification
+
 
 class Config(QtCore.QSettings):
     def __init__(self, parent=None):
@@ -35,8 +37,10 @@ class Config(QtCore.QSettings):
                          '/home/' + os.getenv( 'USER' ) + '/.heysms',
                          0, parent)
         self.parent = parent
-        self.compatibility_mode = ""
         self.last_authorized_bonjour_contact = ""
+
+        # Compatibility mode
+        self.use_smssend, _ = self.value("use_smssend").toInt()
 
         # toggle_profile
         self.manage_profile, _ = self.value("manage_profile").toInt()
@@ -62,6 +66,9 @@ class Config(QtCore.QSettings):
         self.startup_friends = list(set(self.startup_friends))
         self.setValue("startup_friends", QtCore.QVariant(self.startup_friends))
         self.sync()
+
+    def toggle_smssend(self, state):
+        self.setValue("use_smssend", QtCore.QVariant(state))
 
     def toggle_profile(self, state=None):
         if state is None:
@@ -123,9 +130,15 @@ class Config_dialog(QtGui.QDialog):
         self.silent_checkbox = QtGui.QCheckBox(self)
         self.silent_checkbox.setCheckState(config.manage_profile)
         self.silent_checkbox.setFixedWidth(70)
+        self.use_smssend_label = QtGui.QLabel('Use Smssend to send Sms')
+        self.smssend_checkbox = QtGui.QCheckBox(self)
+        self.smssend_checkbox.setCheckState(config.use_smssend)
+        self.smssend_checkbox.setFixedWidth(70)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.silent_label, 0, 0)
         mainLayout.addWidget(self.silent_checkbox, 0, 1)
+        mainLayout.addWidget(self.use_smssend_label, 1, 0)
+        mainLayout.addWidget(self.smssend_checkbox, 1, 1)
         mainLayout.setRowStretch(0, 0)
         self.setLayout(mainLayout)
         self.setWindowTitle('Preferences')
@@ -133,9 +146,35 @@ class Config_dialog(QtGui.QDialog):
         QtCore.QObject.connect(self.silent_checkbox,
                                QtCore.SIGNAL("stateChanged(int)"),
                                self.toggle_profile)
+        QtCore.QObject.connect(self.smssend_checkbox,
+                               QtCore.SIGNAL("stateChanged(int)"),
+                               self.toggle_smssend)
 
     def toggle_profile(self, state):
         config.toggle_profile(state)
+
+    def toggle_smssend(self, state):
+        s = subprocess.Popen("/usr/bin/which "
+                             "smssend ",
+                             shell=True, stdout=subprocess.PIPE)
+        res = s.stdout.readlines()
+        smssend_installed = False 
+        if len(res) == 1:
+            smssend_installed = True 
+
+        if not smssend_installed:
+            banner_notification("You need to install smssend")
+            QtCore.QObject.disconnect(self.smssend_checkbox,
+                               QtCore.SIGNAL("stateChanged(int)"),
+                               self.toggle_smssend)
+            self.smssend_checkbox.setCheckState(QtCore.Qt.Unchecked)
+            QtCore.QObject.connect(self.smssend_checkbox,
+                               QtCore.SIGNAL("stateChanged(int)"),
+                               self.toggle_smssend)
+            return
+
+        state = self.smssend_checkbox.checkState()
+        config.toggle_smssend(state)
     
 
 config = Config()
