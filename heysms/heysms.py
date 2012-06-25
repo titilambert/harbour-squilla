@@ -208,6 +208,7 @@ class Ui_MainWindow(QtCore.QObject):
                 if len(tmp) > 1:
                     name = tmp[0].decode('utf-8')
             tmp = contact.split("CELL:")
+            num = None
             if len(tmp) > 1:
                 tmp = tmp[1].split("\r\n")
                 if len(tmp) > 1:
@@ -216,6 +217,10 @@ class Ui_MainWindow(QtCore.QObject):
             while name in friend_list:
                 name = name + str(i)
                 i = i + 1
+
+            if num is None:
+                logger.debug("friend: %s has not cell number")
+                continue
 
             friend_list[name] = num
 
