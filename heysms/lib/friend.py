@@ -146,7 +146,7 @@ class Friend(QtCore.QThread):
             if any([i for i in res if i.find('OK') != -1]):
                 logger.debug("Sms send: %s" % message)
             else:
-                send_sms(msg)
+                self.send_sms(msg)
                 logger.debug("Sending sms failed")
                 logger.debug("Retrying")
 
