@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = ' Smssend can be used to send sms'
+changes = '* #9 Add icon package'
  
 setup(name='heysms',
-      version='1.4.0',
+      version='1.4.1',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -38,7 +38,7 @@ setup(name='heysms',
       maintainer_email='titilambert@gmail.com',
 #      requires=('libavahi-compat-libdnssd1', 'python2.5-qt4-network',
 #                'python2.5-qt4-sql', 'python2.5', 'python-osso'),
-      url='https://github.com/titilambert/HeySms',
+      url='http://talk.maemo.org/showthread.php?t=84705',
       packages= ['heysms', 'heysms.lib', 'heysms.lib.avahi'],
       package_data = {'heysms': ['images/*.png']},
       data_files=[('/usr/share/applications/hildon/', ['heysms.desktop']),
@@ -67,9 +67,9 @@ setup(name='heysms',
         'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
         'suggests': "smssend",
         'conflicts': '',
-        'Maemo_Bugtracker': 'https://github.com/titilambert/HeySms',
+        'Maemo_Bugtracker': 'https://github.com/titilambert/HeySms/issues',
         'Maemo_Display_Name': 'HeySms',
-        'Maemo_Icon_26': 'images/heysms.png',
+        'Maemo_Icon_26': 'images/heysms_32.png',
         'Maemo_Upgrade_Description': '%s' % changes,
         'section': 'user/network',
         'changelog': changes,
