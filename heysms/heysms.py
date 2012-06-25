@@ -202,6 +202,8 @@ class Ui_MainWindow(QtCore.QObject):
         db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
         friend_list = {}
         for contact in db.values():
+            logger.debug("Trying to find name and "
+                         "cell number in: %s" % contact)
             tmp = contact.split("FN:")
             if len(tmp) > 1:
                 tmp = tmp[1].split("\r\n")
@@ -215,7 +217,7 @@ class Ui_MainWindow(QtCore.QObject):
                     num = tmp[0]
             i = 1
             while name in friend_list:
-                name = name + str(i)
+                name = name + " (%s)" % str(i)
                 i = i + 1
 
             if num is None:
