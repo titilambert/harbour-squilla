@@ -139,7 +139,7 @@ class Friend(QtCore.QThread):
                              "-n "
                              "%s "
                              "-m "
-                             "%s "
+                             "'%s' "
                              "-s " % (self.number, message),
                              shell=True, stdout=subprocess.PIPE)
             res = s.stdout.readlines()
