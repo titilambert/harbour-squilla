@@ -280,6 +280,11 @@ def main():
         logger.debug("Stopping active friends")
         for f in ui.friend_list:
             f.close()
+        logger.debug("Shutdown scheduler")
+        ui.scheduler.must_run = False
+        while ui.scheduler.isRunning():
+            logger.debug("Waiting scheduler")
+            sleep(0.1)
         logger.debug("Restore profile")
         config.restore_profile()
 
@@ -316,7 +321,7 @@ def main():
 
 
     QtCore.QObject.connect(app,
-                           QtCore.SIGNAL("lastWindowClosed()"),
+                           QtCore.SIGNAL("aboutToQuit()"),
                            exit)
 
     sys.exit(app.exec_())

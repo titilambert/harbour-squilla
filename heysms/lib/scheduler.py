@@ -44,10 +44,12 @@ class Scheduler(QtCore.QThread):
         QtCore.QThread.__init__(self)
         self.friend_list = []
         self.parent = parent
+        self.must_run = False
 
     def run(self):
         self.add_starting_friends()
-        while True:
+        self.must_run = True
+        while self.must_run:
             sleep(0.1)
             if not recv_sms_q.empty():
                 new_sms = recv_sms_q.get()
