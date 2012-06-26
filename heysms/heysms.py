@@ -24,6 +24,7 @@
 
 
 import sys
+import re
 import os
 from datetime import datetime
 import bsddb
@@ -201,28 +202,29 @@ class Ui_MainWindow(QtCore.QObject):
         friends_dialog.setComboBoxEditable(0)
         db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
         friend_list = {}
+        old_friend_list = [f.fullname for f in self.scheduler.friend_list]
         for contact in db.values():
             logger.debug("Trying to find name and "
-                         "cell number in: %s" % contact)
-            tmp = contact.split("FN:")
-            if len(tmp) > 1:
-                tmp = tmp[1].split("\r\n")
-                if len(tmp) > 1:
-                    name = tmp[0].decode('utf-8')
-            tmp = contact.split("CELL:")
-            num = None
-            if len(tmp) > 1:
-                tmp = tmp[1].split("\r\n")
-                if len(tmp) > 1:
-                    num = tmp[0]
+                         "cell number in: %s" % contact.split('\n'))
+            reg = re.compile('FN:(.*?)\\r.*CELL.*?:(.*?)\\r', re.S|re.M)
+            m = re.search(reg, contact)
+            if m is None:
+                logger.debug("No cell number found")
+                continue
+
+            name = m.group(1).decode('utf-8')
+            num = m.group(2)
+
+            logger.debug("Found : %s - %s" % (name, num))
+
+            if name in old_friend_list:
+                logger.debug("Friend already in list: %s" % name)
+                continue
+
             i = 1
             while name in friend_list:
                 name = name + " (%s)" % str(i)
                 i = i + 1
-
-            if num is None:
-                logger.debug("friend: %s has not cell number")
-                continue
 
             friend_list[name] = num
 
@@ -230,10 +232,20 @@ class Ui_MainWindow(QtCore.QObject):
         friends_dialog.setComboBoxItems(q_friend_list)
         friends_dialog.setWindowTitle("Add a friend")
         friends_dialog.setLabelText("Select a friend")
-        friends_dialog.exec_()
+        ret = friends_dialog.exec_()
+
+        if ret == 0:
+            logger.debug("Dialog not confirmed")
+            return
+
         select_friend = unicode(friends_dialog.textValue())
         number = friend_list[select_friend]
         auth_user = self.bonjour_auth_user
+
+        # Check if friend is already in friend list
+        if select_friend in old_friend_list:
+                logger.debug("Selected friend already in list: %s" % select_friend)
+                return
 
         new_friend = Friend(select_friend, number, auth_user)
         # Add to friend list in table model
