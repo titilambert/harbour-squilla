@@ -92,6 +92,9 @@ class Central_widget(QtGui.QWidget):
         self.parent.main_window.setAttribute(
                                     QtCore.Qt.WA_Maemo5ShowProgressIndicator,
                                     True)
+        # Read last bonjour_contact used
+        last_authorized_bonjour_contact = config.read_last_authorized_bonjour_contact()
+
         self.parent.main_window.repaint()
         banner_notification("Looking for Bonjour contacts ...")
         self.parent.bonjour_users = list_presence_users()
@@ -104,11 +107,10 @@ class Central_widget(QtGui.QWidget):
             for bonjour_user, info in self.parent.bonjour_users.items():
                 # if the contact was create by heysms
                 # we don't want to see it in the list
+                bonjour_user = bonjour_user.decode('utf-8')
                 if bonjour_user in node_friend_list:
-                        continue
+                    continue
                 self.bonjour_users.addItem(bonjour_user)
-            # Read last bonjour_contact used
-            last_authorized_bonjour_contact = config.read_last_authorized_bonjour_contact()
             # Search in list last bonjour_contact used
             index = self.bonjour_users.findText(last_authorized_bonjour_contact)
             if index != -1:
@@ -116,7 +118,6 @@ class Central_widget(QtGui.QWidget):
                 logger.debug("Last Bonjour contact found: %s, we select it" % last_authorized_bonjour_contact)
                 self.bonjour_users.setCurrentIndex(index)
 
-            self.parent.change_bonjour_user(self.bonjour_users.currentText())
             banner_notification("Bonjour contacts loaded !")
 
         self.parent.main_window.setAttribute(
