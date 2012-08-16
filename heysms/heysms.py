@@ -144,8 +144,9 @@ class Ui_MainWindow(QtCore.QObject):
         self.central_widget = Central_widget(self)
         self.main_window.setCentralWidget(self.central_widget)
         self.main_window.conf_dialog = Config_dialog(self.main_window)
-        # Set ui
+        # Load saved config
         config.init_profile()
+        config.init_useusb()
 
         ### Menu
         self.menubar = MenuBar(self.main_window)
@@ -288,6 +289,7 @@ def main():
             sleep(0.1)
         logger.debug("Restore profile")
         config.restore_profile()
+        config.restore_useusb()
 
     opt_parser = OptionParser()
     opt_parser.add_option("-d", "--debug", dest="debug_mode",
