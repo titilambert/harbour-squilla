@@ -205,8 +205,6 @@ class Config(QtCore.QSettings):
                                  "sudo "
                                  "gainroot ",
                                  shell=True, stdout=subprocess.PIPE)
-            print self.dns_sp
-            print dir(self.dns_sp)
         else:
             self.restore_useusb()
 

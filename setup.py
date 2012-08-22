@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Add option to use USB PC connection'
+changes = '* Cleaning code'
  
 setup(name='heysms',
-      version='1.5.0',
+      version='1.5.1',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
