@@ -120,8 +120,8 @@ class Friend_list_widget(QtGui.QTableWidget):
         name = QtGui.QTableWidgetItem(friend.fullname)
         self.setItem(row, 0, name)
 
-        favorite_button = Favorite_button(friend, self)
-        self.setCellWidget(row, 1, favorite_button)
+        self.favorite_button = Favorite_button(friend, self)
+        self.setCellWidget(row, 1, self.favorite_button)
 
         delete_button = Delete_button(friend, self)
         self.setCellWidget(row, 2, delete_button)

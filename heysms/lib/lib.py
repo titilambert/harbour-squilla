@@ -38,7 +38,7 @@ import avahi
 import pybonjour
 
 
-def search_contact(phone_number):
+def search_contact_by_number(phone_number):
     db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
     ret = phone_number.replace("+", '')
     for contact in db.values():
@@ -55,28 +55,22 @@ def search_contact(phone_number):
     logger.debug("contact name: %s" % ret)
     return ret
 
+def search_contacts(pattern):
+    db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
+    contacts = []
+    for contact in db.values():
+        s = re.search("FN:(.*)\r\n", contact)
+        if s is None:
+            # not found
+            continue
+        if len(s.groups()) > 0:
+            name = s.groups()[0]
+            if name.lower().find(pattern.lower()) != -1:
+                numbers = re.findall("TEL;TYPE=(?:HOME,|WORK,|)CELL:(.[0-9]*)\r\n", contact)
+                for number in numbers:
+                    contacts.append((name, number))
 
-def search_contact_py_osso_abook(phone_number):
-    from python_osso_abook.addressbook import AddressBook
-    import gobject
-
-    gobject.threads_init()
-    loop = gobject.MainLoop()
-
-    result = list()
-    abook = AddressBook.get_default()
-
-    def callback(contacts):
-        result.extend(contacts)
-        loop.quit()
-
-    def run():
-        abook.find_contacts_for_phone_number(phone_number, True, callback)
-    abook.find_contacts_for_phone_number(phone_number, True, callback)
-    gobject.idle_add(run)
-    loop.run()
-    print len(result)
-
+    return contacts
 
 def resolve(name, interface):
     import gobject

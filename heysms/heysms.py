@@ -40,6 +40,7 @@ except:
 from lib.lib import banner_notification, list_presence_users
 from lib.server import Bonjour_server
 from lib.sms_listener import Sms_listener
+from lib.call_listener import Call_listener
 from lib.scheduler import Scheduler
 from lib.lib import logger
 from lib.friend import Friend
@@ -308,6 +309,9 @@ def main():
     ui.setupUi(main_window)
     config.parent = ui
 
+    ui.call_listener = Call_listener(ui)
+    ui.call_listener.start()
+    logger.debug("Call_listener started")
     ui.sms_listener = Sms_listener(ui)
     ui.sms_listener.start()
     logger.debug("Sms_listener started")
