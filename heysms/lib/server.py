@@ -25,8 +25,11 @@
 
 import socket
 from time import sleep
+import asyncore
+import socket
 
 from PyQt4 import QtCore
+from PyQt4 import QtNetwork
 
 from BeautifulSoup import BeautifulSoup
 from scheduler import send_sms_q
@@ -35,13 +38,10 @@ from lib import logger
 
 class Bonjour_server():
     def __init__(self, auth_user):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = '0.0.0.0'
         self.port = 5299
-        self.maxClient = 999
-        self.running = True
         self.auth_user = auth_user
-        self.thread = self.Thread(self)
+        self.server = self.Server(self)
 
     def get_user(self, soup):
         """ Get target user ( friend cell phone number )
@@ -67,102 +67,95 @@ class Bonjour_server():
         self.auth_user = username
 
     def listen(self):
-        self.thread.start()
+        self.server.start()
 
     def is_running(self):
-        return self.thread.isRunning()
+        return self.server.isListening()
 
     def stop(self):
-        self.thread.shutdown()
+        self.server.close()
 
-    class Thread(QtCore.QThread):
+    class Server(QtNetwork.QTcpServer):
         def __init__(self, parent):
-            QtCore.QThread.__init__(self)
+            QtNetwork.QTcpServer.__init__(self)
             self.parent = parent
-            self.server = self.parent.server
-            self.host = self.parent.host
+            self.auth_user = self.parent.auth_user
+            self.host = QtNetwork.QHostAddress(self.parent.host)
             self.port = self.parent.port
-            self.maxClient = self.parent.maxClient
-            self.setTerminationEnabled(True)
 
-        def shutdown(self):
-            self._isrunning = False
-            self.server.close()
-            self.quit()
-
-        def run(self):
-            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        def start(self):
             i = 0
-            while True:
-                try:
-                    self.server.bind((str(self.host), int(self.port + i)))
-                except socket.error, e:
-                    if e[0] == '98':
-                        i = i + 1
-                        continue
+            ret = self.listen(self.host, self.port)
+            while not ret:
+                ret = self.listen(self.host, self.port + i)
+                i = i + 1
                 self.port = self.port + i
-                logger.debug("Bonjour server listen on port %s" % self.port)
-                break
+            logger.debug("Bonjour server listen on port %s" % self.port)
+            QtCore.QObject.connect(self,
+                                   QtCore.SIGNAL("newConnection()"),
+                                   self.accept_new_connection)
 
-            self.server.listen(int(self.maxClient))
-            self._isrunning = True
-            while self._isrunning:
-                channel, details = self.server.accept()
-                logger.debug("Waiting connection")
-                channel.setblocking(1)
-                recvData = channel.recv(2000)
-                ###### First msg ######
-                logger.debug("New Bonjour message received")
-                if recvData.startswith("<?xml version"):
-                    # Test if is authorized user
-                    soup = BeautifulSoup(recvData)
-                    if not self.parent.check_auth(soup):
-                        logger.debug("Bonjour message received "
-                                     "from unauthorized user")
-                        channel.close()
-                        continue
-                    self.auth_user = self.parent.auth_user
+        def accept_new_connection(self):
+            sock = self.nextPendingConnection()
+            self.connect(sock, QtCore.SIGNAL("readyRead()"), self.tcpsocket_ready_to_read)
 
-                    # Get target user ( friend cell phone number)
-                    user = self.parent.get_user(soup)
-                    if user == False:
-                        channel.close()
-                        continue
-
+        def tcpsocket_ready_to_read(self):
+            sock = self.sender()   
+            recvData = str(sock.readAll())
+            ###### First msg ######
+            logger.debug("New Bonjour message received")
+            if recvData.startswith("<?xml version"):
+                # Test if is authorized user
+                soup = BeautifulSoup(recvData)
+                if not self.parent.check_auth(soup):
                     logger.debug("Bonjour message received "
-                                 "from authorized user: %s" % user)
-                    # First reply
-                    sendData = (u"""<?xml version='1.0' encoding='UTF-8'?>"""
-                         u"""<stream:stream xmlns='jabber:client' """
-                         u"""xmlns:stream='http://etherx.jabber.org/streams'"""
-                         u""" to="%s" from="%s" version="1.0">"""
-                         % (self.auth_user, user))
-                    channel.send(sendData.encode('utf-8'))
+                                 "from unauthorized user")
+                    sock.close()
+                    return
 
-                    recvData = channel.recv(2000)
+                # Get target user ( friend cell phone number)
+                user = self.parent.get_user(soup)
+                if user == False:
+                    # User not found
+                    sock.close()
+                    return
 
-                ###### Second msg ######
-                if recvData == "<stream:features/>":
-                    sendData = """<stream:features />"""
-                    channel.send(sendData)
-                    recvData = channel.recv(2000)
+                logger.debug("Bonjour message received "
+                             "from authorized user: %s" % user)
+                # First reply
+                sendData = (u"""<?xml version='1.0' encoding='UTF-8'?>"""
+                     u"""<stream:stream xmlns='jabber:client' """
+                     u"""xmlns:stream='http://etherx.jabber.org/streams'"""
+                     u""" to="%s" from="%s" version="1.0">"""
+                     % (self.auth_user, user))
+                sock.write(sendData.encode('utf-8'))
 
-                if recvData.startswith("<message"):
-                    soup = BeautifulSoup(recvData)
-                    if not self.parent.check_auth(soup):
-                        channel.close()
-                        continue
-                    # Get user whowill receive sms
-                    user = self.parent.get_user(soup)
-                    # Get Message
-                    root = soup.first()
-                    message = root.findChild('body').getString()
+                sock.waitForReadyRead()
+                recvData = str(sock.readAll())
 
-                    logger.debug("New sms for %s queued" % user)
-                    logger.debug("New sms content %s" % message)
-                    # Put message in sms queue
-                    send_sms_q.put({'to': user,
-                               'message': message
-                               })
+            ###### Second msg ######
+            if recvData == "<stream:features/>":
+                sendData = """<stream:features />"""
+                sock.write(sendData)
+                sock.waitForReadyRead()
+                recvData = str(sock.readAll())
 
-                channel.close()
+            if recvData.startswith("<message"):
+                soup = BeautifulSoup(recvData)
+                if not self.parent.check_auth(soup):
+                    sock.close()
+                    return
+                # Get user whowill receive sms
+                user = self.parent.get_user(soup)
+                # Get Message
+                root = soup.first()
+                message = root.findChild('body').getString()
+
+                logger.debug("New sms for %s queued" % user)
+                logger.debug("New sms content %s" % message)
+                # Put message in sms queue
+                send_sms_q.put({'to': user,
+                           'message': message
+                           })
+
+            sock.close()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-#    controler.py
+#    controller.py
 #
 #    This file is part of HeySms
 #
@@ -191,7 +191,7 @@ class Controller(QtCore.QThread):
         try:
             getattr(self, 'function_' + function_name)(params)
         except AttributeError, e:
-            self.sms_to_bonjour("Function `function_%s' not found" % function_name)
+            self.sms_to_bonjour("Command `%s' not found. Type `help' to see available commands" % function_name)
         except Exception, e:
             self.sms_to_bonjour("Error in function `function_%s': %s" % (function_name, str(e)))
 
