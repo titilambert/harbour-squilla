@@ -38,24 +38,38 @@ class Config(QtCore.QSettings):
                          '/home/' + os.getenv( 'USER' ) + '/.heysms',
                          0, parent)
         self.parent = parent
-        self.last_authorized_bonjour_contact = ""
+        self.last_authorized_bonjour_contact = self.value("last_authorized_bonjour_contact", '')
+        if isinstance(self.last_authorized_bonjour_contact, tuple):
+            self.last_authorized_bonjour_contact, _ = self.last_authorized_bonjour_contact
 
         # Compatibility mode
-        self.use_smssend, _ = self.value("use_smssend").toInt()
+        self.use_smssend = self.value("use_smssend", QtCore.Qt.Unchecked).toInt()
+        if isinstance(self.use_smssend, tuple):
+            self.use_smssend, _ = self.use_smssend
 
         # toggle_profile
-        self.manage_profile, _ = self.value("manage_profile").toInt()
+        self.manage_profile, _ = self.value("manage_profile", QtCore.Qt.Unchecked).toInt()
+        if isinstance(self.manage_profile, tuple):
+            self.manage_profile, _ = self.manage_profile
 
         # startup_friends
-        raw_friends = self.value("startup_friends")
+        raw_friends = self.value("startup_friends", [])
         self.startup_friends = [str(i.toString()) for i in raw_friends.toList()]
 
         # start network usb
-        self.useusb, _ = self.value("useusb").toInt()
+        self.useusb, _ = self.value("use_usb", QtCore.Qt.Unchecked).toInt()
+        if isinstance(self.useusb, tuple):
+            self.useusb, _ = self.useusb
+
+        # start controler
+        self.usecontroler, _ = self.value("use_controller", QtCore.Qt.Unchecked).toInt()
+        if isinstance(self.usecontroler, tuple):
+            self.usecontroler, _ = self.usecontroler
 
     def update_last_authorized_user(self, contact):
         self.last_authorized_bonjour_contact = contact
         self.setValue("last_authorized_bonjour_contact", QtCore.QVariant(contact))
+        self.sync()
 
     def read_last_authorized_bonjour_contact(self):
         raw_contact = self.value("last_authorized_bonjour_contact")
@@ -64,6 +78,7 @@ class Config(QtCore.QSettings):
     def del_startup_contacts(self, friend):
         self.startup_friends.remove(friend.number)
         self.setValue("startup_friends", QtCore.QVariant(self.startup_friends))
+        self.sync()
 
     def add_startup_contacts(self, friend):
         self.startup_friends.append(friend.number)
@@ -73,6 +88,11 @@ class Config(QtCore.QSettings):
 
     def toggle_smssend(self, state):
         self.setValue("use_smssend", QtCore.QVariant(state))
+        self.sync()
+
+    def toggle_controller(self, state):
+        self.setValue("use_controller", QtCore.QVariant(state))
+        self.sync()
 
     def toggle_profile(self, state=None):
         if state is None:
@@ -117,7 +137,8 @@ class Config(QtCore.QSettings):
 
     def toggle_useusb(self, state):
         # Save parameter
-        self.setValue("useusb", QtCore.QVariant(state))
+        self.setValue("use_usb", QtCore.QVariant(state))
+        self.sync()
 
         # Start usb
         if state == QtCore.Qt.Checked:
@@ -266,8 +287,6 @@ class Config(QtCore.QSettings):
                              "gainroot ",
                              shell=True, stdout=subprocess.PIPE)
 
-
-
     def restore_profile(self):
         if self.manage_profile == QtCore.Qt.Checked:
             r = os.system('/usr/bin/dbus-send '
@@ -295,6 +314,10 @@ class Config_dialog(QtGui.QDialog):
         self.useusb_checkbox = QtGui.QCheckBox(self)
         self.useusb_checkbox.setCheckState(config.useusb)
         self.useusb_checkbox.setFixedWidth(70)
+        self.usecontroller_label = QtGui.QLabel('Active Controller contact')
+        self.usecontroller_checkbox = QtGui.QCheckBox(self)
+        self.usecontroller_checkbox.setCheckState(config.usecontroler)
+        self.usecontroller_checkbox.setFixedWidth(70)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.silent_label, 0, 0)
         mainLayout.addWidget(self.silent_checkbox, 0, 1)
@@ -302,6 +325,8 @@ class Config_dialog(QtGui.QDialog):
         mainLayout.addWidget(self.smssend_checkbox, 1, 1)
         mainLayout.addWidget(self.useusb_label, 2, 0)
         mainLayout.addWidget(self.useusb_checkbox, 2, 1)
+        mainLayout.addWidget(self.usecontroller_label, 3, 0)
+        mainLayout.addWidget(self.usecontroller_checkbox, 3, 1)
         mainLayout.setRowStretch(0, 0)
         self.setLayout(mainLayout)
         self.setWindowTitle('Preferences')
@@ -315,12 +340,24 @@ class Config_dialog(QtGui.QDialog):
         QtCore.QObject.connect(self.useusb_checkbox,
                                QtCore.SIGNAL("stateChanged(int)"),
                                self.toggle_useusb)
+        QtCore.QObject.connect(self.usecontroller_checkbox,
+                               QtCore.SIGNAL("stateChanged(int)"),
+                               self.toggle_controller)
 
     def toggle_useusb(self, state):
         config.toggle_useusb(state)
 
     def toggle_profile(self, state):
         config.toggle_profile(state)
+
+    def toggle_controller(self, state):
+        config.toggle_controller(state)
+        if state == QtCore.Qt.Checked:
+            # Start controller
+            self.config.parent.scheduler.start_controller()
+        else:
+            # Stop controller
+            self.config.parent.scheduler.stop_controller()
 
     def toggle_smssend(self, state):
         s = subprocess.Popen("/usr/bin/which "

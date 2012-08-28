@@ -54,15 +54,14 @@ class Scheduler(QtCore.QThread):
             sleep(1)
 
         bonjour_auth_username = str(self.parent.bonjour_auth_user)
-        auth_user = {bonjour_auth_username:
+        self.auth_user = {bonjour_auth_username:
                             self.parent.bonjour_users[bonjour_auth_username]}
-        controller = Controller(auth_user, self.parent)
-
-        controller.start()
 
         self.add_starting_friends()
 
-        self.friend_list.append(controller)
+        if config.usecontroler == QtCore.Qt.Checked:
+            # Startup controller
+            self.start_controller()
 
         self.must_run = True
         while self.must_run:
@@ -82,6 +81,14 @@ class Scheduler(QtCore.QThread):
                 sms = sms_history_q.get()
                 insert_sms_in_history(sms)
                 sms_history_q.task_done()
+
+    def stop_controller(self):
+        self.controller.close()
+
+    def start_controller(self):
+        self.controller = Controller(self.auth_user, self.parent)
+        self.controller.start()
+        self.friend_list.append(self.controller)
 
     def add_starting_friends(self):
         friend_numbers = config.startup_friends

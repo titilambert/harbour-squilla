@@ -47,7 +47,7 @@ port = 5299
 class Controller(QtCore.QThread):
     def __init__(self,auth_user, parent=None):
         QtCore.QThread.__init__(self, parent)
-        self.fullname = os.uname()[1]
+        self.fullname = 'N900_' + os.uname()[1]
         self.port = port
         self.number = 'N900'
         self.auth_user = auth_user
