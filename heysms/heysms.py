@@ -147,7 +147,8 @@ class Ui_MainWindow(QtCore.QObject):
         self.main_window.conf_dialog = Config_dialog(self.main_window)
         # Load saved config
         config.init_profile()
-        config.init_useusb()
+        if config.useusb == QtCore.Qt.Checked:
+            config.start_useusb()
 
         ### Menu
         self.menubar = MenuBar(self.main_window)
@@ -290,7 +291,9 @@ def main():
             sleep(0.1)
         logger.debug("Restore profile")
         config.restore_profile()
-        config.restore_useusb()
+        if config.useusb == QtCore.Qt.Checked:
+            logger.debug("Restore USB")
+            config.restore_useusb()
 
     opt_parser = OptionParser()
     opt_parser.add_option("-d", "--debug", dest="debug_mode",

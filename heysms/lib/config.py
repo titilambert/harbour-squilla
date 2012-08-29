@@ -142,95 +142,96 @@ class Config(QtCore.QSettings):
 
         # Start usb
         if state == QtCore.Qt.Checked:
-            # Check current module
-            s = subprocess.Popen("cat "
-                                 "/proc/driver/musb_hdrc "
-                                 "| "
-                                 "grep "
-                                 '"Gadget driver:" ',
+            self.start_useusb()
+
+        else:
+            self.restore_useusb()
+
+    def start_useusb(self):
+        # Check current module
+        s = subprocess.Popen("cat "
+                             "/proc/driver/musb_hdrc "
+                             "| "
+                             "grep "
+                             '"Gadget driver:" ',
+                             shell=True, stdout=subprocess.PIPE)
+        ret = s.stdout.readlines()
+        if len(ret) > 0:
+            if ret[0].find('g_file_storage') != -1:
+                # Disable g_file_storage module
+                s = subprocess.Popen("echo "
+                         "' "
+                         "/sbin/rmmod "
+                         "g_file_storage "
+                         "' "
+                         "| "
+                         "sudo "
+                         "gainroot ",
+                         shell=True, stdout=subprocess.PIPE)
+
+            time.sleep(1)
+            if ret[0].find('g_ether') != -1 and ret[0].find('(none)') != -1:
+                banner_notification("Please don't set USB mode")
+                return
+
+        # Check if usb0 is used
+        if ret[0].find('g_ether') != -1: 
+            s = subprocess.Popen("/sbin/ifconfig "
+                                 "usb0",
                                  shell=True, stdout=subprocess.PIPE)
             ret = s.stdout.readlines()
-            if len(ret) > 0:
-                if ret[0].find('g_file_storage') != -1:
-                    # Disable g_file_storage module
-                    s = subprocess.Popen("echo "
+            if any([l for l in ret if l.find('addr:') != -1]):
+                # usb already used
+                banner_notification("USB network is currently used ...")
+                return
+        time.sleep(1)
+        # mount ethernet module
+        s = subprocess.Popen("echo "
                              "' "
-                             "/sbin/rmmod "
-                             "g_file_storage "
+                             "/sbin/modprobe "
+                             "g_ether "
                              "' "
                              "| "
                              "sudo "
                              "gainroot ",
                              shell=True, stdout=subprocess.PIPE)
-
-                time.sleep(1)
-                if ret[0].find('g_ether') != -1 and ret[0].find('(none)') != -1:
-                    banner_notification("Please don't set USB mode")
-                    return
-
-            # Check if usb0 is used
-            if ret[0].find('g_ether') != -1: 
-                s = subprocess.Popen("/sbin/ifconfig "
-                                     "usb0",
-                                     shell=True, stdout=subprocess.PIPE)
-                ret = s.stdout.readlines()
-                if any([l for l in ret if l.find('addr:') != -1]):
-                    # usb already used
-                    banner_notification("USB network is currently used ...")
-                    return
-            time.sleep(1)
-            # mount ethernet module
-            s = subprocess.Popen("echo "
-                                 "' "
-                                 "/sbin/modprobe "
-                                 "g_ether "
-                                 "' "
-                                 "| "
-                                 "sudo "
-                                 "gainroot ",
-                                 shell=True, stdout=subprocess.PIPE)
-            # Waiting for mount moule
-            time.sleep(1)
-            # Set IP
-            network = "192.168.55."
-            s = subprocess.Popen("echo "
-                                 "' "
-                                 "/sbin/ifconfig "
-                                 "usb0 "
-                                 + network + "1 "
-                                 "netmask "
-                                 "255.255.255.0 "
-                                 "up "
-                                 "' "
-                                 "| "
-                                 "sudo "
-                                 "gainroot ",
-                                 shell=True, stdout=subprocess.PIPE)
-            time.sleep(1)            
-            # launch dhcp server (dnsmasq)
-            self.dns_sp = subprocess.Popen("echo "
-                                 "' "
-                                 "/usr/sbin/dnsmasq "
-                                 "--no-daemon "
-                                 "-i "
-                                 "usb0 "
-                                 "-a "
-                                 + network + "1 "
-                                 "-I "
-                                 "lo "
-                                 "-z "
-                                 "--dhcp-range=" + network + "10," + network + "200,6h "
-                                 "--dhcp-authoritative "
-                                 "' "
-                                 "| "
-                                 "sudo "
-                                 "gainroot ",
-                                 shell=True, stdout=subprocess.PIPE)
-        else:
-            self.restore_useusb()
-
-    def init_useusb(self):
-        self.toggle_useusb(self.useusb)
+        # Waiting for mount moule
+        time.sleep(1)
+        # Set IP
+        network = "192.168.55."
+        s = subprocess.Popen("echo "
+                             "' "
+                             "/sbin/ifconfig "
+                             "usb0 "
+                             + network + "1 "
+                             "netmask "
+                             "255.255.255.0 "
+                             "up "
+                             "' "
+                             "| "
+                             "sudo "
+                             "gainroot ",
+                             shell=True, stdout=subprocess.PIPE)
+        time.sleep(1)            
+        # launch dhcp server (dnsmasq)
+        self.dns_sp = subprocess.Popen("echo "
+                             "' "
+                             "/usr/sbin/dnsmasq "
+                             "--no-daemon "
+                             "-i "
+                             "usb0 "
+                             "-a "
+                             + network + "1 "
+                             "-I "
+                             "lo "
+                             "-z "
+                             "--dhcp-range=" + network + "10," + network + "200,6h "
+                             "--dhcp-authoritative "
+                             "' "
+                             "| "
+                             "sudo "
+                             "gainroot ",
+                             shell=True, stdout=subprocess.PIPE)
 
     def restore_useusb(self):
         s = subprocess.Popen("pgrep "
@@ -246,6 +247,7 @@ class Config(QtCore.QSettings):
                              "-f "
                              "1",
                              shell=True, stdout=subprocess.PIPE)
+
         for pid in s.stdout.readlines():
             s = subprocess.Popen("echo "
                                  "'"
