@@ -357,6 +357,7 @@ class Config_dialog(QtGui.QDialog):
         if state == QtCore.Qt.Checked:
             # Start controller
             self.config.parent.scheduler.start_controller()
+            self.config.parent.scheduler.controller.function_help()
         else:
             # Stop controller
             self.config.parent.scheduler.stop_controller()
