@@ -186,10 +186,7 @@ class Ui_MainWindow(QtCore.QObject):
             self.bonjour_auth_user = self.central_widget.bonjour_users\
                                          .currentText()
             self.bs = Bonjour_server(self.bonjour_auth_user)
-        if self.bs.is_running():
-            pass
-#            self.bs.stop()
-        else:
+        if not self.bs.is_running():
             self.bs.listen()
 
     def change_bonjour_user(self, new_bonjour_user):
@@ -207,32 +204,37 @@ class Ui_MainWindow(QtCore.QObject):
         db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
         friend_list = {}
         old_friend_list = [f.fullname for f in self.scheduler.friend_list]
+        q_friend_dict = {}
         for contact in db.values():
-            logger.debug("Trying to find name and "
-                         "cell number in: %s" % contact.split('\n'))
-            reg = re.compile('FN:(.*?)\\r.*CELL.*?:(.*?)\\r', re.S|re.M)
+#            logger.debug("Trying to find name and "
+#                         "cell number in: %s" % contact.split('\n'))
+            reg = re.compile('FN:(.*?)\\r', re.S|re.M)
+            numbers = re.findall("TEL;TYPE=(?:HOME,|WORK,|)CELL:(.[0-9]*)\r\n", contact)
             m = re.search(reg, contact)
             if m is None:
-                logger.debug("No cell number found")
+                logger.debug("No name in contact")
+                continue
+            elif not numbers:
+                logger.debug("No cell phone found")
                 continue
 
             name = m.group(1).decode('utf-8')
-            num = m.group(2)
+            for num in numbers:
+                logger.debug("Found : %s - %s" % (name, num))
+                if name in old_friend_list:
+                    logger.debug("Friend already in list: %s" % name)
+                    continue
 
-            logger.debug("Found : %s - %s" % (name, num))
+                i = 1
+                while name in friend_list:
+                    name = name + " (%s)" % str(i)
+                    i = i + 1
 
-            if name in old_friend_list:
-                logger.debug("Friend already in list: %s" % name)
-                continue
+                # Prepare lists
+                friend_list[num] = name
+                q_friend_dict["%s - %s" % (name, num)] = num
 
-            i = 1
-            while name in friend_list:
-                name = name + " (%s)" % str(i)
-                i = i + 1
-
-            friend_list[name] = num
-
-        q_friend_list = QtCore.QStringList(sorted(friend_list.keys()))
+        q_friend_list = QtCore.QStringList(sorted(q_friend_dict.keys()))
         friends_dialog.setComboBoxItems(q_friend_list)
         friends_dialog.setWindowTitle("Add a friend")
         friends_dialog.setLabelText("Select a friend")
@@ -242,9 +244,12 @@ class Ui_MainWindow(QtCore.QObject):
             logger.debug("Dialog not confirmed")
             return
 
-        select_friend = unicode(friends_dialog.textValue())
-        number = friend_list[select_friend]
-        auth_user = self.bonjour_auth_user
+        raw_name = str(friends_dialog.textValue())
+        number = q_friend_dict[raw_name]
+        select_friend = friend_list[number]
+        bonjour_auth_username = str(self.bonjour_auth_user)
+        auth_user = {bonjour_auth_username:
+                self.bonjour_users[bonjour_auth_username]}
 
         # Check if friend is already in friend list
         if select_friend in old_friend_list:

@@ -34,7 +34,6 @@ from PyQt4 import QtCore, QtNetwork, QtGui
 
 import pybonjour
 from lib_sms import createPDUmessage
-from country_code import country_code
 from lib import logger
 from config import config
 

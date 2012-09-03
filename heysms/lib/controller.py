@@ -36,7 +36,6 @@ from PyQt4 import QtCore, QtNetwork, QtGui
 import pybonjour
 from lib_sms import createPDUmessage
 from friend import Friend
-from country_code import country_code
 from lib import logger, search_contacts
 from config import config
 

@@ -41,8 +41,14 @@ class Call_listener(QtCore.QThread):
 
     def callback(self, obj_path, callernumber):
         callernumber = str(callernumber)
-        logger.debug("New incoming call from: %s" % callernumber)
-        message = "New incoming call from: %s" % callernumber
+        fullname = search_contact_by_number(callernumber)
+        try:
+            # If number not found in contacts list
+            fullname = int(fullname)
+        except ValueError, e:
+            pass
+        logger.debug("New incoming call from: %s" % fullname)
+        message = "New incoming call from: %s" % fullname
         recv_sms_q.put({'phone_number': 'N900',
                         'message': message})
 
