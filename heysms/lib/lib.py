@@ -66,7 +66,7 @@ def search_contacts(pattern):
         if len(s.groups()) > 0:
             name = s.groups()[0]
             if name.lower().find(pattern.lower()) != -1:
-                numbers = re.findall("TEL;TYPE=(?:HOME,|WORK,|)CELL:(.[0-9]*)\r\n", contact)
+                numbers = re.findall("TEL;TYPE=.*?CELL.*?:(.[0-9]*)\r\n", contact)
                 for number in numbers:
                     contacts.append((name, number))
 
