@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Add controller. You can now control your N900 using Bonjour'
+changes = '* Fix stability'
  
 setup(name='heysms',
-      version='1.6.0',
+      version='1.6.1',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -36,8 +36,8 @@ setup(name='heysms',
       author_email='titilambert@gmail.com',
       maintainer=u'Thibault Cohen',
       maintainer_email='titilambert@gmail.com',
-#      requires=('libavahi-compat-libdnssd1', 'python2.5-qt4-network',
-#                'python2.5-qt4-sql', 'python2.5', 'python-osso'),
+#      requires=['libavahi-compat-libdnssd1', 'python2.5-qt4-network',
+#                'python2.5-qt4-sql', 'python2.5', 'python-osso'],
       url='http://talk.maemo.org/showthread.php?t=84705',
       packages= ['heysms', 'heysms.lib', 'heysms.lib.avahi'],
       package_data = {'heysms': ['images/*.png']},
