@@ -202,8 +202,8 @@ class Controller(QtCore.QThread):
                   """\r\nHeySms Help\r\n"""
                   """===========\r\n\r\n"""
                   """Show this help\t: help\r\n"""
-                  """Add contact\t: add &amp;lt;contact_name&amp;gt;\r\n"""
-                  """Del contact\t: del &amp;lt;contact_name&amp;gt;\r\n"""
+                  """Add contact\t: add &amp;lt;contact_id&amp;gt;. Use `search' command before\r\n"""
+                  """Del contact\t: del &amp;lt;contact_id&amp;gt;. Use `show' command before\r\n"""
                   """Search contact\t: search &amp;lt;contact_name&amp;gt;\r\n"""
                   """Show contacts\t: show\r\n"""
                   """Echo your msg\t: echo &amp;lt;message&amp;gt;\r\n"""
@@ -249,6 +249,7 @@ class Controller(QtCore.QThread):
     def function_del(self, id):
         """ Deactive a contact in HeySms
         """
+        print self.active_contact_dict
         if self.active_contact_dict is None:
             self.sms_to_bonjour("Please use `show' command before")
         else:
@@ -257,7 +258,7 @@ class Controller(QtCore.QThread):
             except:
                 self.sms_to_bonjour("Bad ID: %s" % id)
                 return
-            if not id in self.add_contact_dict:
+            if not id in self.active_contact_dict:
                 self.sms_to_bonjour("ID not found: %s" % id)
                 return
             else:
