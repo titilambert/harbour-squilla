@@ -209,7 +209,7 @@ class Ui_MainWindow(QtCore.QObject):
 #            logger.debug("Trying to find name and "
 #                         "cell number in: %s" % contact.split('\n'))
             reg = re.compile('FN:(.*?)\\r', re.S|re.M)
-            numbers = re.findall("TEL;TYPE=(?:HOME,|WORK,|)CELL:(.[0-9]*)\r\n", contact)
+            numbers = re.findall("TEL;TYPE=.*?CELL.*?:(.[0-9]*)\r\n", contact)
             m = re.search(reg, contact)
             if m is None:
                 logger.debug("No name in contact")
@@ -268,7 +268,7 @@ class Ui_MainWindow(QtCore.QObject):
         icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
                            '/general_refresh.png')
         vars = {}
-        vars['version'] = "1.6.2"
+        vars['version'] = "1.6.3"
         message = QtCore.QString("""<center><h2>HeySms</h2></center>"""
                                  """<center>Version: %(version)s</center>"""
                                  """<br/>Visite web site: <a href="http://talk.maemo.org/showthread.php?t=84705">Here</a> """
