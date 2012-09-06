@@ -31,7 +31,7 @@ from PyQt4 import QtCore
 
 from lib_sms import createPDUmessage, deoctify, deoctify_int
 from scheduler import recv_sms_q
-from lib import logger
+from lib import logger, search_contact_by_number
 
 
 class Call_listener(QtCore.QThread):
