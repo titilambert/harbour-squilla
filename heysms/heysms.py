@@ -75,7 +75,7 @@ class Central_widget(QtGui.QWidget):
         self.reload_bonjour_users_button.setIcon(icon)
         self.reload_bonjour_users_button.setFixedWidth(80)
         self.empty = QtGui.QLabel('')
-        self.friend_list_label = QtGui.QLabel('Friends list :')
+        self.friend_list_label = QtGui.QLabel('Friend list :')
         self.friends_list = Friend_list_widget(self)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.bonjour_users_label, 0, 0, 1, 2)
