@@ -33,16 +33,27 @@ Controller fonctions
 Mini manual
 ==========
 1 - Launch your instant messaging client on your computer and activate your Bonjour account.
+
 2 - Launch HeySms on your N900
+
 3 - In HeySms select yourself (your Bonjour name) in the Bonjour contact list.
+
 4 - If you are not in the Bonjour contact list, click on reload button ...
+
 5 - Add contact in your active contact list (Menu -> "Add friend")
+
 6 - You will see your friend in the active contact list
+
 7 - Your friend will appears in your Bonjour client on your computer
+
 8 - Write message to your friend (in fact, it send SMS...)
+
 9 - .... Wait answer ....
-10 - Receive SMS ... 
+
+10 - Receive SMS ...
+
 11 - The message appears on your computer !
+
 12 - Answer ...
 
 Of course, only the selected bonjour contact can send/receive SMS from/to your phone... 
