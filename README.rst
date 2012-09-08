@@ -64,6 +64,8 @@ Tested with
 ===========
 * N900 and Pidgin (on Linux)
 * N900 and Empathy (on Linux)
+* N900 and Kopete (on Linux)
+* N900 and Gajim (on Linux)
 * Please talk about you 
 
 Limitations
