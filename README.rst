@@ -75,6 +75,8 @@ Limitations
 
 Updates
 =======
+* 1.6.6-1 : Fix communications with Kopete, Empathy, Pidgin and Gajim
+* 1.6.5-1 : Fix my poor english
 * 1.6.4-1 : Fix call notifier
 * 1.6.3-1 : Fix search contact (Thanks to darodi)
 * 1.6.2-1 : Fix Controller stability
