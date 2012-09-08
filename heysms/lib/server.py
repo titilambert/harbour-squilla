@@ -104,6 +104,11 @@ class Bonjour_server():
             recvData = str(sock.readAll())
             ###### First msg ######
             logger.debug("New Bonjour message received")
+            if recvData.find("<message") != -1:
+                # for kopete which send only one request
+                i = recvData.find("<message")
+                recvData = recvData[i:]
+
             if recvData.startswith("<?xml version"):
                 # Test if is authorized user
                 soup = BeautifulSoup(recvData)
@@ -154,8 +159,13 @@ class Bonjour_server():
                 logger.debug("New sms for %s queued" % user)
                 logger.debug("New sms content %s" % message)
                 # Put message in sms queue
-                send_sms_q.put({'to': user,
+                if message:
+                    send_sms_q.put({'to': user,
                            'message': message
                            })
+                else:
+                    # NOTIFY ???
+                    # messag empty ????
+                    pass
 
             sock.close()

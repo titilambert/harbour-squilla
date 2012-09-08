@@ -3,7 +3,7 @@ Presentation of HeySms
 ======================
 
 I made a small application to send and receive sms on your computer without a specific software.
-You just have to use your messaging client ... Which have to be compatible with Bonjour protocol.
+You just have to use your instant messaging client ... Which have to be compatible with Bonjour protocol.
 
 I made this application because my girlfriend send me a lot of sms when I'm working ...
 Now I can answer her without taking my N900 ... 

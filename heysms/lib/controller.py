@@ -50,7 +50,7 @@ class Controller(QtCore.QThread):
         self.port = port
         self.number = 'N900'
         self.auth_user = auth_user
-        self.node = ''.join(c for c in self.fullname if c.isalnum()).lower()
+        self.node = "%s@n900" % ''.join(c for c in self.fullname if c.isalnum()).lower()
         self.favorite = False
 
         self.parent = parent
@@ -74,9 +74,13 @@ class Controller(QtCore.QThread):
         # Register on bonjour chat
         self.id = random.randint(100000000000, 999999999999)
         txt = {}
+        txt['1st'] = self.fullname
+        txt['last'] = ""
         txt['status'] = 'avail'
         txt['port.p2pj'] = self.port
         txt['nick'] = self.fullname
+        txt['jid'] = self.node
+        txt['email'] = self.node
         txt['version'] = 1
         txt['txtvers'] = 1
 
@@ -105,7 +109,9 @@ class Controller(QtCore.QThread):
 
 
     def sms_to_bonjour(self, msg):
-        logger.debug("Forword controller reply to bonjour")
+        logger.debug("Forward controller reply to bonjour")
+        msg = msg.replace("<", "&lt;")
+        msg = msg.replace(">", "&gt;")
         # Waiting self is bonjour registered
         while self.is_ready == False:
             logger.debug("Waiting bonjour contact "
@@ -160,11 +166,8 @@ class Controller(QtCore.QThread):
             pass
 
         # Send data
-        xml = (u"""<message from="%(from)s" to="%(to)s" type="chat" """
-               u"""id="%(id)s"><body>%(msg)s</body><html """
-               u"""xmlns="http://jabber.org/protocol/xhtml-im"><body """
-               u"""xmlns="http://www.w3.org/1999/xhtml">%(msg)s</body>"""
-               u"""</html></message>""" % dic)
+        xml = ("""<message xmlns="jabber:client" from="%(from)s" to="%(to)s" type="chat" """
+               """id="%(id)s"><body>%(msg)s</body></message>""" % dic)
         logger.debug("Send message")
         so.send(xml.encode('utf-8'))
         try:
@@ -186,6 +189,8 @@ class Controller(QtCore.QThread):
             function_name, params = message.split(" ", 1)
         except ValueError, e:
             function_name = message
+        except:
+            return True
 
         try:
             getattr(self, 'function_' + function_name)(params)
@@ -193,20 +198,21 @@ class Controller(QtCore.QThread):
             self.sms_to_bonjour("Command `%s' not found. Type `help' to see available commands" % function_name)
         except Exception, e:
             self.sms_to_bonjour("Error in function `function_%s': %s" % (function_name, str(e)))
+        return True
 
     def function_help(self, *args, **kargs):
         """ Return controller help
         """
         logger.debug("Controller: `help' function called")
         message = (
-                  """\r\nHeySms Help\r\n"""
-                  """===========\r\n\r\n"""
-                  """Show this help\t: help\r\n"""
-                  """Add contact\t: add &amp;lt;contact_id&amp;gt;. Use `search' command before\r\n"""
-                  """Del contact\t: del &amp;lt;contact_id&amp;gt;. Use `show' command before\r\n"""
-                  """Search contact\t: search &amp;lt;contact_name&amp;gt;\r\n"""
-                  """Show contacts\t: show\r\n"""
-                  """Echo your msg\t: echo &amp;lt;message&amp;gt;\r\n"""
+                  """\nHeySms Help\n"""
+                  """===========\n\n"""
+                  """Show this help\t: help\n"""
+                  """Add contact\t: add $CONTACT_ID$. Use `search' command before\n"""
+                  """Del contact\t: del $CONTACT_ID$. Use `show' command before\n"""
+                  """Search contact\t: search $CONTACT_NAME$\n"""
+                  """Show contacts\t: show\n"""
+                  """Echo your msg\t: echo $MESSAGE$\n"""
                 )
 
         self.sms_to_bonjour(message)
@@ -249,7 +255,6 @@ class Controller(QtCore.QThread):
     def function_del(self, id):
         """ Deactive a contact in HeySms
         """
-        print self.active_contact_dict
         if self.active_contact_dict is None:
             self.sms_to_bonjour("Please use `show' command before")
         else:

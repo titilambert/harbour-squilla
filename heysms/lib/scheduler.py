@@ -131,6 +131,7 @@ class Scheduler(QtCore.QThread):
         except ValueError:
             # Impossible ?
             logger.debug("User not find in list: %s" % to)
+            return
         friend = self.friend_list[i]
         controller = friend.send_sms(msg)
         if not controller:

@@ -47,7 +47,7 @@ class Friend(QtCore.QThread):
         self.number = number
         self.port = port
         self.auth_user = auth_user
-        self.node = ''.join(c for c in self.fullname if c.isalnum()).lower()
+        self.node = "%s@n900" % ''.join(c for c in self.fullname if c.isalnum()).lower()
         self.favorite = False
 
         self.parent = parent
@@ -80,11 +80,16 @@ class Friend(QtCore.QThread):
         # Register on bonjour chat
         self.id = random.randint(100000000000, 999999999999)
         txt = {}
+        txt['1st'] = self.fullname
+        txt['last'] = ""
         txt['status'] = 'avail'
         txt['port.p2pj'] = self.port
         txt['nick'] = self.fullname
+        txt['jid'] = self.node
+        txt['email'] = self.node
         txt['version'] = 1
         txt['txtvers'] = 1
+        logger.debug("txt register: %s" % str(txt))
 
         txt = pybonjour.TXTRecord(txt, strict=True)
 
@@ -150,7 +155,9 @@ class Friend(QtCore.QThread):
                 logger.debug("Retrying")
 
     def sms_to_bonjour(self, msg):
-        logger.debug("Forword sms to bonjour")
+        logger.debug("Forward sms to bonjour")
+        msg = msg.replace("<", "&lt;")
+        msg = msg.replace(">", "&gt;")
         # Waiting self is bonjour registered
         while self.is_ready == False:
             logger.debug("Waiting bonjour contact "
@@ -206,10 +213,7 @@ class Friend(QtCore.QThread):
 
         # Send data
         xml = (u"""<message from="%(from)s" to="%(to)s" type="chat" """
-               u"""id="%(id)s"><body>%(msg)s</body><html """
-               u"""xmlns="http://jabber.org/protocol/xhtml-im"><body """
-               u"""xmlns="http://www.w3.org/1999/xhtml">%(msg)s</body>"""
-               u"""</html></message>""" % dic)
+               u"""id="%(id)s"><body>%(msg)s</body></message>""" % dic)
         logger.debug("Send message")
         so.send(xml.encode('utf-8'))
         try:

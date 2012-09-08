@@ -36,6 +36,8 @@ def insert_sms_in_history(sms):
 
     # Pre
     num = sms['num']
+    if not sms['message']:
+        return
     msg = sms['message'].encode('utf-8').decode('utf-8')
     group_uid = str(num[-7:])
     now = int(datetime.datetime.now().strftime("%s"))
