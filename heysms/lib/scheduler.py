@@ -47,11 +47,14 @@ class Scheduler(QtCore.QThread):
         self.friend_list = []
         self.parent = parent
         self.must_run = False
+        self.waiting_authorized_contact = False
 
     def run(self):
         while self.parent.bonjour_auth_user == '':
             logger.debug("Waiting selection of an authorized bonjour contact")
+            self.waiting_authorized_contact = True
             sleep(1)
+        self.waiting_authorized_contact = False
 
         bonjour_auth_username = str(self.parent.bonjour_auth_user)
         self.auth_user = {bonjour_auth_username:

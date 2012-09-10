@@ -293,6 +293,8 @@ def main():
         ui.scheduler.must_run = False
         while ui.scheduler.isRunning():
             logger.debug("Waiting scheduler")
+            if ui.scheduler.waiting_authorized_contact == True:
+                break
             sleep(0.1)
         logger.debug("Restore profile")
         config.restore_profile()
