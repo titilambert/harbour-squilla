@@ -85,6 +85,7 @@ class Friend(QtCore.QThread):
         txt['status'] = 'avail'
         txt['port.p2pj'] = self.port
         txt['nick'] = self.fullname
+#        txt['node'] = self.node
         txt['jid'] = self.node
         txt['email'] = self.node
         txt['version'] = 1
@@ -168,6 +169,7 @@ class Friend(QtCore.QThread):
         host = self.auth_user.values()[0]['host']
         port = self.auth_user.values()[0]['port']
         so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        logger.debug("Connecting to %s:%s" % (host, port))
         try:
             so.connect((host, port))
         except TypeError,e :
