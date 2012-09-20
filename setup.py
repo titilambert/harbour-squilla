@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix bug when HaySms exits and no Bonjour contact found'
+changes = '* Fix bugs with smssend and special caracters'
  
 setup(name='heysms',
-      version='1.6.7',
+      version='1.6.8',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
