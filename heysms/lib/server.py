@@ -27,6 +27,7 @@ import socket
 from time import sleep
 import asyncore
 import socket
+from xml.sax.saxutils import unescape
 
 from PyQt4 import QtCore
 from PyQt4 import QtNetwork
@@ -155,6 +156,7 @@ class Bonjour_server():
                 # Get Message
                 root = soup.first()
                 message = root.findChild('body').getString()
+                message = unescape(message, {"&apos;": "'", "&quot;": '"'})
 
                 logger.debug("New sms for %s queued" % user)
                 logger.debug("New sms content %s" % message)

@@ -140,12 +140,13 @@ class Friend(QtCore.QThread):
             logger.debug("Sms send: %s" % msg)
         else:
             logger.debug("Sending sms using 'smssend'")
+            message = message.replace('"', '\\"')
             s = subprocess.Popen("/usr/bin/smssend "
+                             "-s "
                              "-n "
                              "%s "
                              "-m "
-                             "'%s' "
-                             "-s " % (self.number, message),
+                             '"%s" ' % (self.number, message),
                              shell=True, stdout=subprocess.PIPE)
             res = s.stdout.readlines()
             if any([i for i in res if i.find('OK') != -1]):
