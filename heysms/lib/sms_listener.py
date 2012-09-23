@@ -28,6 +28,7 @@ import time
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from PyQt4 import QtCore
+from math import ceil
 
 from lib_sms import createPDUmessage, deoctify, deoctify_int
 from scheduler import recv_sms_q
@@ -40,12 +41,27 @@ class Sms_listener(QtCore.QThread):
         self.parent = parent
 
     def callback(self, pdumsg, msgcenter, somestring, sendernumber):
-
         logger.debug("New sms received")
-        msglength = int(pdumsg[18])
-        msgarray = pdumsg[19:len(pdumsg)]
+
+        firstoctet = int(pdumsg[0])
+        if firstoctet & 0x03:
+            logger.debug("invalid SMS-DELIVER PDU, TP-MTI not cleared.")
+            return
+
+        if firstoctet & 0x40:
+            logger.debug("message has user data header (multipart sms), not yet supported.")
+
+        # construct pointer to TP-PID (protocol identifier).
+        # We've got: first octet + address length (sender) + type of address
+        # i.e. 3 bytes + the address itself (length specified in digits)
+        ptr = 3 + int(ceil(float(pdumsg[1]) / 2))
+        tp_dcs = int(pdumsg[ptr + 1])
+        tp_udl = int(pdumsg[ptr + 9])
+
+        msgarray = pdumsg[ptr + 10 : len(pdumsg)]
+
         # test for international msg
-        if pdumsg[10] == 8:
+        if tp_dcs == 8:
             logger.debug("International sms received")
             msg = deoctify_int(msgarray)
         else:
