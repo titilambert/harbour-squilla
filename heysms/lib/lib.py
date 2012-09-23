@@ -50,7 +50,7 @@ def search_contact_by_number(phone_number):
                     ret = tmp[0]
             break
 
-    ret = ret.decode('utf-8')
+    ret = ret.decode('utf-8').replace("\\,", ",")
 
     logger.debug("contact name: %s" % ret)
     return ret
@@ -64,7 +64,7 @@ def search_contacts(pattern):
             # not found
             continue
         if len(s.groups()) > 0:
-            name = s.groups()[0]
+            name = s.groups()[0].replace("\\,", ",")
             if name.lower().find(pattern.lower()) != -1:
                 numbers = re.findall("TEL;TYPE=.*?CELL.*?:(.[0-9]*)\r\n", contact)
                 for number in numbers:
