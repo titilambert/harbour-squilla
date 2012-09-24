@@ -25,7 +25,7 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Unescape commas in contact names\nConsider address length when decoding incoming PDU'
+changes = '* Unescape commas in contact names\nConsider address length when decoding incoming PDU\nThanks to Stesie'
  
 setup(name='heysms',
       version='1.6.9',
@@ -63,7 +63,7 @@ setup(name='heysms',
       cmdclass={'sdist_maemo': _sdist_maemo},
       options = { 'sdist_maemo':{
         'debian_package':'heysms',
-        'buildversion': '1',
+        'buildversion': '3',
         'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
         'suggests': "smssend",
         'conflicts': '',
