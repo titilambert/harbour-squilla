@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Fix bugs with smssend and special caracters'
+changes = '* Unescape commas in contact names\nConsider address length when decoding incoming PDU'
  
 setup(name='heysms',
-      version='1.6.8',
+      version='1.6.9',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
