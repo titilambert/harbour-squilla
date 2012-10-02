@@ -34,7 +34,6 @@ import dbus
 from PyQt4 import QtCore, QtNetwork, QtGui
 
 import pybonjour
-from lib_sms import createPDUmessage
 from friend import Friend
 from lib import logger, search_contacts
 from config import config

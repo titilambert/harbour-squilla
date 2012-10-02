@@ -27,6 +27,9 @@
 # http://borunov.ural.ru/sender.py
 
 from lib import logger
+from math import ceil
+from random import randint
+from copy import copy
 
 GSM_DEFAULT_ALPHABET = [
     u"@",
@@ -293,27 +296,50 @@ def createPDUmessage(number, msg):
     octifiednumber = [semi_octify(number[i:i + 2])
                       for i in range(0, rangelength, 2)]
 
-    msg_length = len(msg)*2
     PDU_TYPE = 0x11 
     MR = 0
 
-    pdu_message = [PDU_TYPE, MR, number_length, ADDR_TYPE]
-    pdu_message.extend(octifiednumber)
+    if len(msg) > 70:
+        logger.debug("Message length beyond 140 bytes, sending multiple SMSes")
+        PDU_TYPE |= 0x40
+        chunks = int(ceil(1.0 * len(msg) / 67))
+        ref = randint(0, 255)
+    else:
+        chunks = 1
 
-    pdu_message.append(0) #PID
-    pdu_message.append(8) #DCS
+    pdu_template = [PDU_TYPE, MR, number_length, ADDR_TYPE]
+    pdu_template.extend(octifiednumber)
 
-    pdu_message.append(167) #VP 24 hours
+    pdu_template.append(0) #PID
+    pdu_template.append(8) #DCS
 
-    pdu_message.append(msg_length)
+    pdu_template.append(167) #VP 24 hours
 
-    for i in xrange (len(msg)) :
-        digit = ord(msg[i])
-        h_digit = digit >> 8
-        l_digit = digit & 0xFF
-        pdu_message.append(h_digit)
-        pdu_message.append(l_digit)
+    pdus = []
 
-    logger.debug("Sent pdu: %s" % pdu_message)
+    for chunk in xrange(chunks):
+        pdu_message = copy(pdu_template)
 
-    return pdu_message
+        if PDU_TYPE & 0x40:
+            part = msg[chunk * 67 : (chunk + 1) * 67]
+            pdu_message.append(6 + 2 * len(part))  # length
+
+            # concatenated SMS header
+            pdu_message.append(5)   # UDH length
+            pdu_message.append(0)   # concat sms, 8-bit ref
+            pdu_message.append(3)   # concat sms header length
+            pdu_message.append(ref)
+            pdu_message.append(chunks)
+            pdu_message.append(1 + chunk)
+        else:
+            part = msg
+            pdu_message.append(len(part) * 2)
+
+        for i in xrange (len(part)) :
+            digit = ord(part[i])
+            pdu_message.append(digit >> 8)
+            pdu_message.append(digit & 0xFF)
+
+        pdus.append(pdu_message)
+
+    return pdus

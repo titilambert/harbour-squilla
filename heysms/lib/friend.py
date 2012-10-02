@@ -124,20 +124,23 @@ class Friend(QtCore.QThread):
             message = message.encode('utf-8')
             logger.debug("to: %s " % self.number)
             logger.debug("send sms: %s " % message)
-            arr = dbus.Array(createPDUmessage(self.number,
-                                              message))
 
-            msg = dbus.Array([arr])
-            while True:
-                try:
-                    logger.debug("Sending sms: %s" % msg)
-                    smsiface.Send(msg, '')
-                    break
-                except dbus.exceptions.DBusException, e:
-                    logger.debug("Sending sms failed, error: %s" % str(e))
-                    logger.debug("Retrying")
-                    pass
-            logger.debug("Sms send: %s" % msg)
+            pdus = createPDUmessage(self.number, message)
+
+            for pdu in pdus:
+                arr = dbus.Array(pdu)
+
+                msg = dbus.Array([arr])
+                while True:
+                    try:
+                        logger.debug("Sending sms: %s" % msg)
+                        smsiface.Send(msg, '')
+                        break
+                    except dbus.exceptions.DBusException, e:
+                        logger.debug("Sending sms failed, error: %s" % str(e))
+                        logger.debug("Retrying")
+                        pass
+                logger.debug("Sms send: %s" % msg)
         else:
             logger.debug("Sending sms using 'smssend'")
             message = message.replace('"', '\\"')
