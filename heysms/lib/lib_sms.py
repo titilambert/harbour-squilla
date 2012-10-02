@@ -228,7 +228,7 @@ def semi_octify(str):
             digit_2 = int(str[1])
             octet = (digit_2 << 4) | digit_1
         except:
-            octet = (1 << 4) | digit_1
+            octet = 0xF0 | digit_1
 
         return octet
 
