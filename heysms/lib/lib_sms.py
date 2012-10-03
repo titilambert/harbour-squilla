@@ -358,8 +358,8 @@ def createPDUmessage(number, msg):
 
 
         if DCS & 0x08:  # UCS-2 encoding
-            for i in xrange (len(msg)) :
-                digit = ord(msg[i])
+            for i in xrange (len(part)) :
+                digit = ord(part[i])
                 pdu_message.append(digit >> 8)
                 pdu_message.append(digit & 0xFF)
 
