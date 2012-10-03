@@ -180,85 +180,84 @@ def _decode_default_alphabet(s):
 
 
 def octify(str, shift):
-        '''
-        Returns a list of octet bytes representing
-        each char of the input str.
-        '''
-        bytes = map(GSM_DEFAULT_ALPHABET.index, str)
-        bytes = [b if b != 27 else 32 for b in bytes]
+    '''
+    Returns a list of octet bytes representing
+    each char of the input str.
+    '''
+    bytes = map(GSM_DEFAULT_ALPHABET.index, str)
+    bytes = [b if b != 27 else 32 for b in bytes]
 
-        bitsconsumed = 0
-        referencebit = 7
-        octets = []
+    bitsconsumed = 0
+    referencebit = 7
+    octets = []
 
-        for i in xrange(shift):
-                bytes.insert(0, 0)
+    for i in xrange(shift):
+        bytes.insert(0, 0)
 
-        while len(bytes):
-                byte = bytes.pop(0)
-                byte = byte >> bitsconsumed
-                try:
-                    nextbyte = bytes[0]
-                    bitstocopy = (nextbyte &
-                                  (0xff >> referencebit)) << referencebit
-                    octet = (byte | bitstocopy)
-                except:
-                    octet = (byte | 0x00)
+    while len(bytes):
+        byte = bytes.pop(0)
+        byte = byte >> bitsconsumed
+        try:
+            nextbyte = bytes[0]
+            bitstocopy = (nextbyte &
+                          (0xff >> referencebit)) << referencebit
+            octet = (byte | bitstocopy)
+        except:
+            octet = (byte | 0x00)
 
-                if bitsconsumed != 7:
-                    octets.append(octet)
-                    bitsconsumed += 1
-                    referencebit -= 1
-                else:
-                    bitsconsumed = 0
-                    referencebit = 7
+        if bitsconsumed != 7:
+            octets.append(octet)
+            bitsconsumed += 1
+            referencebit -= 1
+        else:
+            bitsconsumed = 0
+            referencebit = 7
 
-        return octets[shift - shift / 7:]
+    return octets[shift - shift / 7:]
 
 
 def semi_octify(str):
-        '''
-        Expects a string containing two digits.
-        Returns an octet -
-        first nibble in the octect is the first
-        digit and the second nibble represents
-        the second digit.
-        '''
-        try:
-            digit_1 = int(str[0])
-            digit_2 = int(str[1])
-            octet = (digit_2 << 4) | digit_1
-        except:
-            octet = (1 << 4) | digit_1
+    '''
+    Expects a string containing two digits.
+    Returns an octet -
+    first nibble in the octect is the first
+    digit and the second nibble represents
+    the second digit.
+    '''
+    try:
+        digit_1 = int(str[0])
+        digit_2 = int(str[1])
+        octet = (digit_2 << 4) | digit_1
+    except:
+        octet = (1 << 4) | digit_1
 
-        return octet
+    return octet
 
 
 def deoctify(arr):
-        referencebit = 1
-        doctect = []
-        bnext = 0x00
+    referencebit = 1
+    doctect = []
+    bnext = 0x00
 
-        for i in arr:
+    for i in arr:
+        bcurr = ((i & (0xff >> referencebit)) << referencebit) >> 1
+        bcurr = bcurr | bnext
 
-                bcurr = ((i & (0xff >> referencebit)) << referencebit) >> 1
-                bcurr = bcurr | bnext
+        if referencebit != 7:
+            doctect.append(bcurr)
+            bnext = (i & (0xff <<
+                          (8 - referencebit))) >> 8 - referencebit
+            referencebit += 1
+        else:
+            doctect.append(bcurr)
+            bnext = (i & (0xff <<
+                          (8 - referencebit))) >> 8 - referencebit
+            doctect.append(bnext)
+            bnext = 0x00
+            referencebit = 1
 
-                if referencebit != 7:
-                        doctect.append(bcurr)
-                        bnext = (i & (0xff <<
-                                      (8 - referencebit))) >> 8 - referencebit
-                        referencebit += 1
-                else:
-                        doctect.append(bcurr)
-                        bnext = (i & (0xff <<
-                                      (8 - referencebit))) >> 8 - referencebit
-                        doctect.append(bnext)
-                        bnext = 0x00
-                        referencebit = 1
-
-        doctect = ''.join([chr(i) for i in doctect])
-        return _decode_default_alphabet(doctect).decode('utf-8')
+    doctect = ''.join([chr(i) for i in doctect])
+    return _decode_default_alphabet(doctect).decode('utf-8')
 
 def deoctify_int(arr):
     
@@ -288,7 +287,7 @@ def createPDUmessage(number, msg):
 
     numlength = len(number)
     if (numlength % 2):
-            number = number + 'F'
+        number = number + 'F'
 
     octifiednumber = [semi_octify(number[i:i + 2])
                       for i in range(0, len(number), 2)]
