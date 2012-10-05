@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Unescape commas in contact names\nConsider address length when decoding incoming PDU\nThanks to Stesie'
+changes = '* Concatenate incoming multipart SMS if needed.\nProvide only the correct chunk to CSMS PDU, not the whole message\nSend messages using GSM-7 alphabet if possible.\nThis is a Stesie release !'
  
 setup(name='heysms',
-      version='1.6.9',
+      version='1.6.10',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -63,7 +63,7 @@ setup(name='heysms',
       cmdclass={'sdist_maemo': _sdist_maemo},
       options = { 'sdist_maemo':{
         'debian_package':'heysms',
-        'buildversion': '3',
+        'buildversion': '1',
         'depends': "python2.5, python-osso, libavahi-compat-libdnssd1, python2.5-qt4-network, python2.5-qt4-sql, avahi-daemon",
         'suggests': "smssend",
         'conflicts': '',
