@@ -6,3 +6,4 @@
 *.tar.gz
 dist/
 build/
+env/

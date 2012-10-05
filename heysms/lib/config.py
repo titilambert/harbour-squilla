@@ -87,6 +87,7 @@ class Config(QtCore.QSettings):
         self.sync()
 
     def toggle_smssend(self, state):
+        self.use_smssend = state
         self.setValue("use_smssend", QtCore.QVariant(state))
         self.sync()
 
