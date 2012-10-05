@@ -6,6 +6,7 @@
 #    This file is part of HeySms
 #
 #    Copyright (C) 2012 Thibault Cohen
+#    Copyright (C) 2012 Stefan Siegl <stesie@brokenpipe.de>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -178,86 +179,85 @@ def _decode_default_alphabet(s):
     return u_str.encode("utf-8")
 
 
-def octify(str):
-        '''
-        Returns a list of octet bytes representing
-        each char of the input str.
-        '''
+def octify(str, shift):
+    '''
+    Returns a list of octet bytes representing
+    each char of the input str.
+    '''
+    bytes = map(GSM_DEFAULT_ALPHABET.index, str)
+    bytes = [b if b != 27 else 32 for b in bytes]
+
+    bitsconsumed = 0
+    referencebit = 7
+    octets = []
+
+    for i in xrange(shift):
+        bytes.insert(0, 0)
+
+    while len(bytes):
+        byte = bytes.pop(0)
+        byte = byte >> bitsconsumed
         try:
-            bytes = map(GSM_DEFAULT_ALPHABET.index, str)
-            bytes = [b if b != 27 else 32 for b in bytes]
-        except ValueError, e:
-            bytes = map(ord, str)
+            nextbyte = bytes[0]
+            bitstocopy = (nextbyte &
+                          (0xff >> referencebit)) << referencebit
+            octet = (byte | bitstocopy)
+        except:
+            octet = (byte | 0x00)
 
-        bitsconsumed = 0
-        referencebit = 7
-        octets = []
+        if bitsconsumed != 7:
+            octets.append(octet)
+            bitsconsumed += 1
+            referencebit -= 1
+        else:
+            bitsconsumed = 0
+            referencebit = 7
 
-        while len(bytes):
-                byte = bytes.pop(0)
-                byte = byte >> bitsconsumed
-                try:
-                    nextbyte = bytes[0]
-                    bitstocopy = (nextbyte &
-                                  (0xff >> referencebit)) << referencebit
-                    octet = (byte | bitstocopy)
-                except:
-                    octet = (byte | 0x00)
-
-                if bitsconsumed != 7:
-                    octets.append(byte | bitstocopy)
-                    bitsconsumed += 1
-                    referencebit -= 1
-                else:
-                    bitsconsumed = 0
-                    referencebit = 7
-
-        return octets
+    return octets[shift - shift / 7:]
 
 
 def semi_octify(str):
-        '''
-        Expects a string containing two digits.
-        Returns an octet -
-        first nibble in the octect is the first
-        digit and the second nibble represents
-        the second digit.
-        '''
-        try:
-            digit_1 = int(str[0])
-            digit_2 = int(str[1])
-            octet = (digit_2 << 4) | digit_1
-        except:
-            octet = 0xF0 | digit_1
+    '''
+    Expects a string containing two digits.
+    Returns an octet -
+    first nibble in the octect is the first
+    digit and the second nibble represents
+    the second digit.
+    '''
+    try:
+        digit_1 = int(str[0])
+        digit_2 = int(str[1])
+        octet = (digit_2 << 4) | digit_1
+    except:
+        octet = (1 << 4) | digit_1
 
-        return octet
+    return octet
 
 
 def deoctify(arr):
-        referencebit = 1
-        doctect = []
-        bnext = 0x00
+    referencebit = 1
+    doctect = []
+    bnext = 0x00
 
-        for i in arr:
+    for i in arr:
+        bcurr = ((i & (0xff >> referencebit)) << referencebit) >> 1
+        bcurr = bcurr | bnext
 
-                bcurr = ((i & (0xff >> referencebit)) << referencebit) >> 1
-                bcurr = bcurr | bnext
+        if referencebit != 7:
+            doctect.append(bcurr)
+            bnext = (i & (0xff <<
+                          (8 - referencebit))) >> 8 - referencebit
+            referencebit += 1
+        else:
+            doctect.append(bcurr)
+            bnext = (i & (0xff <<
+                          (8 - referencebit))) >> 8 - referencebit
+            doctect.append(bnext)
+            bnext = 0x00
+            referencebit = 1
 
-                if referencebit != 7:
-                        doctect.append(bcurr)
-                        bnext = (i & (0xff <<
-                                      (8 - referencebit))) >> 8 - referencebit
-                        referencebit += 1
-                else:
-                        doctect.append(bcurr)
-                        bnext = (i & (0xff <<
-                                      (8 - referencebit))) >> 8 - referencebit
-                        doctect.append(bnext)
-                        bnext = 0x00
-                        referencebit = 1
-
-        doctect = ''.join([chr(i) for i in doctect])
-        return _decode_default_alphabet(doctect).decode('utf-8')
+    doctect = ''.join([chr(i) for i in doctect])
+    return _decode_default_alphabet(doctect).decode('utf-8')
 
 def deoctify_int(arr):
     
@@ -271,7 +271,8 @@ def createPDUmessage(number, msg):
     '''
     Returns a list of bytes to represent a valid PDU message
     '''
-    #prepare for accentd
+
+    # Convert to Python Unicode string (prepare for accentd)
     msg = msg.decode('utf-8')
 
     # Unknown type, works with 514 xxx xxxx, 1 514 xxx xxxx
@@ -285,33 +286,41 @@ def createPDUmessage(number, msg):
         number = number[1:]
 
     numlength = len(number)
-
-    number_length = len(number)
-    if (numlength % 2) == 0:
-            rangelength = numlength
-    else:
-            number = number + 'F'
-            rangelength = len(number)
+    if (numlength % 2):
+        number = number + 'F'
 
     octifiednumber = [semi_octify(number[i:i + 2])
-                      for i in range(0, rangelength, 2)]
+                      for i in range(0, len(number), 2)]
 
     PDU_TYPE = 0x11 
     MR = 0
 
-    if len(msg) > 70:
-        logger.debug("Message length beyond 140 bytes, sending multiple SMSes")
+    # Test whether message can be represented in GSM-7 alphabet
+    try:
+        map(GSM_DEFAULT_ALPHABET.index, msg)
+        DCS = 0     # yes it can
+        need_chunking = len(msg) > 160
+        chunksize = 153
+
+    except ValueError:
+        # Message cannot be represented using GSM alphabet, use UCS-2
+        DCS = 8
+        need_chunking = len(msg) > 70
+        chunksize = 67
+
+    if need_chunking:
+        logger.debug("Message too long for one SMS")
         PDU_TYPE |= 0x40
-        chunks = int(ceil(1.0 * len(msg) / 67))
+        chunks = int(ceil(1.0 * len(msg) / chunksize))
         ref = randint(0, 255)
     else:
         chunks = 1
 
-    pdu_template = [PDU_TYPE, MR, number_length, ADDR_TYPE]
+    pdu_template = [PDU_TYPE, MR, numlength, ADDR_TYPE]
     pdu_template.extend(octifiednumber)
 
     pdu_template.append(0) #PID
-    pdu_template.append(8) #DCS
+    pdu_template.append(DCS) #DCS
 
     pdu_template.append(167) #VP 24 hours
 
@@ -321,8 +330,14 @@ def createPDUmessage(number, msg):
         pdu_message = copy(pdu_template)
 
         if PDU_TYPE & 0x40:
-            part = msg[chunk * 67 : (chunk + 1) * 67]
-            pdu_message.append(6 + 2 * len(part))  # length
+            part = msg[chunk * chunksize : (chunk + 1) * chunksize]
+
+            if DCS & 0x08:
+                # UCS-2 encoding, hence UDL in octets
+                pdu_message.append(6 + 2 * len(part))
+            else:
+                # GSM-7 encoding, UDL in septets
+                pdu_message.append(7 + len(part))
 
             # concatenated SMS header
             pdu_message.append(5)   # UDH length
@@ -333,12 +348,23 @@ def createPDUmessage(number, msg):
             pdu_message.append(1 + chunk)
         else:
             part = msg
-            pdu_message.append(len(part) * 2)
 
-        for i in xrange (len(part)) :
-            digit = ord(part[i])
-            pdu_message.append(digit >> 8)
-            pdu_message.append(digit & 0xFF)
+            if DCS & 0x08:
+                # UCS-2 encoding, hence UDL in octets (2 bytes per char)
+                pdu_message.append(2 * len(part))
+            else:
+                # GSM-7 encoding, UDL in septets
+                pdu_message.append(len(part))
+
+
+        if DCS & 0x08:  # UCS-2 encoding
+            for i in xrange (len(part)) :
+                digit = ord(part[i])
+                pdu_message.append(digit >> 8)
+                pdu_message.append(digit & 0xFF)
+
+        else:  # GSM-7 encoding
+            pdu_message.extend(octify(part, 7 if PDU_TYPE & 0x40 else 0))
 
         pdus.append(pdu_message)
 
