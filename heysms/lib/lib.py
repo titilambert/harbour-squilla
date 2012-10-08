@@ -122,7 +122,7 @@ def resolve(name, interface):
                           name,
                           '_presence._tcp',
                           'local',
-                          avahi.PROTO_UNSPEC,
+                          avahi.PROTO_INET,
                           dbus.UInt32(0),
                           reply_handler=service_resolved,
                           error_handler=print_error)
