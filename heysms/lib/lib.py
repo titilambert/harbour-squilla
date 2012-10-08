@@ -94,22 +94,6 @@ def resolve(name, interface):
         #print args[0]
         ml.quit()
 
-    def myhandler(interface, protocol, name, stype, domain, flags):
-        # print "Found service '%s' type '%s' domain '%s' " % (name,
-        #                                                      stype,
-        #                                                      domain)
-
-        print flags
-        print avahi.LOOKUP_RESULT_LOCAL
-        print 'WWWW'
-        if flags & avahi.LOOKUP_RESULT_LOCAL:
-                # local service, skip
-                ml.quit()
-
-        server.ResolveService(interface, protocol, name, stype,
-            domain, avahi.PROTO_UNSPEC, dbus.UInt32(0),
-            reply_handler=service_resolved, error_handler=print_error)
-
     loop = DBusGMainLoop()
 
     bus = dbus.SystemBus(mainloop=loop)
