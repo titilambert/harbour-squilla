@@ -176,9 +176,9 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
                                               callBack=browse_callback)
     except pybonjour.BonjourError,e :
         if e.errorCode == -65537:
-            banner_notification("Please start Avahi Daemon:\n"
+            banner_notification(self.tr("Please start Avahi Daemon:\n"
                                 "sudo gainroot --use-su\n"
-                                "/etc/init.d/avahi-daemon start")
+                                "/etc/init.d/avahi-daemon start"))
             sleep(4)
         return names
 

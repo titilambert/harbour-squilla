@@ -65,8 +65,8 @@ class Central_widget(QtGui.QWidget):
         self.parent = parent
 
         # Load gui items
-        self.bonjour_users_label = QtGui.QLabel('Select your Bonjour '
-                                                'contact id :')
+        self.bonjour_users_label = QtGui.QLabel(self.tr('Select your Bonjour '
+                                                'contact id :'))
         self.bonjour_users_label.setFixedHeight(50)
         self.bonjour_users = QtGui.QComboBox()
         icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
@@ -75,7 +75,7 @@ class Central_widget(QtGui.QWidget):
         self.reload_bonjour_users_button.setIcon(icon)
         self.reload_bonjour_users_button.setFixedWidth(80)
         self.empty = QtGui.QLabel('')
-        self.friend_list_label = QtGui.QLabel('Friend list :')
+        self.friend_list_label = QtGui.QLabel(self.tr('Friend list :'))
         self.friends_list = Friend_list_widget(self)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.bonjour_users_label, 0, 0, 1, 2)
@@ -97,11 +97,11 @@ class Central_widget(QtGui.QWidget):
         last_authorized_bonjour_contact = config.read_last_authorized_bonjour_contact()
 
         self.parent.main_window.repaint()
-        banner_notification("Looking for Bonjour contacts ...")
+        banner_notification(self.tr("Looking for Bonjour contacts ..."))
         self.parent.bonjour_users = list_presence_users()
         self.bonjour_users.clear()
         if len(self.parent.bonjour_users) == 0:
-            banner_notification("No Bonjour contacts found !")
+            banner_notification(self.tr("No Bonjour contacts found !"))
         else:
             node_friend_list = [f.node for f in 
                                 self.parent.scheduler.friend_list]
@@ -119,7 +119,7 @@ class Central_widget(QtGui.QWidget):
                 logger.debug("Last Bonjour contact found: %s, we select it" % last_authorized_bonjour_contact)
                 self.bonjour_users.setCurrentIndex(index)
 
-            banner_notification("Bonjour contacts loaded !")
+            banner_notification(self.tr("Bonjour contacts loaded !"))
 
         self.parent.main_window.setAttribute(
                                     QtCore.Qt.WA_Maemo5ShowProgressIndicator,
@@ -236,8 +236,8 @@ class Ui_MainWindow(QtCore.QObject):
 
         q_friend_list = QtCore.QStringList(sorted(q_friend_dict.keys()))
         friends_dialog.setComboBoxItems(q_friend_list)
-        friends_dialog.setWindowTitle("Add a friend")
-        friends_dialog.setLabelText("Select a friend")
+        friends_dialog.setWindowTitle(self.tr("Add a friend"))
+        friends_dialog.setLabelText(self.tr("Select a friend"))
         ret = friends_dialog.exec_()
 
         if ret == 0:
@@ -308,6 +308,7 @@ def main():
                           action="store_true",
                           default='False', help="Debug mode")
 
+    translator = QtCore.QTranslator()
     app = QtGui.QApplication(sys.argv)
 #    app.setOrganizationName("HeySms")
 #    app.setOrganizationDomain("HeySms")
