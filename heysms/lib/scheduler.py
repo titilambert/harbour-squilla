@@ -123,7 +123,7 @@ class Scheduler(QtCore.QThread):
             for f in self.friend_list:
                 f.auth_user = auth_user
         else:
-            banner_notification(tr(self, "Avahi error, please restart HeySms"))
+            banner_notification(tr("Avahi error, please restart HeySms", self))
 
     def send_sms(self, to, msg):
         logger.debug("Send sms to: %s" % to)

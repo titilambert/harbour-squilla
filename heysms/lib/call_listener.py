@@ -47,7 +47,7 @@ class Call_listener(QtCore.QThread):
         except ValueError, e:
             pass
         logger.debug("New incoming call from: %s" % fullname)
-        message = tr(self, "New incoming call from: %s" % fullname)
+        message = tr("New incoming call from: %s" % fullname, self)
         recv_sms_q.put({'phone_number': 'N900',
                         'message': message})
 

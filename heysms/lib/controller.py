@@ -194,16 +194,16 @@ class Controller(QtCore.QThread):
         try:
             getattr(self, 'function_' + function_name)(params)
         except AttributeError, e:
-            self.sms_to_bonjour(tr(self, "Command `%s' not found. Type `help' to see available commands" % function_name))
+            self.sms_to_bonjour(tr("Command `%s' not found. Type `help' to see available commands" % function_name, self))
         except Exception, e:
-            self.sms_to_bonjour(tr(self, "Error in function `function_%s': %s" % (function_name, str(e))))
+            self.sms_to_bonjour(tr("Error in function `function_%s': %s" % (function_name, str(e)), self))
         return True
 
     def function_help(self, *args, **kargs):
         """ Return controller help
         """
         logger.debug("Controller: `help' function called")
-        message = tr(self, 
+        message = tr( 
                   """\nHeySms Help\n"""
                   """===========\n\n"""
                   """Show this help\t: help\n"""
@@ -211,7 +211,8 @@ class Controller(QtCore.QThread):
                   """Del contact\t: del $CONTACT_ID$. Use `show' command before\n"""
                   """Search contact\t: search $CONTACT_NAME$\n"""
                   """Show contacts\t: show\n"""
-                  """Echo your msg\t: echo $MESSAGE$\n"""
+                  """Echo your msg\t: echo $MESSAGE$\n""",
+                  self
                 )
 
         self.sms_to_bonjour(message)
@@ -226,21 +227,21 @@ class Controller(QtCore.QThread):
         """ Active a contact in HeySms
         """
         if self.add_contact_dict is None:
-            self.sms_to_bonjour(tr(self, "Please use `search' command before"))
+            self.sms_to_bonjour(tr("Please use `search' command before", self))
         else:
             try:
                 id = int(id)
             except:
-                self.sms_to_bonjour(tr(self, "Bad ID: %s" % id))
+                self.sms_to_bonjour(tr("Bad ID: %s" % id, self))
                 return
             if not id in self.add_contact_dict:
-                self.sms_to_bonjour(tr(self, "ID not found: %s" % id))
+                self.sms_to_bonjour(tr("ID not found: %s" % id, self))
                 return
             else:
                 name, number = self.add_contact_dict[id]
                 names = [friend.fullname for friend in self.active_contact_dict.values()]
                 if name in names:
-                    self.sms_to_bonjour(tr(self, "\r\nContact `%s' already activated\r\n" % name))
+                    self.sms_to_bonjour(tr("\r\nContact `%s' already activated\r\n" % name, self))
                     return
                 new_friend = Friend(name, number, self.auth_user)
                 # Add to friend list in table model
@@ -248,28 +249,28 @@ class Controller(QtCore.QThread):
                 # append to scheduler friend list
                 self.parent.scheduler.friend_list.append(new_friend)
                 new_friend.start()
-                self.sms_to_bonjour(tr(self, "\r\nContact `%s' activated\r\n" % name))
+                self.sms_to_bonjour(tr("\r\nContact `%s' activated\r\n" % name, self))
                 self.function_show()
 
     def function_del(self, id):
         """ Deactive a contact in HeySms
         """
         if self.active_contact_dict is None:
-            self.sms_to_bonjour(tr(self, "Please use `show' command before"))
+            self.sms_to_bonjour(tr("Please use `show' command before", self))
         else:
             try:
                 id = int(id)
             except:
-                self.sms_to_bonjour(tr(self, "Bad ID: %s" % id))
+                self.sms_to_bonjour(tr("Bad ID: %s" % id, self))
                 return
             if not id in self.active_contact_dict:
-                self.sms_to_bonjour(tr(self, "ID not found: %s" % id))
+                self.sms_to_bonjour(tr("ID not found: %s" % id, self))
                 return
             else:
                 friend = self.active_contact_dict[id]
                 name = friend.fullname
                 self.parent.central_widget.friends_list.delete_friend(friend)
-                self.sms_to_bonjour(tr(self, "\r\nContact `%s' deleted\r\n" % name))
+                self.sms_to_bonjour(tr("\r\nContact `%s' deleted\r\n" % name, self))
                 self.function_show()
         
     def function_search(self, params):
@@ -278,14 +279,14 @@ class Controller(QtCore.QThread):
         logger.debug("Controller: `search' function called")
         res = search_contacts(str(params))
         self.add_contact_dict = dict([(index + 1,  contact) for index, contact in enumerate(res)])
-        message = tr(self, "\r\n\t\tSearch result\r\n  IDs\t    Names\t\t\t\tNumbers\r\n")
+        message = tr("\r\n\t\tSearch result\r\n  IDs\t    Names\t\t\t\tNumbers\r\n", self)
         message = message + "\r\n".join(["  %s\t-   %s" % (index, " :\t".join(contact)) for index, contact in self.add_contact_dict.items()])
         self.sms_to_bonjour(message)
 
     def function_show(self, *args, **kargs):
         """ Show active contacts
         """
-        message = tr(self, "\r\n\t\tActive contacts\r\n IDs\t  Favorite\t\tNames\t\t\t\tNumbers\r\n")
+        message = tr("\r\n\t\tActive contacts\r\n IDs\t  Favorite\t\tNames\t\t\t\tNumbers\r\n", self)
         self.update_active_list()
         message = message + "\r\n".join(["  %s\t-  %s\t-   %s" % (index, friend.favorite, " :\t".join((friend.fullname, friend.number))) for index, friend in self.active_contact_dict.items()])
         self.sms_to_bonjour(message)

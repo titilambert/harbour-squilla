@@ -40,7 +40,7 @@ import pybonjour
 from PyQt4 import QtCore
 
 
-def tr(obj, string):
+def tr(string, obj):
     return QtCore.QCoreApplication.translate(obj.__class__.__name__, string)
 
 def search_contact_by_number(phone_number):
