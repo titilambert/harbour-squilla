@@ -37,6 +37,11 @@ import avahi
 
 import pybonjour
 
+from PyQt4 import QtCore
+
+
+def tr(obj, string):
+    return QtCore.QCoreApplication.translate(obj.__class__.__name__, string)
 
 def search_contact_by_number(phone_number):
     db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
@@ -176,9 +181,9 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
                                               callBack=browse_callback)
     except pybonjour.BonjourError,e :
         if e.errorCode == -65537:
-            banner_notification(self.tr("Please start Avahi Daemon:\n"
+            banner_notification("Please start Avahi Daemon:\n"
                                 "sudo gainroot --use-su\n"
-                                "/etc/init.d/avahi-daemon start"))
+                                "/etc/init.d/avahi-daemon start")
             sleep(4)
         return names
 
@@ -199,8 +204,11 @@ def list_presence_users(regtype='_presence._tcp', nb_try=10):
 def banner_notification(message):
     osso_c = osso.Context("heysms_notif", "0.0.1", False)
     note = osso.SystemNote(osso_c)
-    note.system_note_infoprint(message)
+    note.system_note_infoprint(unicode(message).encode("utf8"))
 
+
+#def tr(message):
+#    QtCore.QCoreApplication.translate(
 
 class Log(object):
     def __init__(self, debug_mode=False):

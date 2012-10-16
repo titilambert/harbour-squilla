@@ -30,7 +30,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 from PyQt4 import QtCore
 
 from scheduler import recv_sms_q
-from lib import logger, search_contact_by_number
+from lib import logger, tr, search_contact_by_number
 
 
 class Call_listener(QtCore.QThread):
@@ -47,7 +47,7 @@ class Call_listener(QtCore.QThread):
         except ValueError, e:
             pass
         logger.debug("New incoming call from: %s" % fullname)
-        message = self.tr("New incoming call from: %s" % fullname)
+        message = tr(self, "New incoming call from: %s" % fullname)
         recv_sms_q.put({'phone_number': 'N900',
                         'message': message})
 

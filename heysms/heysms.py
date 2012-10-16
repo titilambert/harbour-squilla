@@ -42,7 +42,7 @@ from lib.server import Bonjour_server
 from lib.sms_listener import Sms_listener
 from lib.call_listener import Call_listener
 from lib.scheduler import Scheduler
-from lib.lib import logger
+from lib.lib import logger, tr
 from lib.friend import Friend
 from lib.config import config, Config_dialog
 from lib.friend_list import Friend_list_widget
@@ -52,11 +52,17 @@ class MenuBar(QtGui.QMenuBar):
     def __init__(self, parent=None, ):
         QtGui.QMenuBar.__init__(self, parent)
         self.setObjectName("Menu")
-        self.preference = self.addAction(self.tr("&Preferences"))
-        self.add_friend = self.addAction(self.tr("Add &friend"))
-        self.about = self.addAction(self.tr("&About"))
+        self.preference = self.addAction(tr(self, "&Preferences"))
+        self.add_friend = self.addAction(tr(self, "Add &friend"))
+        self.about = self.addAction(tr(self, "&About"))
         ## Quit
-        self.quit = self.addAction(self.tr("&Quit"))
+        self.quit = self.addAction(tr(self, "&Quit"))
+
+    def retranslate(self):
+        self.preference.setText(tr(self, "&Preferences"))
+        self.add_friend.setText(tr(self, "Add &friend"))
+        self.about.setText(tr(self, "&About"))
+        self.quit.setText(tr(self, "&Quit"))
 
 
 class Central_widget(QtGui.QWidget):
@@ -65,7 +71,7 @@ class Central_widget(QtGui.QWidget):
         self.parent = parent
 
         # Load gui items
-        self.bonjour_users_label = QtGui.QLabel(self.tr('Select your Bonjour '
+        self.bonjour_users_label = QtGui.QLabel(tr(self, 'Select your Bonjour '
                                                 'contact id :'))
         self.bonjour_users_label.setFixedHeight(50)
         self.bonjour_users = QtGui.QComboBox()
@@ -75,7 +81,7 @@ class Central_widget(QtGui.QWidget):
         self.reload_bonjour_users_button.setIcon(icon)
         self.reload_bonjour_users_button.setFixedWidth(80)
         self.empty = QtGui.QLabel('')
-        self.friend_list_label = QtGui.QLabel(self.tr('Friend list :'))
+        self.friend_list_label = QtGui.QLabel(tr(self, 'Friend list :'))
         self.friends_list = Friend_list_widget(self)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.bonjour_users_label, 0, 0, 1, 2)
@@ -89,6 +95,11 @@ class Central_widget(QtGui.QWidget):
         mainLayout.setRowStretch(0, 0)
         self.setLayout(mainLayout)
 
+    def retranslate(self):
+        self.bonjour_users_label.setText(tr(self, 'Select your Bonjour '
+                                                'contact id :'))
+        self.friend_list_label.setText(tr(self, 'Friend list :'))
+
     def reload_contacts(self):
         self.parent.main_window.setAttribute(
                                     QtCore.Qt.WA_Maemo5ShowProgressIndicator,
@@ -97,11 +108,11 @@ class Central_widget(QtGui.QWidget):
         last_authorized_bonjour_contact = config.read_last_authorized_bonjour_contact()
 
         self.parent.main_window.repaint()
-        banner_notification(self.tr("Looking for Bonjour contacts ..."))
+        banner_notification(tr(self, "Looking for Bonjour contacts ..."))
         self.parent.bonjour_users = list_presence_users()
         self.bonjour_users.clear()
         if len(self.parent.bonjour_users) == 0:
-            banner_notification(self.tr("No Bonjour contacts found !"))
+            banner_notification(tr(self, "No Bonjour contacts found !"))
         else:
             node_friend_list = [f.node for f in 
                                 self.parent.scheduler.friend_list]
@@ -119,7 +130,7 @@ class Central_widget(QtGui.QWidget):
                 logger.debug("Last Bonjour contact found: %s, we select it" % last_authorized_bonjour_contact)
                 self.bonjour_users.setCurrentIndex(index)
 
-            banner_notification(self.tr("Bonjour contacts loaded !"))
+            banner_notification(tr(self, "Bonjour contacts loaded !"))
 
         self.parent.main_window.setAttribute(
                                     QtCore.Qt.WA_Maemo5ShowProgressIndicator,
@@ -127,12 +138,13 @@ class Central_widget(QtGui.QWidget):
 
 
 class Ui_MainWindow(QtCore.QObject):
-    def __init__(self, app):
+    def __init__(self, app, translator):
         QtCore.QObject.__init__(self)
         self.app = app
         self.friend_list = []
         self.bonjour_auth_user = ''
         self.bonjour_users = {}
+        self.translator = translator
 
     def setupUi(self, main_window):
         self.main_window = main_window
@@ -236,8 +248,8 @@ class Ui_MainWindow(QtCore.QObject):
 
         q_friend_list = QtCore.QStringList(sorted(q_friend_dict.keys()))
         friends_dialog.setComboBoxItems(q_friend_list)
-        friends_dialog.setWindowTitle(self.tr("Add a friend"))
-        friends_dialog.setLabelText(self.tr("Select a friend"))
+        friends_dialog.setWindowTitle(tr(self, "Add a friend"))
+        friends_dialog.setLabelText(tr(self, "Select a friend"))
         ret = friends_dialog.exec_()
 
         if ret == 0:
@@ -316,10 +328,11 @@ def main():
     (options, args) = opt_parser.parse_args([str(i) for i in app.arguments()])
     logger.set_debug(options.debug_mode)
     
-    main_window = QtGui.QMainWindow()
-    ui = Ui_MainWindow(app)
-    ui.setupUi(main_window)
+    ui = Ui_MainWindow(app, translator)
     config.parent = ui
+    config.set_language(starting=True)
+    main_window = QtGui.QMainWindow()
+    ui.setupUi(main_window)
 
     ui.call_listener = Call_listener(ui)
     ui.call_listener.start()
@@ -333,6 +346,7 @@ def main():
 
     main_window.setWindowTitle("HeySms")
     main_window.setAttribute(QtCore.Qt.WA_Maemo5AutoOrientation, True)
+    main_window.app = app
     main_window.show()
     main_window.repaint()
     ui.central_widget.repaint()

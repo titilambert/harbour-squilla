@@ -30,7 +30,7 @@ from PyQt4 import QtCore
 
 from friend import Friend
 from lib import search_contact_by_number, banner_notification
-from lib import logger
+from lib import logger, tr
 from history import insert_sms_in_history
 from config import config
 from controller import Controller
@@ -123,7 +123,7 @@ class Scheduler(QtCore.QThread):
             for f in self.friend_list:
                 f.auth_user = auth_user
         else:
-            banner_notification(self.tr("Avahi error, please restart HeySms"))
+            banner_notification(tr(self, "Avahi error, please restart HeySms"))
 
     def send_sms(self, to, msg):
         logger.debug("Send sms to: %s" % to)

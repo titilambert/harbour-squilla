@@ -30,6 +30,7 @@ import time
 from PyQt4 import QtCore, QtGui
 
 from lib import banner_notification
+from lib import logger, tr
 
 
 class Config(QtCore.QSettings):
@@ -44,11 +45,13 @@ class Config(QtCore.QSettings):
 
         # Compatibility mode
         self.use_smssend = self.value("use_smssend", QtCore.Qt.Unchecked).toInt()
+        ## Useless ... I think ...
         if isinstance(self.use_smssend, tuple):
             self.use_smssend, _ = self.use_smssend
 
         # toggle_profile
         self.manage_profile = self.value("manage_profile", QtCore.Qt.Unchecked).toInt()
+        ## Useless ... I think ...
         if isinstance(self.manage_profile, tuple):
             self.manage_profile, _ = self.manage_profile
 
@@ -58,16 +61,19 @@ class Config(QtCore.QSettings):
 
         # start network usb
         self.useusb = self.value("use_usb", QtCore.Qt.Unchecked).toInt()
+        ## Useless ... I think ...
         if isinstance(self.useusb, tuple):
             self.useusb, _ = self.useusb
 
         # start controler
         self.usecontroler = self.value("use_controller", QtCore.Qt.Unchecked).toInt()
+        ## Useless ... I think ...
         if isinstance(self.usecontroler, tuple):
             self.usecontroler, _ = self.usecontroler
 
         # language
         self.language = self.value("language", "en").toString()
+#        print os.environ['LANG']
 
     def update_last_authorized_user(self, contact):
         self.last_authorized_bonjour_contact = contact
@@ -175,7 +181,7 @@ class Config(QtCore.QSettings):
 
             time.sleep(1)
             if ret[0].find('g_ether') != -1 and ret[0].find('(none)') != -1:
-                banner_notification(self.tr("Please don't set USB mode"))
+                banner_notification(tr(self, "Please don't set USB mode"))
                 return
 
         # Check if usb0 is used
@@ -186,7 +192,7 @@ class Config(QtCore.QSettings):
             ret = s.stdout.readlines()
             if any([l for l in ret if l.find('addr:') != -1]):
                 # usb already used
-                banner_notification(self.tr("USB network is currently used ..."))
+                banner_notification(tr(self, "USB network is currently used ..."))
                 return
         time.sleep(1)
         # mount ethernet module
@@ -302,28 +308,51 @@ class Config(QtCore.QSettings):
                       'com.nokia.profiled.set_profile '
                       'string:"%s"' % self.orig_profile)
 
+    def set_language(self, lang=None, starting=False):
+        if lang:
+            self.language = lang
+
+        self.setValue("language", QtCore.QVariant(self.language))
+        self.sync()
+        translator = self.parent.translator
+        if translator:
+            translator.load("heysms_" + self.language, "./i18n", "_", ".qm")
+            self.parent.app.installTranslator(translator)
+
+        if not starting:
+            self.parent.central_widget.retranslate()
+            self.parent.menubar.retranslate()
+            self.parent.main_window.conf_dialog.retranslate()
+            logger.debug("Translate successfully to: %s" % self.language)
+
 
 class Config_dialog(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.parent = parent
         self.config = config
-        self.silent_label = QtGui.QLabel(self.tr('Switch in Silent mode when HeySms starts'))
+        self.silent_label = QtGui.QLabel(tr(self, 'Switch in Silent mode when HeySms starts'))
         self.silent_checkbox = QtGui.QCheckBox(self)
         self.silent_checkbox.setCheckState(config.manage_profile)
         self.silent_checkbox.setFixedWidth(70)
-        self.use_smssend_label = QtGui.QLabel(self.tr('Use Smssend to send Sms'))
+        self.use_smssend_label = QtGui.QLabel(tr(self, 'Use Smssend to send Sms'))
         self.smssend_checkbox = QtGui.QCheckBox(self)
         self.smssend_checkbox.setCheckState(config.use_smssend)
         self.smssend_checkbox.setFixedWidth(70)
-        self.useusb_label = QtGui.QLabel(self.tr('Activate USB networking'))
+        self.useusb_label = QtGui.QLabel(tr(self, 'Activate USB networking'))
         self.useusb_checkbox = QtGui.QCheckBox(self)
         self.useusb_checkbox.setCheckState(config.useusb)
         self.useusb_checkbox.setFixedWidth(70)
-        self.usecontroller_label = QtGui.QLabel(self.tr('Active Controller contact'))
+        self.usecontroller_label = QtGui.QLabel(tr(self, 'Active Controller contact'))
         self.usecontroller_checkbox = QtGui.QCheckBox(self)
         self.usecontroller_checkbox.setCheckState(config.usecontroler)
         self.usecontroller_checkbox.setFixedWidth(70)
+        self.language_label = QtGui.QLabel(tr(self, 'Language'))
+        self.language_combobox = QtGui.QComboBox(self)
+        self.language_combobox.addItem(u"English", "en")
+        self.language_combobox.addItem(u"Français", "fr")
+        index = self.language_combobox.findData(config.language)
+        self.language_combobox.setCurrentIndex(index)
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(self.silent_label, 0, 0)
         mainLayout.addWidget(self.silent_checkbox, 0, 1)
@@ -333,9 +362,11 @@ class Config_dialog(QtGui.QDialog):
         mainLayout.addWidget(self.useusb_checkbox, 2, 1)
         mainLayout.addWidget(self.usecontroller_label, 3, 0)
         mainLayout.addWidget(self.usecontroller_checkbox, 3, 1)
+        mainLayout.addWidget(self.language_label, 4, 0)
+        mainLayout.addWidget(self.language_combobox, 4, 1)
         mainLayout.setRowStretch(0, 0)
         self.setLayout(mainLayout)
-        self.setWindowTitle(self.tr('Preferences'))
+        self.setWindowTitle(tr(self, 'Preferences'))
 
         QtCore.QObject.connect(self.silent_checkbox,
                                QtCore.SIGNAL("stateChanged(int)"),
@@ -349,6 +380,17 @@ class Config_dialog(QtGui.QDialog):
         QtCore.QObject.connect(self.usecontroller_checkbox,
                                QtCore.SIGNAL("stateChanged(int)"),
                                self.toggle_controller)
+        QtCore.QObject.connect(self.language_combobox,
+                               QtCore.SIGNAL("currentIndexChanged (int)"),
+                               self.set_language)
+
+    def retranslate(self):
+        self.silent_label.setText(tr(self, 'Switch in Silent mode when HeySms starts'))
+        self.use_smssend_label.setText(tr(self, 'Use Smssend to send Sms'))
+        self.useusb_label.setText(tr(self, 'Activate USB networking'))
+        self.usecontroller_label.setText(tr(self, 'Active Controller contact'))
+        self.language_label.setText(tr(self, 'Language'))
+        self.setWindowTitle(tr(self, 'Preferences'))
 
     def toggle_useusb(self, state):
         config.toggle_useusb(state)
@@ -376,7 +418,7 @@ class Config_dialog(QtGui.QDialog):
             smssend_installed = True 
 
         if not smssend_installed:
-            banner_notification(self.tr("You need to install smssend"))
+            banner_notification(tr(self, "You need to install smssend"))
             QtCore.QObject.disconnect(self.smssend_checkbox,
                                QtCore.SIGNAL("stateChanged(int)"),
                                self.toggle_smssend)
@@ -389,5 +431,8 @@ class Config_dialog(QtGui.QDialog):
         state = self.smssend_checkbox.checkState()
         config.toggle_smssend(state)
     
+    def set_language(self, index_lang):
+        lang = self.language_combobox.itemData(index_lang).toString()
+        config.set_language(lang)
 
 config = Config()
