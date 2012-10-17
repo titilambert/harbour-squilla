@@ -40,9 +40,6 @@ import pybonjour
 from PyQt4 import QtCore
 
 
-def tr(string, obj):
-    return QtCore.QCoreApplication.translate(obj.__class__.__name__, string)
-
 def search_contact_by_number(phone_number):
     db = bsddb.hashopen('/home/user/.osso-abook/db/addressbook.db', 'r')
     ret = phone_number.replace("+", '')
@@ -206,9 +203,6 @@ def banner_notification(message):
     note = osso.SystemNote(osso_c)
     note.system_note_infoprint(unicode(message).encode("utf8"))
 
-
-#def tr(message):
-#    QtCore.QCoreApplication.translate(
 
 class Log(object):
     def __init__(self, debug_mode=False):
