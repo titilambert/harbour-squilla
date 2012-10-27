@@ -25,10 +25,10 @@ for fpath in glob.glob('*/*.py[c|o]'):
 for fpath in glob.glob('*/*/*.py[c|o]'):
     os.remove(fpath)
  
-changes = '* Concatenate incoming multipart SMS if needed.\nProvide only the correct chunk to CSMS PDU, not the whole message\nSend messages using GSM-7 alphabet if possible.\nThis is a Stesie release !'
+changes = '* Force avahi resolve to IPv4 (PROTO_INET).\nAdd translations.'
  
 setup(name='heysms',
-      version='1.6.10',
+      version='1.7.0',
       license='GNU GPLv2',
       description="HeySms forwards sms to your Bonjour account.",
       long_description="HeySms forwards sms to your Bonjour account. You can also answer by Bonjour.",
@@ -48,6 +48,8 @@ setup(name='heysms',
                   ('/usr/share/icons/hicolor/32x32/apps', ['images/heysms_32.png']),
                   ('/usr/share/icons/hicolor/32x32/apps', ['images/favorite.png']),
                   ('/usr/share/icons/hicolor/32x32/apps', ['images/non-favorite.png']),
+                  ('/opt/HeySms/i18n/', ['i18n/heysms_en.qm']),
+                  ('/opt/HeySms/i18n/', ['i18n/heysms_fr.qm']),
                 ],
       scripts=['scripts/heysms'],
       classifiers=[
