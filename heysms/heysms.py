@@ -281,7 +281,7 @@ class Ui_MainWindow(QtCore.QObject):
         icon = QtGui.QIcon('/usr/share/icons/hicolor/48x48/hildon'
                            '/general_refresh.png')
         vars = {}
-        vars['version'] = "1.7.0"
+        vars['version'] = "1.7.1"
         message = QtCore.QString(self.tr("""<center><h2>HeySms</h2></center>"""
                                  """<center>Version: %(version)s</center>"""
                                  """<br/>Visite web site: <a href="http://talk.maemo.org/showthread.php?t=84705">Here</a> """
