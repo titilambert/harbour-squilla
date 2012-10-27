@@ -257,7 +257,7 @@ class Ui_MainWindow(QtCore.QObject):
             logger.debug("Dialog not confirmed")
             return
 
-        raw_name = str(friends_dialog.textValue())
+        raw_name = unicode(friends_dialog.textValue())
         number = q_friend_dict[raw_name]
         select_friend = friend_list[number]
         bonjour_auth_username = str(self.bonjour_auth_user)

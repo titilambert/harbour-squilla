@@ -277,7 +277,10 @@ class Controller(QtCore.QThread):
         """
         logger.debug("Controller: `search' function called")
         res = search_contacts(str(params))
-        self.add_contact_dict = dict([(index + 1,  contact) for index, contact in enumerate(res)])
+        self.add_contact_dict = dict([(index + 1, 
+                                       (contact[0].decode('utf-8'),
+                                        contact[1]))
+                                      for index, contact in enumerate(res)])
         message = self.tr("\r\n\t\tSearch result\r\n  IDs\t    Names\t\t\t\tNumbers\r\n")
         message = message + "\r\n".join(["  %s\t-   %s" % (index, " :\t".join(contact)) for index, contact in self.add_contact_dict.items()])
         self.sms_to_bonjour(message)

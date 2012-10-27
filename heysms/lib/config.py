@@ -81,7 +81,7 @@ class Config(QtCore.QSettings):
         if not default_lang in languages.values():
             default_lang = "en"
         self.language = self.value("language", default_lang).toString()
-        print "self.language", self.language
+        logger.debug("Language: %s" % self.language)
 
     def update_last_authorized_user(self, contact):
         self.last_authorized_bonjour_contact = contact
@@ -324,7 +324,7 @@ class Config(QtCore.QSettings):
         self.sync()
         translator = self.parent.translator
         if translator:
-            translator.load("heysms_" + self.language, "/hme/user/heysms/heysms/i18n/", "_", ".qm")
+            translator.load("heysms_" + self.language, "/opt/HeySms/i18n/", "_", ".qm")
             self.parent.app.installTranslator(translator)
 
         if not starting:
