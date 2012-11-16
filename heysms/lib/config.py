@@ -35,6 +35,7 @@ from lib import logger
 
 languages = {u"English": "en",
              u"Français": "fr",
+             u"Deutsch": "de",
             }
 
 class Config(QtCore.QSettings):
