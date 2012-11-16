@@ -65,7 +65,7 @@
     <message>
         <location filename="heysms/lib/config.py" line="398"/>
         <source>Activate USB networking</source>
-        <translation>USB Netzwork aktivieren</translation>
+        <translation>USB Netzwerk aktivieren</translation>
     </message>
     <message>
         <location filename="heysms/lib/config.py" line="399"/>
