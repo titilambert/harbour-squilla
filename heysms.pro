@@ -20,4 +20,5 @@ SOURCES   += heysms/heysms.py \
              heysms/lib/sms_listener.py
 
 TRANSLATIONS += i18n/heysms_en.ts \
-                i18n/heysms_fr.ts
+                i18n/heysms_fr.ts \
+                i18n/heysms_de.ts
