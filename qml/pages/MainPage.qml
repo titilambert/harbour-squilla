@@ -88,22 +88,74 @@ Page {
                 font.pixelSize: Theme.fontSizeExtraLarge
             }
 
+            Component {
+                id: friend_delegate
+                Item {
+                    width: 480
+                    height: 60
 
-            ListView {
-                id: view
-                anchors.top: toto
+                    Column {
+                        id: friend_row
+                        anchors.leftMargin: 20
+                        anchors.fill: parent
+                        anchors.top: parent.top
 
-                model: ListModel {
-                            id: listModel
+                        Text { 
+                            id: friend_name
+                            text: name
+                            //anchors.horizontalCenter: parent.horizontalLeft;
+                            color: team
+                            width: 380
+
+                            Text {
+                                text: "FAV";
+                                id: friend_fav
+                                width: 60
+                                anchors.left: parent.right
+                                anchors.top: parent.top
+        
+                                Text {
+                                    text: "DEL";
+                                    width: 60
+                                    anchors.left: parent.right
+                                    anchors.top: parent.top
+                                }
+                            }
                         }
-
-
-                delegate: Text {
-                    // Both "name" and "team" are taken from the model
-                    text: name
-                    color: team
+                 //     Image { source: portrait; anchors.horizontalCenter: parent.horizontalCenter }
+                    }
                 }
             }
+
+            SilicaListView {
+                id: friend_list
+                width: 480
+                height: 800
+                model: ListModel {
+                    id: listModel2
+                }
+                delegate: friend_delegate
+            }
+
+            Python {
+                id: py
+
+                Component.onCompleted: {
+                    // Add the directory of this .qml file to the search path
+                    addImportPath(Qt.resolvedUrl('../../heysms'));
+
+                    // Import the main module and load the data
+                    importModule('friend_list', function () {
+                        py.call('friend_list.get_data', [], function(result) {
+                            // Load the received data into the list model
+                            for (var i=0; i<result.length; i++) {
+                                listModel2.append(result[i]);
+                            }
+                        });
+                    });
+                }
+            }
+
 
         }
     }
