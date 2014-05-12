@@ -63,12 +63,7 @@ Page {
             PageHeader {
                 title: qsTr("HeySMS")
             }
-            Label {
-                x: Theme.paddingLarge
-                text: qsTr("Hello Sailors")
-                color: Theme.secondaryHighlightColor
-                font.pixelSize: Theme.fontSizeExtraLarge
-            }
+
             ComboBox {
                 width: 480
                 id: contactComboBox
@@ -83,7 +78,7 @@ Page {
             Label {
                 x: Theme.paddingLarge
                 id: toto
-                text: qsTr("Hello Sailors2")
+                text: qsTr("Friends list:")
                 color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeExtraLarge
             }
