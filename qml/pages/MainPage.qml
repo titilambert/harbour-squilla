@@ -46,6 +46,10 @@ Page {
                 text: qsTr("Preferences")
                 onClicked: pageStack.push(Qt.resolvedUrl("PreferencesPage.qml"))
             }
+            MenuItem {
+                text: qsTr("Add friend")
+                onClicked: pageStack.push(Qt.resolvedUrl("FriendsListPage.qml"))
+            }
         }
 
         // Tell SilicaFlickable the height of its content.

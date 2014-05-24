@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-def get_data():
+def get_data(filter_=None):
     return [
         {'name': 'Alpha', 'team': 'red'},
         {'name': 'Beta', 'team': 'blue'},
