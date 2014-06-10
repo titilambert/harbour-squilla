@@ -1,8 +1,12 @@
 #!/usr/bin/python3
+
 __version__ = "0.7"
     
-from heysms.application import Application
 import sys
+sys.path.append("./embedded_libs")
+
+from heysms.application import Application
+
 
 try:
     import pyotherside

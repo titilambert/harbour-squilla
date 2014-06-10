@@ -31,7 +31,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import io.thp.pyotherside 1.2
-import QtContacts 5.0
+//import QtContacts 5.0
 import org.nemomobile.contacts 1.0
 
 
@@ -97,16 +97,16 @@ Page {
             placeholderText: "Search"
 
             onTextChanged: {
-                listModel.search(searchField.text)
+                peopleModel.search(searchField.text)
             }
         }
 
-
-
-model: ContactModel {}
+        //model: ContactModel {}
+        model: PeopleModel {
+                id: peopleModel
+            }
 
         delegate: Text {
-
             text: "Name: " + model.contact.name.firstName + " " + model.contact.name.lastName + " Number: " + model.contact.phoneNumber.number
 
         }

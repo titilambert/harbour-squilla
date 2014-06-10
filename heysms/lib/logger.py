@@ -1,11 +1,11 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-#    application.py
+#    lib.py
 #
 #    This file is part of HeySms
 #
-#    Copyright (C) 2014 Thibault Cohen
+#    Copyright (C) 2012 Thibault Cohen
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,26 +23,16 @@
 #
 
 
-import sys
-from heysms.lib.logger import logger
-from heysms.lib.sms_listener import Sms_listener
-from heysms.lib.scheduler import Scheduler
-from heysms.lib.presence_browser import list_presence_contacts
+class Log(object):
+    def __init__(self, debug_mode=False):
+        self.debug_mode = debug_mode
 
-class Application:
-    def __init__(self, interval):
-        pass
+    def set_debug(self, debug_mode):
+        self.debug_mode = debug_mode
 
-    #/home/nemo/.local/share/system/privileged/Contacts/qtcontacts-sqlite/contacts.db
-    def start(self):
-        logger.set_debug(True)
-        logger.debug("Application started")
-        sms_listener = Sms_listener()
-        sms_listener.start()
-        scheduler = Scheduler()
-        scheduler.start()
-        # get presence contacts
-        import time
-        logger.debug("GOOO")
-        time.sleep(10)
-        list_presence_contacts()
+    def debug(self, msg):
+        if self.debug_mode == True:
+            print("DEBUG: %s" % str(msg))
+
+
+logger = Log()
