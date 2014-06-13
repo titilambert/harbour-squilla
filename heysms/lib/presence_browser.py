@@ -37,16 +37,17 @@ from heysms.lib.logger import logger
 zeroconf = Zeroconf(("0.0.0.0", ))
 zeroconf = Zeroconf(("192.168.13.15", ))
 
+presence_auth_user = None
+presence_users = {}
 
 def list_presence_contacts():
     # get entries
     raw_entries = zeroconf.cache.entries()
     # sort
-    logger.debug("list_presence_contactslist_presence_contactslist_presence_contacts")
     entries = {}
-    logger.debug(raw_entries)
-    for entrie in raw_entries:
-        name_splitted = entrie.name.rsplit("@", 1)
+    logger.debug("Raw entries:" + str(raw_entries))
+    for entry in raw_entries:
+        name_splitted = entry.name.rsplit("@", 1)
         if len(name_splitted) != 2:
             continue
         name, type_ = name_splitted
@@ -56,15 +57,56 @@ def list_presence_contacts():
             continue
         # Get data
         tmp_dict = {}
-        if isinstance(entrie, mdns.zeroconf.DNSService):
-            tmp_dict['server'] = entrie.server
-            tmp_dict['port'] = entrie.port
+        if isinstance(entry, mdns.zeroconf.DNSService):
+            tmp_dict['host'] = entry.server
+            tmp_dict['port'] = entry.port
             tmp_dict['name'] = name
-            tmp_dict['raw_name'] = entrie.name
+            tmp_dict['raw_name'] = entry.name
         else:
             continue
         # save data
         entries.setdefault(name, {}).update(tmp_dict)
 
-    logger.debug(entries)
+    logger.debug("Entries: " + str(entries))
+    # Save presences users
+    save_presence_users(entries)
+    # Set presence auth user with the only one entry
+    if len(entries) == 1:
+        set_presence_auth_user(list(entries.keys())[0])
     return entries
+
+def save_presence_users(entries):
+    global presence_users
+    presence_users = entries.copy()
+
+def set_presence_auth_user(selected_presence):
+    logger.debug("Set auth user: " + str(selected_presence))
+    global presence_users
+    global presence_auth_user
+    presence_auth_user = presence_users.get(selected_presence, None)
+
+def get_presence_auth_user():
+    global presence_auth_user
+    return presence_auth_user
+
+def load_presences(selected_presence=None):
+    """ Load presence list
+    If selected_presence is set
+    it will be the first of the list
+    """
+    presences = list_presence_contacts()
+
+    ret = []
+
+    # Prepare the first element of the combobox
+    if selected_presence is not None and selected_presence in presences:
+        ret.append({'name': selected_presence,
+                    'value': presences.get(selected_presence)
+                    })
+
+    # Complete the combobox
+    for name, data in presences.items():
+        if selected_presence != name:
+            ret.append({'name': name, 'data': data})
+
+    return ret

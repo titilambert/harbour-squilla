@@ -28,7 +28,7 @@ import socketserver
 from heysms.lib.logger import logger
 
 
-class Bonjour_server():
+class Presence_server():
     def __init__(self, auth_user):
         self.host = '0.0.0.0'
         self.port = 5299
@@ -53,8 +53,8 @@ class Bonjour_server():
                 return True
         return False
 
-    def set_auth(self, username):
-        """ Set bonjour user which receive and send sms
+    def set_presence_auth_user(self, username):
+        """ Set presence user which receive and send sms
         """
         self.auth_user = username
 

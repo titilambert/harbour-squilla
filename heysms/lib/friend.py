@@ -23,7 +23,15 @@
 #
 
 
+import select
+import random
+import socket
+from time import sleep
+import subprocess
+
 from threading import Thread
+from heysms.lib.logger import logger
+
 
 
 port = 5299
@@ -85,3 +93,81 @@ class Friend(Thread):
         r.register_service(info)
         r.engine.join()
 
+    def sms_to_bonjour(self, msg):
+        logger.debug("Forward sms to bonjour")
+        self.is_ready = True
+        msg = msg.replace("<", "&lt;")
+        msg = msg.replace(">", "&gt;")
+        # Waiting self is bonjour registered
+        while self.is_ready == False:
+            logger.debug("Waiting bonjour contact "
+                         "registered: %s" % self.fullname)
+            sleep(1)
+
+        # Connect to bonjour server
+        logger.debug(self.auth_user)
+        logger.debug(self.auth_user.values())
+        logger.debug(list(self.auth_user.values()))
+        host = self.auth_user['host']
+        host = '192.168.13.1'
+        port = self.auth_user['port']
+        so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        logger.debug("Connecting to %s:%s" % (host, port))
+        try:
+            so.connect((host, port))
+        except TypeError(e):
+            logger.debug("Connection error: %s" % str(e))
+            return False
+        # Dont need this !?
+        so.setblocking(1)
+        so.settimeout(2)
+
+        # Prepare variables
+        username = self.auth_user['name']
+        dic = {"to": username,
+               "from": self.node,
+               "msg": msg,
+               "id": self.id}
+        # Hand check
+        # Send data
+        xml = (u"""<?xml version='1.0' encoding='UTF-8'?><stream:stream """
+               u"""xmlns='jabber:client' """
+               u"""xmlns:stream='http://etherx.jabber.org/streams' """
+               u"""to="%(to)s" from="%(from)s" version="1.0">""" % dic)
+        logger.debug("Send Handcheck")
+        so.send(xml.encode('utf-8'))
+
+        # Read data
+        try:
+            data = so.recv(1024)
+            #print data
+        except socket.timeout:
+            #print "socket.timeout"
+            pass
+
+        # Send data
+        so.send("""<stream:features/>""".encode('utf-8'))
+
+        # Read data
+        try:
+            data = so.recv(1024)
+            #print data
+        except socket.timeout:
+            #print "socket.timeout"
+            pass
+
+        # Send data
+        xml = ("""<message from="%(from)s" to="%(to)s" type="chat" """
+               """id="%(id)s"><body>%(msg)s</body></message>""" % dic)
+        logger.debug("Send message")
+        so.send(xml.encode('utf-8'))
+        try:
+            data = so.recv(1024)
+            #print data
+        except socket.timeout:
+            #print "socket.timeout"
+            pass
+        # Close connection
+        so.close()
+        logger.debug("End foward sms to bonjour")
+        return True

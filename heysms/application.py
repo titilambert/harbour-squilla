@@ -41,8 +41,3 @@ class Application:
         sms_listener.start()
         scheduler = Scheduler()
         scheduler.start()
-        # get presence contacts
-        import time
-        logger.debug("GOOO")
-        time.sleep(10)
-        list_presence_contacts()

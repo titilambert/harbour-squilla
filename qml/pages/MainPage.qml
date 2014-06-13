@@ -36,6 +36,22 @@ import io.thp.pyotherside 1.2
 Page {
     id: page
 
+    onStatusChanged: {
+                      if (status == 2) {
+/*                          py.call('seadevil.get_last_mac', [], function(result) {
+                              if (result[1]) {
+                                  computer_combo.reload(result[1])
+                                  macaddress_input.text = result[0]
+                              }
+                              else {
+                                  computer_combo.reload()
+                              }
+                          })
+*/
+                        presence_combo.reload()
+                      }
+                     }
+
     // To enable PullDownMenu, place our content in a SilicaFlickable
     SilicaFlickable {
         anchors.fill: parent
@@ -70,15 +86,39 @@ Page {
 
             ComboBox {
                 width: 480
-                id: contactComboBox
+                id: presence_combo
                 label: "Select your Bonjour contact ID"
 
+
                 menu: ContextMenu {
-                    MenuItem { text: "automatic" }
-                    MenuItem { text: "manual" }
-                    MenuItem { text: "high" }
+                    id: presence_contextmenu
+                    Repeater { 
+                        id: presence_repeater_combo
+                        model: ListModel { id: presence_model }
+                        MenuItem { text: model.name }
+                    }
+                }
+
+                function reload(selected_presence) {
+                    presence_model.clear()
+                    py.call('heysms.lib.presence_browser.load_presences', [selected_presence], function(result) {
+                            for (var i=0; i<result.length; i++) {
+                                presence_model.append(result[i])
+                            }
+                    })
+                }
+
+                onClicked: presence_combo.reload()
+
+                onCurrentIndexChanged: {
+                        console.log("DDDDDDDD1", presence_combo.currentItem.text);
+                    if (presence_combo.currentItem.text != ''){
+                        console.log("DDDDDDDD");
+                        py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_combo.currentItem.text]);
+                    }
                 }
             }
+
             Label {
                 x: Theme.paddingLarge
                 id: toto

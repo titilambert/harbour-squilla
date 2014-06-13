@@ -28,6 +28,8 @@ from time import sleep
 
 from heysms.lib.logger import logger
 from heysms.lib.friend import Friend
+from heysms.lib.presence_browser import get_presence_auth_user
+
 
 recv_sms_q = queue.Queue()
 
@@ -56,19 +58,19 @@ class Scheduler(Thread):
         if not sender in self.number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
-            fullname = search_contact_by_number(str(sender))
+            #fullname = search_contact_by_number(str(sender))
+            fullname = str(sender)
             number = str(sender)
             # Save it !
-            bonjour_auth_username = str(self.parent.bonjour_auth_user)
-            auth_user = {bonjour_auth_username:
-                            self.parent.bonjour_users[bonjour_auth_username]}
+            logger.debug("PRESENCE_AUTH: " + str(get_presence_auth_user()))
+            auth_user = get_presence_auth_user()
             new_friend = Friend(fullname, number, auth_user)
             # Add to friend list in table model
-            self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
+            #self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
             # append to friend list
             self.friend_list.append(new_friend)
             # Register it on bonjour
-            new_friend.start()
+#            new_friend.start()
             friend = new_friend
         else:
             i = self.number_list.index(sender)
