@@ -70,7 +70,7 @@ class Scheduler(Thread):
             # append to friend list
             self.friend_list.append(new_friend)
             # Register it on bonjour
-#            new_friend.start()
+            new_friend.start()
             friend = new_friend
         else:
             i = self.number_list.index(sender)
@@ -82,7 +82,7 @@ class Scheduler(Thread):
             ret = friend.sms_to_bonjour(msg)
             logger.debug("sms_to_bonjour return: %s" % str(ret))
             return ret
-        except Exception(e):
+        except Exception as e:
             logger.debug("sms_to_bonjour error: %s" % str(e))
             return False
 

@@ -28,9 +28,13 @@ import random
 import socket
 from time import sleep
 import subprocess
-
+from socket import inet_aton
 from threading import Thread
+
+from mdns.zeroconf import ServiceInfo
+
 from heysms.lib.logger import logger
+from heysms.lib import zeroconf
 
 
 
@@ -70,32 +74,29 @@ class Friend(Thread):
 
     def run(self):
         # Register on bonjour chat
-        self.id = random.randint(100000000000, 999999999999)
+        self.id = random.randint(10000000)
         txt = {}
-        txt['1st'] = self.fullname
+        txt['1st'] = str(self.fullname)
         txt['last'] = ""
         txt['status'] = 'avail'
-        txt['port.p2pj'] = self.port
-        txt['nick'] = self.fullnick
+        txt['port.p2pj'] = 12345
+        txt['nick'] = str(self.fullname)
         #txt['node'] = self.node
-        txt['jid'] = self.node
-        txt['email'] = self.node
+        txt['jid'] = str(self.node)
+        txt['email'] = str(self.node)
         txt['version'] = 1
         txt['txtvers'] = 1
 
-        regtype = '_presence._tcp.local.'
-        node = ".".join((self.node, regtype))
-        info = ServiceInfo(regtype,
-                           node,
-                           inet_aton(self.ip_address),
-                           self.port,
-                           properties=txt)
-        r.register_service(info)
-        r.engine.join()
+        name = str(self.fullname) + '._presence._tcp.local.'
+        reg_type = '_presence._tcp.local.'
+
+        info = ServiceInfo(reg_type, name, inet_aton('192.168.3.15'), 12345, properties=txt)
+        zeroconf.register_service(info)
+        zeroconf.engine.join()
+
 
     def sms_to_bonjour(self, msg):
         logger.debug("Forward sms to bonjour")
-        self.is_ready = True
         msg = msg.replace("<", "&lt;")
         msg = msg.replace(">", "&gt;")
         # Waiting self is bonjour registered
@@ -142,6 +143,7 @@ class Friend(Thread):
             data = so.recv(1024)
             #print data
         except socket.timeout:
+            logger.debug("socket.timeout")
             #print "socket.timeout"
             pass
 
@@ -153,6 +155,7 @@ class Friend(Thread):
             data = so.recv(1024)
             #print data
         except socket.timeout:
+            logger.debug("socket.timeout")
             #print "socket.timeout"
             pass
 
@@ -165,9 +168,10 @@ class Friend(Thread):
             data = so.recv(1024)
             #print data
         except socket.timeout:
+            logger.debug("socket.timeout")
             #print "socket.timeout"
             pass
         # Close connection
-        so.close()
         logger.debug("End foward sms to bonjour")
+        so.close()
         return True

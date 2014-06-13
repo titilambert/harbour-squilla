@@ -29,13 +29,12 @@ from mdns.zeroconf import *
 import mdns
 
 from heysms.lib.logger import logger
+from heysms.lib import zeroconf
 
 
 # wlan0 needs
 # devel-su
 # iwpriv wlan0 setMCBCFilter 3
-zeroconf = Zeroconf(("0.0.0.0", ))
-zeroconf = Zeroconf(("192.168.13.15", ))
 
 presence_auth_user = None
 presence_users = {}
