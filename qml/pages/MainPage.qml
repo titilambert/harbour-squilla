@@ -100,21 +100,40 @@ Page {
                 }
 
                 function reload(selected_presence) {
+                    //Get uccrent selected name
+                   // current_selected = presence_model.get(presence_combo.currentIndex).name
+                    // Clear list
                     presence_model.clear()
                     py.call('heysms.lib.presence_browser.load_presences', [selected_presence], function(result) {
                             for (var i=0; i<result.length; i++) {
                                 presence_model.append(result[i])
                             }
                     })
+                    // Find old selected name in the new list
+//                    current_selected
+                    // Select the old selected name in combo box
+
+                    // Update selected user if old name is not found
+
                 }
 
-                onClicked: presence_combo.reload()
+                onClicked: {
+                    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ1")
+                    presence_combo.reload()
+                    consoloe.log(presence_model.get(presence_combo.currentIndex).text);
+                    if (presence_combo.currentItem != null) {
+                        if (presence_combo.currentItem.text != ''){
+                            py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
+                        }
+                    }
+                }
 
                 onCurrentIndexChanged: {
-                        console.log("DDDDDDDD1", presence_combo.currentItem.text);
-                    if (presence_combo.currentItem.text != ''){
-                        console.log("DDDDDDDD");
-                        py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_combo.currentItem.text]);
+                    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ")
+                    if (presence_combo.currentItem != null) {
+                        if (presence_combo.currentItem.name != ''){
+                            py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
+                        }
                     }
                 }
             }

@@ -2,6 +2,7 @@
 ## sure
 pyotherside-qml-plugin-python3-qt5
 dbus-python
+python-lxml-3
 mce-tools
 
 ## maybe

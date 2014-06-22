@@ -32,14 +32,16 @@ from socket import inet_aton
 from threading import Thread
 
 from mdns.zeroconf import ServiceInfo
+import dbus
 
 from heysms.lib.logger import logger
 from heysms.lib import zeroconf
 
+from heysms.lib.presence_browser import get_presence_auth_user
 
 
 port = 5299
-ip_address = '192.168.2.38'
+ip_address = '192.168.13.15'
 
 
 class Friend(Thread):
@@ -50,7 +52,9 @@ class Friend(Thread):
         self.port = port
         self.ip_address = ip_address
         self.auth_user = auth_user
-        self.node = "%s@jolla" % ''.join(c for c in self.fullname if c.isalnum()).lower()
+        #self.node = "%s@jolla" % ''.join(c for c in number.replace("+", "") if c.isalnum()).lower()
+        self.node = "%s@jolla" % ''.join(c for c in number if c.isalnum()).lower()
+#        self.node = number.replace("+", "")
         self.favorite = False
 
         self.parent = parent
@@ -74,26 +78,41 @@ class Friend(Thread):
 
     def run(self):
         # Register on bonjour chat
-        self.id = random.randint(10000000)
+        self.id = random.randint(0, 10000000)
         txt = {}
+        #txt['1st'] = str(self.fullname).replace("+", "")
         txt['1st'] = str(self.fullname)
         txt['last'] = ""
         txt['status'] = 'avail'
-        txt['port.p2pj'] = 12345
+        txt['port.p2pj'] = 5299
+#        txt['nick'] = str(self.fullname).replace("+", "")
         txt['nick'] = str(self.fullname)
-        #txt['node'] = self.node
+        txt['node'] = self.node
         txt['jid'] = str(self.node)
         txt['email'] = str(self.node)
         txt['version'] = 1
         txt['txtvers'] = 1
 
-        name = str(self.fullname) + '._presence._tcp.local.'
+        name = self.node + '._presence._tcp.local.'
         reg_type = '_presence._tcp.local.'
 
-        info = ServiceInfo(reg_type, name, inet_aton('192.168.3.15'), 12345, properties=txt)
+        print(txt)
+        print(name)
+        info = ServiceInfo(reg_type, name, inet_aton('192.168.13.15'), 5299, properties=txt)
         zeroconf.register_service(info)
+        self.is_ready = True
         zeroconf.engine.join()
 
+    def send_sms(self, message):
+        logger.debug("Sending sms using 'dbus'")
+        bus = dbus.SystemBus()
+        smsobject = bus.get_object('org.ofono',
+                                   '/ril_0')
+        smsiface = dbus.Interface(smsobject, 'org.ofono.MessageManager')
+        message = message.encode('utf-8')
+        smsiface.SendMessage(self.number, message)
+        logger.debug("Sms send: %s" % message)
+        logger.debug("to: %s " % self.number)
 
     def sms_to_bonjour(self, msg):
         logger.debug("Forward sms to bonjour")
@@ -106,9 +125,10 @@ class Friend(Thread):
             sleep(1)
 
         # Connect to bonjour server
-        logger.debug(self.auth_user)
-        logger.debug(self.auth_user.values())
-        logger.debug(list(self.auth_user.values()))
+        self.auth_user = get_presence_auth_user()
+        #logger.debug(self.auth_user)
+        #logger.debug(self.auth_user.values())
+        #logger.debug(list(self.auth_user.values()))
         host = self.auth_user['host']
         host = '192.168.13.1'
         port = self.auth_user['port']
@@ -135,7 +155,7 @@ class Friend(Thread):
                u"""xmlns='jabber:client' """
                u"""xmlns:stream='http://etherx.jabber.org/streams' """
                u"""to="%(to)s" from="%(from)s" version="1.0">""" % dic)
-        logger.debug("Send Handcheck")
+        print(xml)
         so.send(xml.encode('utf-8'))
 
         # Read data
@@ -143,7 +163,7 @@ class Friend(Thread):
             data = so.recv(1024)
             #print data
         except socket.timeout:
-            logger.debug("socket.timeout")
+            logger.debug("socket.timeout1")
             #print "socket.timeout"
             pass
 
@@ -155,20 +175,21 @@ class Friend(Thread):
             data = so.recv(1024)
             #print data
         except socket.timeout:
-            logger.debug("socket.timeout")
+            logger.debug("socket.timeout2")
             #print "socket.timeout"
             pass
 
         # Send data
         xml = ("""<message from="%(from)s" to="%(to)s" type="chat" """
                """id="%(id)s"><body>%(msg)s</body></message>""" % dic)
+        print(xml)
         logger.debug("Send message")
         so.send(xml.encode('utf-8'))
         try:
             data = so.recv(1024)
             #print data
         except socket.timeout:
-            logger.debug("socket.timeout")
+            logger.debug("socket.timeout3")
             #print "socket.timeout"
             pass
         # Close connection

@@ -71,7 +71,10 @@ def list_presence_contacts():
     save_presence_users(entries)
     # Set presence auth user with the only one entry
     if len(entries) == 1:
-        set_presence_auth_user(list(entries.keys())[0])
+        lonely_presense_auth_user = list(entries.keys())[0]
+        set_presence_auth_user(lonely_presense_auth_user)
+#        presence_server.restart(lonely_presense_auth_user)
+
     return entries
 
 def save_presence_users(entries):
@@ -83,6 +86,7 @@ def set_presence_auth_user(selected_presence):
     global presence_users
     global presence_auth_user
     presence_auth_user = presence_users.get(selected_presence, None)
+    print(presence_auth_user)
 
 def get_presence_auth_user():
     global presence_auth_user

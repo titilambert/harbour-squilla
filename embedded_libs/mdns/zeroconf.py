@@ -27,7 +27,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import sys
 import time
 import struct
 import socket
@@ -41,9 +41,10 @@ from threading import Thread
 
 
 # py3k
-import platform
-if platform.python_version_tuple()[0] == '3':
+if sys.version_info[0] == 3:
     ord = lambda x: x
+    _chr = chr
+    chr = lambda x: bytes(_chr(x), 'utf-8')
 
 class NI(object):
     def __call__(self, *argv, **kwarg):
@@ -213,8 +214,8 @@ def current_time_millis():
 
 
 def dict_to_text(d):
-    list = []
-    result = ''
+    list_ = []
+    result = b''
     for key in d.keys():
         value = d[key]
         if value is None:
@@ -228,9 +229,17 @@ def dict_to_text(d):
                 suffix = 'false'
         else:
             suffix = ''.encode('utf-8')
-        list.append('='.join((key, suffix)))
-    for item in list:
-        result = ''.join((result, struct.pack('!c', chr(len(item))), item))
+        if isinstance(key, bytes):
+            key = key.decode('utf-8')
+        if isinstance(suffix, bytes):
+            suffix = suffix.decode('utf-8')
+        list_.append('='.join((key, suffix)))
+
+    for item in list_:
+        value = chr(len(item))
+        if sys.version_info[0] == 3:
+            item = bytes(item, 'utf-8')
+        result = b''.join((result, struct.pack('!c', value), item))
     return result
 
 
@@ -599,7 +608,10 @@ class DNSText(DNSRecord):
 
     def __init__(self, name, type, clazz, ttl, text):
         DNSRecord.__init__(self, name, type, clazz, ttl)
-        self.text = str(text)
+        if sys.version_info[0] == 3:
+            self.text = text
+        else:
+            self.text = str(text)
         try:
             self.properties = text_to_dict(text)
         except:
@@ -636,7 +648,7 @@ class DNSText(DNSRecord):
     def __repr__(self):
         """String representation"""
         if len(self.text) > 30:
-            return self.to_string(repr(self.text[:27] + "..."))
+            return self.to_string(repr(self.text[:27] + b"..."))
         else:
             return self.to_string(repr(self.text))
 
@@ -688,7 +700,10 @@ class DNSIncoming(object):
 
         self.read_header()
         self.read_questions()
-        self.read_others()
+        try:
+            self.read_others()
+        except Exception as e:
+            pass
 
     def read_header(self):
         """Reads header portion of packet"""
@@ -907,8 +922,8 @@ class DNSOutgoing(object):
 
     def write_byte(self, value):
         """Writes a single byte to the packet"""
-        format = '!c'
-        self.data.append(struct.pack(format, chr(value)))
+        format = '!B'
+        self.data.append(struct.pack(format, value))
         self.size += 1
 
     def write_uchar(self, value):
@@ -1002,7 +1017,7 @@ class DNSOutgoing(object):
         record.write(self)
         self.size -= 2
 
-        length = len(''.join(self.data[index:]))
+        length = len(b''.join(self.data[index:]))
         self.insert_short(index, length)  # Here is the short we adjusted for
 
     def packet(self):
@@ -1030,7 +1045,7 @@ class DNSOutgoing(object):
                 self.insert_short(0, 0)
             else:
                 self.insert_short(0, self.id)
-        return ''.join(self.data)
+        return b''.join(self.data)
 
 
 class DNSCache(object):
@@ -2120,6 +2135,7 @@ class Zeroconf(object):
             try:
                 return i.sendto(out.packet(), 0, (addr, port))
             except:
+                traceback.print_exc()
                 # Ignore this, it may be a temporary loss of network connection
                 return -1
 

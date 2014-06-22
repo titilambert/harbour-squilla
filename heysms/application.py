@@ -27,7 +27,8 @@ import sys
 from heysms.lib.logger import logger
 from heysms.lib.sms_listener import Sms_listener
 from heysms.lib.scheduler import Scheduler
-from heysms.lib.presence_browser import list_presence_contacts
+from heysms.lib.presence_browser import list_presence_contacts, presence_auth_user
+from heysms.lib.server import PresenceServer
 
 class Application:
     def __init__(self, interval):
@@ -41,3 +42,5 @@ class Application:
         sms_listener.start()
         scheduler = Scheduler()
         scheduler.start()
+        presence_server = PresenceServer()
+        presence_server.restart()

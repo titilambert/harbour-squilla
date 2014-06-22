@@ -32,12 +32,14 @@ from heysms.lib.presence_browser import get_presence_auth_user
 
 
 recv_sms_q = queue.Queue()
+send_sms_q = queue.Queue()
 
+friend_list = []
 
 class Scheduler(Thread):
     def __init__(self):
         Thread.__init__(self)
-        self.friend_list = []
+        #self.friend_list = []
         self.must_run = False
         self.waiting_authorized_contact = False
 
@@ -51,10 +53,30 @@ class Scheduler(Thread):
                               new_sms['message'])
                 if status:
                     recv_sms_q.task_done()
+            if not send_sms_q.empty():
+                new_sms = send_sms_q.get()
+                self.send_sms(new_sms['to'],
+                              new_sms['message'])
+                send_sms_q.task_done()
+
+    def send_sms(self, to, msg):
+        logger.debug("Send sms to: %s" % to)
+        logger.debug("Sms content: %s" % msg)
+        node_list = [friend.node for friend in friend_list]
+        try:
+            i = node_list.index(to)
+        except ValueError:
+            # Impossible ?
+            logger.debug("User not find in list: %s" % to)
+            return
+        friend = friend_list[i]
+        controller = friend.send_sms(msg)
+#        if not controller:
+#            sms_history_q.put({'message': msg, 'num': friend.number})
 
     def sms_received(self, sender, msg):
         logger.debug("New sms from: %s" % sender)
-        self.number_list = [friend.number for friend in self.friend_list]
+        self.number_list = [friend.number for friend in friend_list]
         if not sender in self.number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
@@ -68,21 +90,22 @@ class Scheduler(Thread):
             # Add to friend list in table model
             #self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
             # append to friend list
-            self.friend_list.append(new_friend)
+            friend_list.append(new_friend)
             # Register it on bonjour
             new_friend.start()
             friend = new_friend
         else:
             i = self.number_list.index(sender)
-            friend = self.friend_list[i]
+            friend = friend_list[i]
             logger.debug("This is an old friend: %s" % sender)
         # SMS to bonjour
         logger.debug("Forward sms to bonjour")
-        try:
-            ret = friend.sms_to_bonjour(msg)
-            logger.debug("sms_to_bonjour return: %s" % str(ret))
-            return ret
-        except Exception as e:
-            logger.debug("sms_to_bonjour error: %s" % str(e))
-            return False
+        ret = friend.sms_to_bonjour(msg)
+#        try:
+#            ret = friend.sms_to_bonjour(msg)
+#            logger.debug("sms_to_bonjour return: %s" % str(ret))
+#            return ret
+#        except Exception as e:
+#            logger.debug("sms_to_bonjour error: %s" % str(e))
+#            return False
 
