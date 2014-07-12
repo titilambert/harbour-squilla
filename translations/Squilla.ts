@@ -8,7 +8,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>HeySMS</source>
+        <source>Squilla</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

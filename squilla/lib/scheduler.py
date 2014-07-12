@@ -3,7 +3,7 @@
 #
 #    scheduler.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2012 Thibault Cohen
 #
@@ -26,15 +26,16 @@ import queue
 from threading import Thread
 from time import sleep
 
-from heysms.lib.logger import logger
-from heysms.lib.friend import Friend
-from heysms.lib.presence_browser import get_presence_auth_user
+from squilla.lib.logger import logger
+from squilla.lib.friend import Friend
+from squilla.lib.presence_browser import get_presence_auth_user
 
 
 recv_sms_q = queue.Queue()
 send_sms_q = queue.Queue()
 
 friend_list = []
+
 
 class Scheduler(Thread):
     def __init__(self):

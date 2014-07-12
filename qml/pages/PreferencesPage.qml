@@ -52,7 +52,7 @@ Page {
 
             TextSwitch {
                 id: silentSwitch
-                text: "Switch in Silent mode when HeySMS starts"
+                text: "Switch in Silent mode when Squilla starts"
                 /*description: "Activates the Doomsday device"
                 /*onCheckedChanged: {
                     device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)

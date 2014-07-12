@@ -3,7 +3,7 @@
 #
 #    application.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2014 Thibault Cohen
 #
@@ -24,11 +24,11 @@
 
 
 import sys
-from heysms.lib.logger import logger
-from heysms.lib.sms_listener import Sms_listener
-from heysms.lib.scheduler import Scheduler
-from heysms.lib.presence_browser import list_presence_contacts, presence_auth_user
-from heysms.lib.server import PresenceServer
+from squilla.lib.logger import logger
+from squilla.lib.sms_listener import Sms_listener
+from squilla.lib.scheduler import Scheduler
+from squilla.lib.presence_browser import list_presence_contacts, presence_auth_user
+from squilla.lib.server import PresenceServer
 
 class Application:
     def __init__(self, interval):

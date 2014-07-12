@@ -3,9 +3,12 @@
 __version__ = "0.7"
     
 import sys
+import os
+import grp
+
 sys.path.append("./embedded_libs")
 
-from heysms.application import Application
+from squilla.application import Application
 
 
 try:
@@ -20,8 +23,13 @@ except ImportError:
         def send(*args): pass
     sys.modules["pyotherside"] = pyotherside()
 
+
 def main():
     """Initialize application."""
     global app
+    try:
+        os.setgid(grp.getgrnam("privileged").gr_gid)
+    except Exception as e:
+        print(e) 
     app = Application(interval=3)
     app.start()

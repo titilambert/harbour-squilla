@@ -3,7 +3,7 @@
 #
 #    lib/presence_browser.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2012 Thibault Cohen
 #
@@ -25,11 +25,11 @@
 
 import socket
 
-from mdns.zeroconf import *
+from mdns.zeroconf import DNSAddress
 import mdns
 
-from heysms.lib.logger import logger
-from heysms.lib import zeroconf
+from squilla.lib.logger import logger
+from squilla.lib import zeroconf
 
 
 # wlan0 needs
@@ -44,8 +44,16 @@ def list_presence_contacts():
     raw_entries = zeroconf.cache.entries()
     # sort
     entries = {}
-    logger.debug("Raw entries:" + str(raw_entries))
+    host_ip = {}
     for entry in raw_entries:
+        logger.debug("Raw entry:" + str(type(entry)))
+        logger.debug("Raw entry:" + str(entry))
+        if isinstance(entry, DNSAddress):
+            # entry.family = 4|6 (IPv4|IPv6)
+            # TODO: IPv6 support
+            if entry.family == 4:
+                host_ip[entry.name] = entry._address()
+            continue
         name_splitted = entry.name.rsplit("@", 1)
         if len(name_splitted) != 2:
             continue
@@ -57,7 +65,7 @@ def list_presence_contacts():
         # Get data
         tmp_dict = {}
         if isinstance(entry, mdns.zeroconf.DNSService):
-            tmp_dict['host'] = entry.server
+            tmp_dict['hostname'] = entry.server
             tmp_dict['port'] = entry.port
             tmp_dict['name'] = name
             tmp_dict['raw_name'] = entry.name
@@ -65,6 +73,12 @@ def list_presence_contacts():
             continue
         # save data
         entries.setdefault(name, {}).update(tmp_dict)
+
+    # Get host ip
+    for entry in entries.values():
+        entry['host'] = host_ip.get(entry['hostname'], None)
+    # Delete all entries which have not ip
+    entries = dict([(name, entry) for name, entry in entries.items() if entry['host'] != None])
 
     logger.debug("Entries: " + str(entries))
     # Save presences users

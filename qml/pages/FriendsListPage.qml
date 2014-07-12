@@ -145,6 +145,7 @@ Page {
             addImportPath(Qt.resolvedUrl('.'));
 
             // Import the main module and load the data
+/*
             importModule('friend_list', function () {
                         py.call('friend_list.get_data', [], function(result) {
                             // Load the received data into the list model
@@ -153,6 +154,7 @@ Page {
                             }
                         });
             });
+*/
         }
     }
 

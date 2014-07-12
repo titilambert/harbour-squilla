@@ -3,7 +3,7 @@
 #
 #    server.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2014 Thibault Cohen
 #
@@ -29,9 +29,9 @@ from xml.sax.saxutils import unescape
 
 from bs4 import BeautifulSoup
 
-from heysms.lib.logger import logger
-from heysms.lib.presence_browser import get_presence_auth_user
-from heysms.lib.scheduler import send_sms_q
+from squilla.lib.logger import logger
+from squilla.lib.presence_browser import get_presence_auth_user
+from squilla.lib.scheduler import send_sms_q
 
 
 class PresenceServer():

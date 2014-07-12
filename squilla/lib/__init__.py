@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-#    lib.py
+#    lib/presence_browser.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2012 Thibault Cohen
 #
@@ -23,16 +23,16 @@
 #
 
 
-class Log(object):
-    def __init__(self, debug_mode=False):
-        self.debug_mode = debug_mode
+import socket
 
-    def set_debug(self, debug_mode):
-        self.debug_mode = debug_mode
+from mdns.zeroconf import *
+import mdns
 
-    def debug(self, msg):
-        if self.debug_mode == True:
-            print("DEBUG: %s" % str(msg))
+from squilla.lib.logger import logger
 
 
-logger = Log()
+# wlan0 needs
+# devel-su
+# iwpriv wlan0 setMCBCFilter 3
+zeroconf = Zeroconf(("0.0.0.0", ))
+zeroconf = Zeroconf(("192.168.13.15", ))

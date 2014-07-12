@@ -1,7 +1,6 @@
 [Desktop Entry]
+Name=Squilla
+Exec=sailfish-qml harbour-squilla
+Icon=harbour-squilla
 Type=Application
 X-Nemo-Application-Type=silica-qt5
-Name=HeySMS
-Icon=HeySMS
-Exec=HeySMS
-

@@ -3,7 +3,7 @@
 #
 #    sms_listener.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2014 Thibault Cohen
 #
@@ -30,8 +30,9 @@ import dbus
 from dbus import glib
 from dbus.mainloop.glib import DBusGMainLoop
 
-from heysms.lib.logger import logger
-from heysms.lib.scheduler import recv_sms_q
+from squilla.lib.logger import logger
+from squilla.lib.scheduler import recv_sms_q
+
 
 class Sms_listener(Thread):
     def __init__(self):
@@ -49,17 +50,9 @@ class Sms_listener(Thread):
         recv_sms_q.put({'phone_number': sendernumber,
                         'message': message})
 
-
     def run(self):
         logger.debug("run")
         DBusGMainLoop(set_as_default=True)
         bus = dbus.SystemBus()
         bus.add_signal_receiver(self.handle_sms, path='/ril_0',   dbus_interface='org.ofono.MessageManager', signal_name='IncomingMessage')
         glib.threads_init()
-
-
-
-#    DBusGMainLoop(set_as_default=True)
-
-#    print("DDDD")
-#    gobject.MainLoop().run()

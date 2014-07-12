@@ -7,8 +7,8 @@ Python {
     property bool ready: false
     Component.onCompleted: {
         addImportPath(Qt.resolvedUrl(".."));
-        importModule("heysms", function() {
-            py.call("heysms.main", [], function() {
+        importModule("squilla", function() {
+            py.call("squilla.main", [], function() {
                 py.ready = true;
             });
         });
@@ -21,8 +21,8 @@ Python {
     Component.onCompleted: {
         addImportPath(Qt.resolvedUrl(".."));
         console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
-        importModule("heysms", function() {
-            py.call("heysms.main", [], function() {
+        importModule("squilla", function() {
+            py.call("squilla.main", [], function() {
                 py.ready = true;
             });
         });    

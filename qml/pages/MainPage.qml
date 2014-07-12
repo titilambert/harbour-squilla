@@ -81,7 +81,7 @@ Page {
             width: page.width
             spacing: Theme.paddingLarge
             PageHeader {
-                title: qsTr("HeySMS")
+                title: qsTr("Squilla")
             }
 
             ComboBox {
@@ -104,7 +104,7 @@ Page {
                    // current_selected = presence_model.get(presence_combo.currentIndex).name
                     // Clear list
                     presence_model.clear()
-                    py.call('heysms.lib.presence_browser.load_presences', [selected_presence], function(result) {
+                    py.call('squilla.lib.presence_browser.load_presences', [selected_presence], function(result) {
                             for (var i=0; i<result.length; i++) {
                                 presence_model.append(result[i])
                             }
@@ -120,10 +120,10 @@ Page {
                 onClicked: {
                     console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ1")
                     presence_combo.reload()
-                    consoloe.log(presence_model.get(presence_combo.currentIndex).text);
+                    console.log(presence_model.get(presence_combo.currentIndex).text);
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.text != ''){
-                            py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
+                            py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
                         }
                     }
                 }
@@ -132,7 +132,7 @@ Page {
                     console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ")
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.name != ''){
-                            py.call('heysms.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
+                            py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
                         }
                     }
                 }
@@ -200,9 +200,10 @@ Page {
 
                 Component.onCompleted: {
                     // Add the directory of this .qml file to the search path
-                    addImportPath(Qt.resolvedUrl('../../heysms'));
+                    addImportPath(Qt.resolvedUrl('../../squilla'));
 
                     // Import the main module and load the data
+/*
                     importModule('friend_list', function () {
                         py.call('friend_list.get_data', [], function(result) {
                             // Load the received data into the list model
@@ -211,6 +212,7 @@ Page {
                             }
                         });
                     });
+*/
                 }
             }
 

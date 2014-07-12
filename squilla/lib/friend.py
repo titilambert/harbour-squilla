@@ -3,7 +3,7 @@
 #
 #    friend.py
 #
-#    This file is part of HeySms
+#    This file is part of Squilla
 #
 #    Copyright (C) 2014 Thibault Cohen
 #
@@ -34,14 +34,15 @@ from threading import Thread
 from mdns.zeroconf import ServiceInfo
 import dbus
 
-from heysms.lib.logger import logger
-from heysms.lib import zeroconf
+from squilla.lib.logger import logger
+from squilla.lib import zeroconf
 
-from heysms.lib.presence_browser import get_presence_auth_user
+from squilla.lib.presence_browser import get_presence_auth_user
 
 
 port = 5299
 ip_address = '192.168.13.15'
+#ip_address = '0.0.0.0'
 
 
 class Friend(Thread):
@@ -98,7 +99,7 @@ class Friend(Thread):
 
         print(txt)
         print(name)
-        info = ServiceInfo(reg_type, name, inet_aton('192.168.13.15'), 5299, properties=txt)
+        info = ServiceInfo(reg_type, name, inet_aton(self.ip_address), self.port, properties=txt)
         zeroconf.register_service(info)
         self.is_ready = True
         zeroconf.engine.join()
@@ -126,17 +127,19 @@ class Friend(Thread):
 
         # Connect to bonjour server
         self.auth_user = get_presence_auth_user()
+        if self.auth_user is None:
+            logger.debug("Authentication user not set")
+            return False
         #logger.debug(self.auth_user)
         #logger.debug(self.auth_user.values())
         #logger.debug(list(self.auth_user.values()))
         host = self.auth_user['host']
-        host = '192.168.13.1'
         port = self.auth_user['port']
         so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         logger.debug("Connecting to %s:%s" % (host, port))
         try:
             so.connect((host, port))
-        except TypeError(e):
+        except TypeError as e:
             logger.debug("Connection error: %s" % str(e))
             return False
         # Dont need this !?
