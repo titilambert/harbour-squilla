@@ -46,7 +46,6 @@ def list_presence_contacts():
     entries = {}
     host_ip = {}
     for entry in raw_entries:
-        logger.debug("Raw entry:" + str(type(entry)))
         logger.debug("Raw entry:" + str(entry))
         if isinstance(entry, DNSAddress):
             # entry.family = 4|6 (IPv4|IPv6)

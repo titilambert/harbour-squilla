@@ -41,6 +41,7 @@ from squilla.lib.presence_browser import get_presence_auth_user
 
 
 port = 5299
+# NEED TO GET THE GOOD IP!!!!
 ip_address = '192.168.13.15'
 #ip_address = '0.0.0.0'
 
@@ -169,6 +170,8 @@ class Friend(Thread):
             logger.debug("socket.timeout1")
             #print "socket.timeout"
             pass
+        except Exception as e:
+            logger.debug(e)
 
         # Send data
         so.send("""<stream:features/>""".encode('utf-8'))

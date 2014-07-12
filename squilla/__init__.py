@@ -6,9 +6,12 @@ import sys
 import os
 import grp
 
-sys.path.append("./embedded_libs")
+embedded_libs_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                  '../embedded_libs/')
+sys.path.append(embedded_libs_path)
 
 from squilla.application import Application
+from squilla.lib.logger import logger
 
 
 try:
@@ -30,6 +33,6 @@ def main():
     try:
         os.setgid(grp.getgrnam("privileged").gr_gid)
     except Exception as e:
-        print(e) 
+        logger.debug(str(e))
     app = Application(interval=3)
     app.start()

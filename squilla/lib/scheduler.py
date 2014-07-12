@@ -29,6 +29,7 @@ from time import sleep
 from squilla.lib.logger import logger
 from squilla.lib.friend import Friend
 from squilla.lib.presence_browser import get_presence_auth_user
+from squilla.lib import search_contact_by_number
 
 
 recv_sms_q = queue.Queue()
@@ -81,8 +82,7 @@ class Scheduler(Thread):
         if not sender in self.number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
-            #fullname = search_contact_by_number(str(sender))
-            fullname = str(sender)
+            fullname = search_contact_by_number(str(sender))
             number = str(sender)
             # Save it !
             logger.debug("PRESENCE_AUTH: " + str(get_presence_auth_user()))
@@ -99,6 +99,8 @@ class Scheduler(Thread):
             i = self.number_list.index(sender)
             friend = friend_list[i]
             logger.debug("This is an old friend: %s" % sender)
+        print("FFFFFFFFFFFFFFFFFFFFFFFFFFF")
+        print(friend_list)
         # SMS to bonjour
         logger.debug("Forward sms to bonjour")
         ret = friend.sms_to_bonjour(msg)

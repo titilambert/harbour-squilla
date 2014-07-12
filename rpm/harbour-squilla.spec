@@ -8,7 +8,7 @@ Summary: SMS/XMPP Bridge application for Sailfish OS
 License: GPLv3+
 URL: https://github.com/titilambert/harbour-squilla
 Source: %{name}-%{version}.tar.gz
-BuildArch: noarch
+#BuildArch: armv7l
 BuildRequires: make
 Requires: libsailfishapp-launcher
 Requires: pyotherside-qml-plugin-python3-qt5 >= 1.2

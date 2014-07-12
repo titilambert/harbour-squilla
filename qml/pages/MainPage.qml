@@ -118,7 +118,6 @@ Page {
                 }
 
                 onClicked: {
-                    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ1")
                     presence_combo.reload()
                     console.log(presence_model.get(presence_combo.currentIndex).text);
                     if (presence_combo.currentItem != null) {
@@ -129,7 +128,6 @@ Page {
                 }
 
                 onCurrentIndexChanged: {
-                    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ")
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.name != ''){
                             py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
@@ -198,8 +196,15 @@ Page {
             Python {
                 id: py
 
+               // signal update_friend_list(Array friends)
+
                 Component.onCompleted: {
-                    // Add the directory of this .qml file to the search path
+                    setHandler('update_friend_list', function(friends) {
+                        console.log("SSSSSSSSSSSSSSSSS");
+                        console.log(friends);
+                    })
+
+/*                    // Add the directory of this .qml file to the search path
                     addImportPath(Qt.resolvedUrl('../../squilla'));
 
                     // Import the main module and load the data
