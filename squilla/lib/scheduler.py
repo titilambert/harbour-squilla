@@ -26,16 +26,18 @@ import queue
 from threading import Thread
 from time import sleep
 
+import pyotherside
+
 from squilla.lib.logger import logger
 from squilla.lib.friend import Friend
 from squilla.lib.presence_browser import get_presence_auth_user
-from squilla.lib import search_contact_by_number
+from squilla.lib import search_contact_by_number, friend_list
 
 
+# Queue of received sms
 recv_sms_q = queue.Queue()
+# Queue of sms to send
 send_sms_q = queue.Queue()
-
-friend_list = []
 
 
 class Scheduler(Thread):
@@ -62,6 +64,7 @@ class Scheduler(Thread):
                 send_sms_q.task_done()
 
     def send_sms(self, to, msg):
+        global friend_list
         logger.debug("Send sms to: %s" % to)
         logger.debug("Sms content: %s" % msg)
         node_list = [friend.node for friend in friend_list]
@@ -77,9 +80,10 @@ class Scheduler(Thread):
 #            sms_history_q.put({'message': msg, 'num': friend.number})
 
     def sms_received(self, sender, msg):
+        global friend_list
         logger.debug("New sms from: %s" % sender)
-        self.number_list = [friend.number for friend in friend_list]
-        if not sender in self.number_list:
+        number_list = [friend.number for friend in friend_list]
+        if not sender in number_list:
             # Create a new friend
             logger.debug("This is a new friend: %s" % sender)
             fullname = search_contact_by_number(str(sender))
@@ -88,27 +92,26 @@ class Scheduler(Thread):
             logger.debug("PRESENCE_AUTH: " + str(get_presence_auth_user()))
             auth_user = get_presence_auth_user()
             new_friend = Friend(fullname, number, auth_user)
-            # Add to friend list in table model
-            #self.parent.central_widget.friends_list.emit(QtCore.SIGNAL("add_friend"), new_friend)
             # append to friend list
             friend_list.append(new_friend)
             # Register it on bonjour
             new_friend.start()
             friend = new_friend
+            tmp_dict = {'name': new_friend.fullname,
+                        'number': new_friend.number}
+            # Add friend in listmodel
+            pyotherside.send('add_friend_list', tmp_dict)
         else:
-            i = self.number_list.index(sender)
+            i = number_list.index(sender)
             friend = friend_list[i]
             logger.debug("This is an old friend: %s" % sender)
-        print("FFFFFFFFFFFFFFFFFFFFFFFFFFF")
-        print(friend_list)
         # SMS to bonjour
         logger.debug("Forward sms to bonjour")
-        ret = friend.sms_to_bonjour(msg)
-#        try:
-#            ret = friend.sms_to_bonjour(msg)
-#            logger.debug("sms_to_bonjour return: %s" % str(ret))
-#            return ret
-#        except Exception as e:
-#            logger.debug("sms_to_bonjour error: %s" % str(e))
-#            return False
+        try:
+            ret = friend.sms_to_bonjour(msg)
+            logger.debug("sms_to_bonjour return: %s" % str(ret))
+            return ret
+        except Exception as e:
+            logger.debug("sms_to_bonjour error: %s" % str(e))
+            return False
 

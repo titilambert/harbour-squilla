@@ -31,18 +31,26 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import io.thp.pyotherside 1.2
-//import QtContacts 5.0
-import org.nemomobile.contacts 1.0
 
 
 Page {
     id: friendslistpage
 
+    RemorsePopup {id: add_friend_popup}
+
     Component {
         id: friend_delegate
-        Item {
+
+        ListItem {
             width: 480
-            height: 60
+            height: 80
+
+            onClicked: {
+                add_friend_popup.execute("Add friend: " + name, function () {
+                    py.call("squilla.lib.add_friend", [name, number])
+                    pageStack.pop()
+                }, 2000)
+            }
 
             Column {
                 id: friend_row
@@ -53,26 +61,23 @@ Page {
                 Text {
                     id: friend_name
                     text: name
-                    //anchors.horizontalCenter: parent.horizontalLeft;
-                    color: team
-                    width: 380
+                    color: Theme.primaryColor
+                    height: 40
+                    width: 480
+
 
                     Text {
-                        text: "FAV";
                         id: friend_fav
-                        width: 60
-                        anchors.left: parent.right
-                        anchors.top: parent.top
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        height: 20
+                        width: 480
+                        text: number
+                        color: Theme.primaryColor
+                        anchors.left: parent.left
+                        anchors.top: parent.bottom
 
-                        Text {
-                            text: "DEL";
-                            width: 60
-                            anchors.left: parent.right
-                            anchors.top: parent.top
-                        }
                     }
                 }
-         //     Image { source: portrait; anchors.horizontalCenter: parent.horizontalCenter }
             }
         }
     }
@@ -87,74 +92,51 @@ Page {
         id: friend_list
         anchors.fill: parent
         anchors.topMargin: 100
+        currentIndex: -1
         width: 480
         height: 100
-
 
         header: SearchField {
             id: searchField
             width: parent.width
             placeholderText: "Search"
+            focus: true
 
             onTextChanged: {
-                peopleModel.search(searchField.text)
+                peopleModel.update(searchField)
             }
         }
 
-        //model: ContactModel {}
-        model: PeopleModel {
-                id: peopleModel
-            }
-
-        delegate: Text {
-            text: "Name: " + model.contact.name.firstName + " " + model.contact.name.lastName + " Number: " + model.contact.phoneNumber.number
-
-        }
-/*
         model: ListModel {
-            id: listModel
+                id: peopleModel
 
-            function search(text) {
-                py.call("friend_list.get_data", [text], function(result) {
+                function update(searchField) {
+                    clear()
+                    py.call('squilla.lib.list_contact', [searchField.text], function(result) {
                             // Load the received data into the list model
                             for (var i=0; i<result.length; i++) {
-                                listModel.append(result[i]);
+                                peopleModel.append(result[i]);
                             }
-                        });
-            }
-
-
+                    });
+                }
         }
 
-
-        // prevent newly added list delegates from stealing focus away from the search field
-        currentIndex: -1
-
-
-
         delegate: friend_delegate
-*/
     }
-
 
     Python {
         id: py
 
         Component.onCompleted: {
-            // Add the directory of this .qml file to the search path
-            addImportPath(Qt.resolvedUrl('.'));
-
-            // Import the main module and load the data
-/*
-            importModule('friend_list', function () {
-                        py.call('friend_list.get_data', [], function(result) {
+            importModule('squilla', function () {
+                        py.call('squilla.lib.list_contact', [], function(result) {
                             // Load the received data into the list model
                             for (var i=0; i<result.length; i++) {
-                                listModel.append(result[i]);
+                                peopleModel.append(result[i]);
                             }
                         });
             });
-*/
+
         }
     }
 

@@ -35,9 +35,8 @@ from mdns.zeroconf import ServiceInfo
 import dbus
 
 from squilla.lib.logger import logger
-from squilla.lib import zeroconf
 
-from squilla.lib.presence_browser import get_presence_auth_user
+from squilla.lib.presence_browser import get_presence_auth_user, zeroconf
 
 
 port = 5299
@@ -100,10 +99,15 @@ class Friend(Thread):
 
         print(txt)
         print(name)
-        info = ServiceInfo(reg_type, name, inet_aton(self.ip_address), self.port, properties=txt)
-        zeroconf.register_service(info)
+        self.info = ServiceInfo(reg_type, name, inet_aton(self.ip_address), self.port, properties=txt)
+        zeroconf.register_service(self.info)
         self.is_ready = True
+        #self.engine = zeroconf.engine
+        #print("p2", self.engine)
         zeroconf.engine.join()
+
+    def unregister(self):
+        zeroconf.unregister_service(self.info)
 
     def send_sms(self, message):
         logger.debug("Sending sms using 'dbus'")

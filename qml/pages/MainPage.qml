@@ -36,6 +36,9 @@ import io.thp.pyotherside 1.2
 Page {
     id: page
 
+    RemorsePopup {id: delete_popup}
+
+
     onStatusChanged: {
                       if (status == 2) {
 /*                          py.call('seadevil.get_last_mac', [], function(result) {
@@ -138,59 +141,72 @@ Page {
 
             Label {
                 x: Theme.paddingLarge
-                id: toto
                 text: qsTr("Friends list:")
                 color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeExtraLarge
+                height: 60
             }
 
             Component {
-                id: friend_delegate
+                id: active_friend_delegate
                 Item {
                     width: 480
-                    height: 60
+                    height: 80
+                    id: friend_listitem
 
                     Column {
                         id: friend_row
-                        anchors.leftMargin: 20
-                        anchors.fill: parent
-                        anchors.top: parent.top
 
                         Text { 
                             id: friend_name
                             text: name
                             //anchors.horizontalCenter: parent.horizontalLeft;
-                            color: team
-                            width: 380
+                            color: Theme.primaryColor
+                            width: 360
+                            anchors.leftMargin: 20
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                         //   anchors.fill: parent
+                         //   anchors.verticalCenter: parent.verticalCenter
 
-                            Text {
-                                text: "FAV";
+                            IconButton {
+                                icon.source: 'image://theme/icon-m-favorite'
                                 id: friend_fav
-                                width: 60
                                 anchors.left: parent.right
-                                anchors.top: parent.top
+                                height: 30
+                         //       anchors.top: parent.top
+                         //       anchors.verticalCenter: parent.verticalCenter
         
-                                Text {
-                                    text: "DEL";
-                                    width: 60
+                                IconButton {
+                                    icon.source: 'image://theme/icon-m-delete'
                                     anchors.left: parent.right
                                     anchors.top: parent.top
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    onClicked: {
+                                                delete_popup.execute("Deleting", function () {
+                                                    py.call("squilla.lib.delete_friend", [number], function(result) {
+                                                         if (result != null) {
+                                                                listModel2.remove(result, 1)
+                                                         }
+                                                    })
+                                                })
+                                    }
                                 }
                             }
                         }
-                 //     Image { source: portrait; anchors.horizontalCenter: parent.horizontalCenter }
                     }
+
                 }
             }
 
             SilicaListView {
-                id: friend_list
+                id: active_friend_list
                 width: 480
                 height: 800
                 model: ListModel {
                     id: listModel2
                 }
-                delegate: friend_delegate
+                delegate: active_friend_delegate
             }
 
             Python {
@@ -199,9 +215,8 @@ Page {
                // signal update_friend_list(Array friends)
 
                 Component.onCompleted: {
-                    setHandler('update_friend_list', function(friends) {
-                        console.log("SSSSSSSSSSSSSSSSS");
-                        console.log(friends);
+                    setHandler('add_friend_list', function(friend) {
+                        listModel2.append(friend);
                     })
 
 /*                    // Add the directory of this .qml file to the search path

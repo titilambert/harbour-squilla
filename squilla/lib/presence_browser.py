@@ -29,12 +29,15 @@ from mdns.zeroconf import DNSAddress
 import mdns
 
 from squilla.lib.logger import logger
-from squilla.lib import zeroconf
+from mdns.zeroconf import Zeroconf
 
 
 # wlan0 needs
 # devel-su
 # iwpriv wlan0 setMCBCFilter 3
+#zeroconf = Zeroconf(("0.0.0.0", ))
+zeroconf = Zeroconf(("192.168.13.15", ))
+
 
 presence_auth_user = None
 presence_users = {}
