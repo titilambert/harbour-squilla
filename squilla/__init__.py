@@ -19,7 +19,7 @@ try:
 except ImportError:
     import sys
     # Allow testing Python backend alone.
-    print("PyOtherSide not found, continuing anyway!", file=sys.stderr)
+    logger.debug("PyOtherSide not found, continuing anyway!")
 
     class pyotherside:
         def atexit(*args): pass

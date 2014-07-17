@@ -47,9 +47,10 @@ sqlite_opening_error = False
 # List of active friends
 friend_list = []
 
-def get_friend_list():
-    global friend_list
-    return [{'name': f.fullname, 'number': f.number} for f in friend_list]
+# Not used
+#def get_friend_list():
+#    global friend_list
+#    return [{'name': f.fullname, 'number': f.number} for f in friend_list]
 
 def delete_friend(number):
     global friend_list
@@ -66,7 +67,6 @@ def delete_friend(number):
 
 def add_friend(fullname, number):
     global friend_list
-    print("DDDDDDDDDDDDDDDDDDDD1111111111111111")
     number_list = [friend.number for friend in friend_list]
     if not number in number_list:
         # Create a new friend
@@ -83,9 +83,6 @@ def add_friend(fullname, number):
                     'number': new_friend.number}
         # Add friend in listmodel
         pyotherside.send('add_friend_list', tmp_dict)
-        #print("DDDDDDDDDDDDDDDDDDDD")
-        #print(friend_list)
-        #pyotherside.send('reload_friend_list', get_friend_list())
 
 
 

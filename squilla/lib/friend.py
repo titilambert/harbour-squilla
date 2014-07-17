@@ -80,33 +80,31 @@ class Friend(Thread):
     def run(self):
         # Register on bonjour chat
         self.id = random.randint(0, 10000000)
+        # Prepare properties
         txt = {}
-        #txt['1st'] = str(self.fullname).replace("+", "")
         txt['1st'] = str(self.fullname)
         txt['last'] = ""
         txt['status'] = 'avail'
         txt['port.p2pj'] = 5299
-#        txt['nick'] = str(self.fullname).replace("+", "")
         txt['nick'] = str(self.fullname)
         txt['node'] = self.node
         txt['jid'] = str(self.node)
         txt['email'] = str(self.node)
         txt['version'] = 1
         txt['txtvers'] = 1
-
         name = self.node + '._presence._tcp.local.'
         reg_type = '_presence._tcp.local.'
 
-        print(txt)
-        print(name)
+        # Prepare service informations
         self.info = ServiceInfo(reg_type, name, inet_aton(self.ip_address), self.port, properties=txt)
+        # Register service
         zeroconf.register_service(self.info)
         self.is_ready = True
-        #self.engine = zeroconf.engine
-        #print("p2", self.engine)
+        # Join thread
         zeroconf.engine.join()
 
     def unregister(self):
+        """ Unregister service """
         zeroconf.unregister_service(self.info)
 
     def send_sms(self, message):
@@ -163,17 +161,14 @@ class Friend(Thread):
                u"""xmlns='jabber:client' """
                u"""xmlns:stream='http://etherx.jabber.org/streams' """
                u"""to="%(to)s" from="%(from)s" version="1.0">""" % dic)
-        print(xml)
+        logger.debug(xml)
         so.send(xml.encode('utf-8'))
 
         # Read data
         try:
             data = so.recv(1024)
-            #print data
         except socket.timeout:
             logger.debug("socket.timeout1")
-            #print "socket.timeout"
-            pass
         except Exception as e:
             logger.debug(e)
 
@@ -183,25 +178,19 @@ class Friend(Thread):
         # Read data
         try:
             data = so.recv(1024)
-            #print data
         except socket.timeout:
             logger.debug("socket.timeout2")
-            #print "socket.timeout"
-            pass
 
         # Send data
         xml = ("""<message from="%(from)s" to="%(to)s" type="chat" """
                """id="%(id)s"><body>%(msg)s</body></message>""" % dic)
-        print(xml)
+        logger.debug(xml)
         logger.debug("Send message")
         so.send(xml.encode('utf-8'))
         try:
             data = so.recv(1024)
-            #print data
         except socket.timeout:
             logger.debug("socket.timeout3")
-            #print "socket.timeout"
-            pass
         # Close connection
         logger.debug("End foward sms to bonjour")
         so.close()

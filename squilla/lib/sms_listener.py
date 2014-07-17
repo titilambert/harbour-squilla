@@ -39,7 +39,7 @@ class Sms_listener(Thread):
         Thread.__init__(self)
 
     def callback(self, pdumsg, msgcenter, somestring, sendernumber):
-        print("New sms received" + somestring)
+        logger.debug("New sms received: " + somestring)
 
     def handle_sms(self, message, data):
         sendernumber = data.get(dbus.String('Sender'), None)

@@ -67,9 +67,6 @@ class PresenceServer():
         def handle(self):
             auth_user = get_presence_auth_user().get("name", None)
             recvData = self.request.recv(1024)
-            #cur_thread = threading.current_thread()
-            print("auth_user")
-            print(auth_user)
             # First message
             if recvData.startswith(b"<?xml version"):
                 # Test if is authorized user
