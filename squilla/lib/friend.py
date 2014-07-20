@@ -31,12 +31,14 @@ import subprocess
 from socket import inet_aton
 from threading import Thread
 
+import pyotherside
+
 from mdns.zeroconf import ServiceInfo
 import dbus
 
 from squilla.lib.logger import logger
-
-from squilla.lib.presence_browser import get_presence_auth_user, zeroconf
+from squilla.lib import get_presence_auth_user, friend_list
+from squilla.lib.presence_browser import zeroconf
 
 
 port = 5299
@@ -53,9 +55,7 @@ class Friend(Thread):
         self.port = port
         self.ip_address = ip_address
         self.auth_user = auth_user
-        #self.node = "%s@jolla" % ''.join(c for c in number.replace("+", "") if c.isalnum()).lower()
-        self.node = "%s@jolla" % ''.join(c for c in number if c.isalnum()).lower()
-#        self.node = number.replace("+", "")
+        self.node = "%s@jolla" % fullname
         self.favorite = False
 
         self.parent = parent
@@ -195,3 +195,36 @@ class Friend(Thread):
         logger.debug("End foward sms to bonjour")
         so.close()
         return True
+
+
+def delete_friend(number):
+    global friend_list
+    for friend in friend_list:
+        if friend.number == number:
+            logger.debug("Friend %s deleted" % friend.fullname)
+            index = friend_list.index(friend)
+            friend_list.remove(friend)
+            friend.unregister()
+            del(friend)
+            return index
+    return None
+
+
+def add_friend(fullname, number):
+    global friend_list
+    number_list = [friend.number for friend in friend_list]
+    if not number in number_list:
+        # Create a new friend
+        logger.debug("This is a new friend: %s" % number)
+        # Save it !
+        logger.debug("PRESENCE_AUTH: " + str(get_presence_auth_user()))
+        auth_user = get_presence_auth_user()
+        new_friend = Friend(fullname, number, auth_user)
+        # append to friend list
+        friend_list.append(new_friend)
+        # Register it on bonjour
+        new_friend.start()
+        tmp_dict = {'name': new_friend.fullname,
+                    'number': new_friend.number}
+        # Add friend in listmodel
+        pyotherside.send('add_friend_list', tmp_dict)

@@ -28,6 +28,7 @@ import socket
 from mdns.zeroconf import DNSAddress
 import mdns
 
+from squilla.lib import presence_auth_user, presence_users, friend_list
 from squilla.lib.logger import logger
 from mdns.zeroconf import Zeroconf
 
@@ -39,10 +40,12 @@ from mdns.zeroconf import Zeroconf
 zeroconf = Zeroconf(("192.168.13.15", ))
 
 
-presence_auth_user = None
-presence_users = {}
+#presence_auth_user = None
+#presence_users = {}
 
 def list_presence_contacts():
+    #import pdb;pdb.set_trace()
+    # https://github.com/svinota/mdns/issues/8
     # get entries
     raw_entries = zeroconf.cache.entries()
     # sort
@@ -80,7 +83,9 @@ def list_presence_contacts():
     for entry in entries.values():
         entry['host'] = host_ip.get(entry['hostname'], None)
     # Delete all entries which have not ip
-    entries = dict([(name, entry) for name, entry in entries.items() if entry['host'] != None])
+    friend_name_list = [f.fullname for f in friend_list]
+    entries = dict([(name, entry) for name, entry in entries.items()
+                    if entry['host'] != None and name not in friend_name_list])
 
     logger.debug("Entries: " + str(entries))
     # Save presences users
@@ -89,13 +94,14 @@ def list_presence_contacts():
     if len(entries) == 1:
         lonely_presense_auth_user = list(entries.keys())[0]
         set_presence_auth_user(lonely_presense_auth_user)
-#        presence_server.restart(lonely_presense_auth_user)
 
     return entries
+
 
 def save_presence_users(entries):
     global presence_users
     presence_users = entries.copy()
+
 
 def set_presence_auth_user(selected_presence):
     logger.debug("Set auth user: " + str(selected_presence))
@@ -104,9 +110,6 @@ def set_presence_auth_user(selected_presence):
     presence_auth_user = presence_users.get(selected_presence, None)
     print(presence_auth_user)
 
-def get_presence_auth_user():
-    global presence_auth_user
-    return presence_auth_user
 
 def load_presences(selected_presence=None):
     """ Load presence list

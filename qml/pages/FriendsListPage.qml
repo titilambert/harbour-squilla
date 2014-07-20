@@ -47,7 +47,7 @@ Page {
 
             onClicked: {
                 add_friend_popup.execute("Add friend: " + name, function () {
-                    py.call("squilla.lib.add_friend", [name, number])
+                    py.call("squilla.lib.friend.add_friend", [name, number])
                     pageStack.pop()
                 }, 2000)
             }

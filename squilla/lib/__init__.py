@@ -31,9 +31,7 @@ import pyotherside
 
 from mdns.zeroconf import Zeroconf
 
-from squilla.lib.presence_browser import get_presence_auth_user
 from squilla.lib.logger import logger
-from squilla.lib.friend import Friend
 
 
 # contacts sqlite db uri
@@ -47,43 +45,18 @@ sqlite_opening_error = False
 # List of active friends
 friend_list = []
 
+presence_auth_user = None
+presence_users = {}
+
 # Not used
 #def get_friend_list():
 #    global friend_list
 #    return [{'name': f.fullname, 'number': f.number} for f in friend_list]
 
-def delete_friend(number):
-    global friend_list
-    for friend in friend_list:
-        if friend.number == number:
-            logger.debug("Friend %s deleted" % friend.fullname)
-            index = friend_list.index(friend)
-            friend_list.remove(friend)
-            friend.unregister()
-            del(friend)
-            return index
-    return None
 
-
-def add_friend(fullname, number):
-    global friend_list
-    number_list = [friend.number for friend in friend_list]
-    if not number in number_list:
-        # Create a new friend
-        logger.debug("This is a new friend: %s" % number)
-        # Save it !
-        logger.debug("PRESENCE_AUTH: " + str(get_presence_auth_user()))
-        auth_user = get_presence_auth_user()
-        new_friend = Friend(fullname, number, auth_user)
-        # append to friend list
-        friend_list.append(new_friend)
-        # Register it on bonjour
-        new_friend.start()
-        tmp_dict = {'name': new_friend.fullname,
-                    'number': new_friend.number}
-        # Add friend in listmodel
-        pyotherside.send('add_friend_list', tmp_dict)
-
+def get_presence_auth_user():
+    global presence_auth_user
+    return presence_auth_user
 
 
 def list_contact(filter_=None):

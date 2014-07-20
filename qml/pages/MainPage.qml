@@ -38,19 +38,8 @@ Page {
 
     RemorsePopup {id: delete_popup}
 
-
     onStatusChanged: {
                       if (status == 2) {
-/*                          py.call('seadevil.get_last_mac', [], function(result) {
-                              if (result[1]) {
-                                  computer_combo.reload(result[1])
-                                  macaddress_input.text = result[0]
-                              }
-                              else {
-                                  computer_combo.reload()
-                              }
-                          })
-*/
                         presence_combo.reload()
                       }
                      }
@@ -122,7 +111,6 @@ Page {
 
                 onClicked: {
                     presence_combo.reload()
-                    console.log(presence_model.get(presence_combo.currentIndex).text);
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.text != ''){
                             py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
@@ -184,7 +172,7 @@ Page {
                                     anchors.verticalCenter: parent.verticalCenter
                                     onClicked: {
                                                 delete_popup.execute("Deleting", function () {
-                                                    py.call("squilla.lib.delete_friend", [number], function(result) {
+                                                    py.call("squilla.lib.friend.delete_friend", [number], function(result) {
                                                          if (result != null) {
                                                                 listModel2.remove(result, 1)
                                                          }

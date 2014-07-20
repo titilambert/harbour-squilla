@@ -27,10 +27,11 @@ import socketserver
 import threading
 from xml.sax.saxutils import unescape
 
+import pyotherside
 from bs4 import BeautifulSoup
 
 from squilla.lib.logger import logger
-from squilla.lib.presence_browser import get_presence_auth_user
+from squilla.lib import get_presence_auth_user
 from squilla.lib.scheduler import send_sms_q
 
 
@@ -149,24 +150,8 @@ class PresenceServer():
             self.request.close()
 
 
-
-
     class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     class Server(socketserver.BaseRequestHandler):

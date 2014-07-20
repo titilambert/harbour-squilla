@@ -30,7 +30,7 @@ import pyotherside
 
 from squilla.lib.logger import logger
 from squilla.lib.friend import Friend
-from squilla.lib.presence_browser import get_presence_auth_user
+from squilla.lib import get_presence_auth_user
 from squilla.lib import search_contact_by_number, friend_list
 
 

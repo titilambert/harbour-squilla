@@ -87,31 +87,4 @@ Page {
             }
         }
     }
-
-
-    /*SilicaListView {
-        id: listView
-        model: 20
-        anchors.fill: parent
-        header: PageHeader {
-            title: qsTr("Nested Page")
-        }
-        delegate: BackgroundItem {
-            id: delegate
-
-            Label {
-                x: Theme.paddingLarge
-                text: "Item " + index
-                anchors.verticalCenter: parent.verticalCenter
-                color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-            }
-            onClicked: console.log("Clicked " + index)
-        }
-        VerticalScrollDecorator {}
-    }*/
 }
-
-
-
-
-

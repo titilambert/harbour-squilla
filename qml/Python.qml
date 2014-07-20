@@ -20,7 +20,6 @@ Python {
 Python {
     Component.onCompleted: {
         addImportPath(Qt.resolvedUrl(".."));
-        console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
         importModule("squilla", function() {
             py.call("squilla.main", [], function() {
                 py.ready = true;
