@@ -38,9 +38,10 @@ CoverBackground {
         text: "Squilla"
     }
 
+
     CoverActionList {
         id: coverAction
-
+/*
         CoverAction {
             iconSource: "image://theme/icon-cover-next"
         }
@@ -48,7 +49,9 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-pause"
         }
+*/
     }
+
 }
 
 

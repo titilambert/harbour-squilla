@@ -151,7 +151,7 @@ Page {
                             color: Theme.primaryColor
                             width: 360
                             anchors.leftMargin: 20
-                            anchors.top: parent.top
+                        //    anchors.top: parent.top
                             anchors.left: parent.left
 
                             IconButton {
