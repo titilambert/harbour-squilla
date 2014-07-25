@@ -31,7 +31,7 @@ from squilla.lib.sms_listener import Sms_listener
 from squilla.lib.scheduler import Scheduler
 from squilla.lib.presence_browser import list_presence_contacts, presence_auth_user
 from squilla.lib.server import PresenceServer
-from squilla.lib.friend import load_favorite_friends
+from squilla.lib.friend import load_favorite_friends, friend_list, delete_friend
 
 class Application:
     def __init__(self, interval):
@@ -59,11 +59,19 @@ class Application:
 
     def stop(self):
         logger.debug("Application stopping")
+        print(friend_list)
+        # Unregister all services
+        tmp_friend_list = friend_list[:]
+        for friend in tmp_friend_list:
+            delete_friend(friend.number)
+        # Check sms listener
         if not self.sms_listener.is_alive():
             logger.debug("SMS listener is stopped")
+        # Stop scheduler
         self.scheduler.shutdown()
+        # Stop presence server
         self.presence_server.shutdown()
+        # Swith back profile
         if get_silent_mode():
             set_current_profile(self.first_profile)
             logger.debug("Switch back profile")
-        # TODO: unregister all bonjour services
