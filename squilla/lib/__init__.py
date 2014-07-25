@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-#    lib/presence_browser.py
+#    __init__.py
 #
 #    This file is part of Squilla
 #

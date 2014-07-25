@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-#    lib.py
+#    logger.py
 #
 #    This file is part of Squilla
 #

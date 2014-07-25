@@ -22,13 +22,13 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+
 import subprocess
 import re
 
 import dbus
 
 from squilla.lib.logger import logger
-
 
 
 def get_current_profile():
@@ -83,4 +83,3 @@ def get_ip(interface='usb'):
             address_ip = match.group(1).decode('utf-8')
             logger.debug("%s address ip: %s" % (interface, address_ip))
             return address_ip
-        

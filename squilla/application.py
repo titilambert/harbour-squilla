@@ -44,8 +44,6 @@ class Application:
     def start(self):
         logger.set_debug(True)
         logger.debug("Application started")
-        get_ip('usb')
-        get_ip('wlan')
         self.sms_listener = Sms_listener()
         self.sms_listener.start()
         self.scheduler = Scheduler()
