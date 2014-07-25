@@ -113,7 +113,7 @@ Page {
                     presence_combo.reload()
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.text != ''){
-                            py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
+                            py.call('squilla.lib.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).text]);
                         }
                     }
                 }
@@ -121,7 +121,7 @@ Page {
                 onCurrentIndexChanged: {
                     if (presence_combo.currentItem != null) {
                         if (presence_combo.currentItem.name != ''){
-                            py.call('squilla.lib.presence_browser.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
+                            py.call('squilla.lib.set_presence_auth_user', [presence_model.get(presence_combo.currentIndex).name]);
                         }
                     }
                 }
@@ -148,14 +148,11 @@ Page {
                         Text { 
                             id: friend_name
                             text: name
-                            //anchors.horizontalCenter: parent.horizontalLeft;
                             color: Theme.primaryColor
                             width: 360
                             anchors.leftMargin: 20
                             anchors.top: parent.top
                             anchors.left: parent.left
-                         //   anchors.fill: parent
-                         //   anchors.verticalCenter: parent.verticalCenter
 
                             IconButton {
                                 icon.source: 'image://theme/icon-m-favorite' + (favorite ? '-selected' : '')
@@ -164,22 +161,14 @@ Page {
                                 height: 30
                                 onClicked: {
                                         py.call("squilla.lib.config.set_favorite", [number, name], function(result) {
-                                            console.log("result")
-                                            console.log(result)
                                             if (result == true) {
-                                                console.log("result1")
                                                 icon.source = 'image://theme/icon-m-favorite-selected'
                                             }
                                             else {
-                                                console.log("result2")
                                                 icon.source = 'image://theme/icon-m-favorite'
                                             }
-                                            console.log(icon.source)
                                         })
                                 }
-                         //       anchors.top: parent.top
-                         //       anchors.verticalCenter: parent.verticalCenter
-        
                                 IconButton {
                                     icon.source: 'image://theme/icon-m-delete'
                                     anchors.left: parent.right
@@ -214,29 +203,12 @@ Page {
 
             Python {
                 id: py
-
-               // signal update_friend_list(Array friends)
-
                 Component.onCompleted: {
                     setHandler('add_friend_list', function(friend) {
                         listModel2.append(friend);
                     })
-
-/*                    // Add the directory of this .qml file to the search path
-                    addImportPath(Qt.resolvedUrl('../../squilla'));
-
-                    // Import the main module and load the data
-/*
-                    importModule('friend_list', function () {
-                        py.call('friend_list.get_data', [], function(result) {
-                            // Load the received data into the list model
-                            for (var i=0; i<result.length; i++) {
-                                listModel2.append(result[i]);
-                            }
-                        });
-                    });
-*/
                 }
+
             }
 
 

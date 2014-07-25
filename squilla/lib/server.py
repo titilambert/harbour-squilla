@@ -42,12 +42,17 @@ class PresenceServer():
         self.auth_user = auth_user
         self.server = None
 
+    def shutdown(self):
+        self.server.shutdown()
+        del(self.server)
+        self.server = None
+        logger.debug("Presence server stopped")
+
+
     def restart(self):
         # Kill old server
         if self.server is not None:
-            self.server.shutdown()
-            del(self.server)
-            self.server = None
+            self.shutdown()
         # Start new one
         self.server = self.ThreadedTCPServer((self.host, self.port), self.ThreadedTCPRequestHandler)
         self.server_thread = threading.Thread(target=self.server.serve_forever)
@@ -66,7 +71,10 @@ class PresenceServer():
             return False
 
         def handle(self):
-            auth_user = get_presence_auth_user().get("name", None)
+            presence_auth_user = get_presence_auth_user()
+            if presence_auth_user is None:
+                return
+            auth_user = presence_auth_user.get("name", None)
             recvData = self.request.recv(1024)
             # First message
             if recvData.startswith(b"<?xml version"):
@@ -172,7 +180,7 @@ class PresenceServer():
 
             if recvData.startswith(b"<?xml version"):
                 # Test if is authorized user
-                import pdb;pdb.set_trace()
+                #import pdb;pdb.set_trace()
                 soup = BeautifulSoup(recvData)
                 if not self.parent.check_auth(soup):
                     logger.debug("Bonjour message received "
@@ -232,5 +240,3 @@ class PresenceServer():
                     pass
 
             sock.close()
-
-#presence_server = PresenceServer()

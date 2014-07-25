@@ -48,6 +48,10 @@ class Scheduler(Thread):
         self.must_run = False
         self.waiting_authorized_contact = False
 
+    def shutdown(self):
+        logger.debug("Stopping Scheduler")
+        self.must_run = False
+
     def run(self):
         self.must_run = True
         while self.must_run:
@@ -63,6 +67,7 @@ class Scheduler(Thread):
                 self.send_sms(new_sms['to'],
                               new_sms['message'])
                 send_sms_q.task_done()
+        logger.debug("Scheduler stopped")
 
     def send_sms(self, to, msg):
         global friend_list

@@ -52,25 +52,22 @@ Page {
 
             TextSwitch {
                 id: silentSwitch
-                text: "Switch in Silent mode when Squilla starts"
-                /*description: "Activates the Doomsday device"
-                /*onCheckedChanged: {
-                    device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)
-                }*/
-            }
-
-            TextSwitch {
-                id: sendsmsSwitch
-                text: "Use Smssens to send SMS"
-                /*description: "Activates the Doomsday device"
-                /*onCheckedChanged: {
-                    device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)
-                }*/
+                text: "Switch to Silent mode when Squilla starts"
+                onClicked: {
+                    py.call('squilla.lib.config.set_silent_mode', [checked])
+                }
+                Component.onCompleted: {
+                    py.call('squilla.lib.config.get_silent_mode', [], function(result) {
+                        if (result == true) {
+                            silentSwitch.checked = true
+                        }
+                    })
+                }
             }
 
             TextSwitch {
                 id: usbSwitch
-                text: "Activate USB networking"
+                text: "Activate USB networking (NOT WORKING)"
                 /*description: "Activates the Doomsday device"
                 /*onCheckedChanged: {
                     device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)
@@ -79,7 +76,7 @@ Page {
 
             TextSwitch {
                 id: controllerSwitch
-                text: "Active Controller Contact"
+                text: "Active Controller Contact (NOT WORKING)"
                 /*description: "Activates the Doomsday device"
                 /*onCheckedChanged: {
                     device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)

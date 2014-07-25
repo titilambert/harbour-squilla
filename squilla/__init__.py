@@ -36,3 +36,8 @@ def main():
         logger.debug(str(e))
     app = Application(interval=3)
     app.start()
+
+
+def shutdown():
+    global app
+    app.stop()

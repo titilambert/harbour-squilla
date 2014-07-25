@@ -24,8 +24,9 @@
 
 
 import sys
-import squilla.lib.config
+from squilla.lib.config import get_silent_mode
 from squilla.lib.logger import logger
+from squilla.lib.utils import get_current_profile, set_current_profile, get_ip
 from squilla.lib.sms_listener import Sms_listener
 from squilla.lib.scheduler import Scheduler
 from squilla.lib.presence_browser import list_presence_contacts, presence_auth_user
@@ -34,16 +35,37 @@ from squilla.lib.friend import load_favorite_friends
 
 class Application:
     def __init__(self, interval):
-        pass
+        self.sms_listener = None
+        self.scheduler = None
+        self.presence_server = None
+        self.first_profile = None
 
     #/home/nemo/.local/share/system/privileged/Contacts/qtcontacts-sqlite/contacts.db
     def start(self):
         logger.set_debug(True)
         logger.debug("Application started")
-        sms_listener = Sms_listener()
-        sms_listener.start()
-        scheduler = Scheduler()
-        scheduler.start()
-        presence_server = PresenceServer()
-        presence_server.restart()
+        get_ip('usb')
+        get_ip('wlan')
+        self.sms_listener = Sms_listener()
+        self.sms_listener.start()
+        self.scheduler = Scheduler()
+        self.scheduler.start()
+        self.presence_server = PresenceServer()
+        self.presence_server.restart()
         load_favorite_friends()
+        if get_silent_mode():
+            self.first_profile = get_current_profile()
+            set_current_profile('silent')
+            logger.debug("Switch to silent mode")
+            
+
+    def stop(self):
+        logger.debug("Application stopping")
+        if not self.sms_listener.is_alive():
+            logger.debug("SMS listener is stopped")
+        self.scheduler.shutdown()
+        self.presence_server.shutdown()
+        if get_silent_mode():
+            set_current_profile(self.first_profile)
+            logger.debug("Switch back profile")
+        # TODO: unregister all bonjour services

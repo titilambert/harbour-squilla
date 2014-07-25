@@ -51,7 +51,7 @@ class Sms_listener(Thread):
                         'message': message})
 
     def run(self):
-        logger.debug("run")
+        logger.debug("run sms_listener")
         DBusGMainLoop(set_as_default=True)
         bus = dbus.SystemBus()
         bus.add_signal_receiver(self.handle_sms, path='/ril_0',   dbus_interface='org.ofono.MessageManager', signal_name='IncomingMessage')

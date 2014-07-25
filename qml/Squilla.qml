@@ -39,6 +39,11 @@ ApplicationWindow
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
     Python { id: py }
+
+    Component.onDestruction: {
+        py.call("squilla.shutdown", [])
+    }
+
 }
 
 

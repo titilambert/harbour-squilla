@@ -54,9 +54,22 @@ presence_users = {}
 #    return [{'name': f.fullname, 'number': f.number} for f in friend_list]
 
 
+def set_presence_auth_user(selected_presence):
+    logger.debug("Set auth user: " + str(selected_presence))
+    global presence_users
+    global presence_auth_user
+    presence_auth_user = presence_users.get(selected_presence, None)
+    print(presence_auth_user)
+
+
 def get_presence_auth_user():
     global presence_auth_user
     return presence_auth_user
+
+
+def save_presence_users(entries):
+    global presence_users
+    presence_users = entries.copy()
 
 
 def list_contact(filter_=None):

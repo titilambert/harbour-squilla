@@ -109,3 +109,29 @@ def get_favorites():
 
     # Get favorites
     return [f for f in CONFIG['favorites'].items()]
+
+
+def set_silent_mode(state):
+    print(state)
+    read_configuration()
+
+    # Set empty general
+    if 'general' not in CONFIG:
+        CONFIG['general'] = {}
+
+    if int(CONFIG['general'].get('silent_mode', 0)) == 0:
+        CONFIG['general']['silent_mode'] = '1'
+    else:
+        CONFIG['general']['silent_mode'] = '0'
+
+    # Save
+    write_configuration()
+
+
+def get_silent_mode():
+    # Set empty general
+    if 'general' not in CONFIG:
+        return False
+
+    return bool(int(CONFIG['general'].get('silent_mode', 0)))
+

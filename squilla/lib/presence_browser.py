@@ -26,18 +26,21 @@
 import socket
 
 from mdns.zeroconf import DNSAddress
+from mdns.zeroconf import Zeroconf
 import mdns
 
-from squilla.lib import presence_auth_user, presence_users, friend_list
+from squilla.lib import presence_auth_user, presence_users, friend_list, set_presence_auth_user, save_presence_users
 from squilla.lib.logger import logger
-from mdns.zeroconf import Zeroconf
+from squilla.lib.utils import get_ip
+
 
 
 # wlan0 needs
 # devel-su
 # iwpriv wlan0 setMCBCFilter 3
-#zeroconf = Zeroconf(("0.0.0.0", ))
-zeroconf = Zeroconf(("192.168.13.15", ))
+
+# Get config
+zeroconf = Zeroconf((get_ip("usb"), ))
 
 
 #presence_auth_user = None
@@ -98,17 +101,17 @@ def list_presence_contacts():
     return entries
 
 
-def save_presence_users(entries):
-    global presence_users
-    presence_users = entries.copy()
+#def save_presence_users(entries):
+#    global presence_users
+#    presence_users = entries.copy()
 
 
-def set_presence_auth_user(selected_presence):
-    logger.debug("Set auth user: " + str(selected_presence))
-    global presence_users
-    global presence_auth_user
-    presence_auth_user = presence_users.get(selected_presence, None)
-    print(presence_auth_user)
+#def set_presence_auth_user(selected_presence):
+#    logger.debug("Set auth user: " + str(selected_presence))
+#    global presence_users
+#    global presence_auth_user
+#    presence_auth_user = presence_users.get(selected_presence, None)
+#    print(presence_auth_user)
 
 
 def load_presences(selected_presence=None):
