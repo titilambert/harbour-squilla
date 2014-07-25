@@ -37,6 +37,7 @@ from mdns.zeroconf import ServiceInfo
 import dbus
 
 from squilla.lib.logger import logger
+from squilla.lib.config import is_favorite, get_favorites
 from squilla.lib import get_presence_auth_user, friend_list
 from squilla.lib.presence_browser import zeroconf
 
@@ -225,6 +226,14 @@ def add_friend(fullname, number):
         # Register it on bonjour
         new_friend.start()
         tmp_dict = {'name': new_friend.fullname,
+                    'favorite': is_favorite(number),
                     'number': new_friend.number}
         # Add friend in listmodel
         pyotherside.send('add_friend_list', tmp_dict)
+
+
+def load_favorite_friends():
+    favorites = get_favorites()
+    for number, name in favorites:
+        if number and name:
+            add_friend(name, number)

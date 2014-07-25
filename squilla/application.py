@@ -24,11 +24,13 @@
 
 
 import sys
+import squilla.lib.config
 from squilla.lib.logger import logger
 from squilla.lib.sms_listener import Sms_listener
 from squilla.lib.scheduler import Scheduler
 from squilla.lib.presence_browser import list_presence_contacts, presence_auth_user
 from squilla.lib.server import PresenceServer
+from squilla.lib.friend import load_favorite_friends
 
 class Application:
     def __init__(self, interval):
@@ -44,3 +46,4 @@ class Application:
         scheduler.start()
         presence_server = PresenceServer()
         presence_server.restart()
+        load_favorite_friends()

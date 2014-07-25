@@ -30,6 +30,7 @@ import pyotherside
 
 from squilla.lib.logger import logger
 from squilla.lib.friend import Friend
+from squilla.lib.config import is_favorite
 from squilla.lib import get_presence_auth_user
 from squilla.lib import search_contact_by_number, friend_list
 
@@ -98,6 +99,7 @@ class Scheduler(Thread):
             new_friend.start()
             friend = new_friend
             tmp_dict = {'name': new_friend.fullname,
+                        'favorite': is_favorite(number),
                         'number': new_friend.number}
             # Add friend in listmodel
             pyotherside.send('add_friend_list', tmp_dict)

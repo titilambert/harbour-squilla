@@ -158,10 +158,25 @@ Page {
                          //   anchors.verticalCenter: parent.verticalCenter
 
                             IconButton {
-                                icon.source: 'image://theme/icon-m-favorite'
+                                icon.source: 'image://theme/icon-m-favorite' + (favorite ? '-selected' : '')
                                 id: friend_fav
                                 anchors.left: parent.right
                                 height: 30
+                                onClicked: {
+                                        py.call("squilla.lib.config.set_favorite", [number, name], function(result) {
+                                            console.log("result")
+                                            console.log(result)
+                                            if (result == true) {
+                                                console.log("result1")
+                                                icon.source = 'image://theme/icon-m-favorite-selected'
+                                            }
+                                            else {
+                                                console.log("result2")
+                                                icon.source = 'image://theme/icon-m-favorite'
+                                            }
+                                            console.log(icon.source)
+                                        })
+                                }
                          //       anchors.top: parent.top
                          //       anchors.verticalCenter: parent.verticalCenter
         
