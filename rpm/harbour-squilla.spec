@@ -2,7 +2,7 @@
 %define __os_install_post %{___build_post}
 
 Name: harbour-squilla
-Version: 0.1
+Version: 0.2
 Release: 1
 Summary: SMS/XMPP Bridge application for Sailfish OS
 License: GPLv3+
@@ -33,5 +33,10 @@ cp AUTHORS COPYING NEWS README.rst TODO %{buildroot}/%{_datadir}/%{name}/doc
 %docdir %{_datadir}/%{name}/doc/
 
 %changelog
+* Tue Sep 09 2014 Thibault Cohen <titilambert@gmail.com> 0.2-1
+- Fix send sms message
+- Fix USB 
+- Wifi seems fixed
+
 * Fri Jul 25 2014 Thibault Cohen <titilambert@gmail.com> 0.1-1
 - First alpha release
