@@ -48,7 +48,10 @@ class Sms_listener(Thread):
                                                          sendtime,
                                                          message))
         recv_sms_q.put({'phone_number': sendernumber,
-                        'message': message})
+                        'message': message,
+                        },
+                        block=False,
+                       )
 
     def run(self):
         logger.debug("run sms_listener")
