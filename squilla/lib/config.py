@@ -55,7 +55,7 @@ def read_configuration():
     try:
         CONFIG.read(CONFIG_FILE)
     except Exception as exp:
-        print(exp)
+        logger.debug("Config error: " + str(exp))
         return False
     return True
 
@@ -170,8 +170,6 @@ def save_presence_auth_user(auth_user):
     if 'general' not in CONFIG:
         CONFIG['general'] = {}
 
-    print(type(auth_user))
-    print(auth_user)
     CONFIG['general']['auth_user'] = auth_user['name']
 
     # Save

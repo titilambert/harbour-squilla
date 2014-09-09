@@ -91,7 +91,6 @@ class Scheduler(Thread):
             i = node_list.index(to)
         except ValueError:
             # Impossible ?
-            print(node_list)
             logger.debug("User not find in list: %s" % to)
             return
         friend = friend_list[i]
