@@ -23,12 +23,19 @@
 #
 
 
+import os
 import subprocess
 import re
 
+import pexpect
 import dbus
 
 from squilla.lib.logger import logger
+from squilla.lib.config import get_interface_name
+
+
+
+last_usb_mode = 'charging_only'
 
 
 def get_current_profile():
@@ -52,17 +59,18 @@ def set_current_profile(profile_name):
                                '/com/nokia/profiled',
                                False)
     smsiface = dbus.Interface(smsobject, 'com.nokia.profiled')
-    profile = smsiface.set_profile(profile_name)
+    profile = smsiface.set_profile(str(profile_name))
     logger.debug("Profile is now: %s " % profile_name)
 
-def get_ip(interface='usb'):
+def get_interface_address(interface='usb'):
     # Check parameter validity
     if interface == 'usb':
        interface_name = 'rndis0'
-    elif interface == 'wlan':
+    elif interface == 'wifi':
        interface_name = 'wlan0'
     else:
         # bad parameter
+        logger.debug("Get IP error: Bad interface name %s" % interface)
         return None
 
     s = subprocess.Popen("/sbin/ip a",
@@ -83,3 +91,80 @@ def get_ip(interface='usb'):
             address_ip = match.group(1).decode('utf-8')
             logger.debug("%s address ip: %s" % (interface, address_ip))
             return address_ip
+
+
+def configure_interface(interface):
+    global last_usb_mode
+    if interface not in ['usb', 'wifi']:
+        logger.debug("Unable to determine which interface I have to use")
+        return False
+
+    elif interface == 'wifi':
+        return True
+        command = subprocess.Popen("/sbin/iwpriv wlan0 setMCBCFilter 3",
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        output = command.stdout.readlines()
+        error = command.stderr.readlines()
+        if error:
+            logger.debug("Error during wlan configuration: %s" % str(error))
+    else:
+        set_current_usb_mode('developer_mode')
+
+
+def get_current_usb_mode():
+    # Get current mode
+    command = subprocess.Popen("usb_moded_util -q",
+                               shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output = command.stdout.readlines()
+    error = command.stderr.readlines()
+    if error:
+        logger.debug("Error getting USB mode: %s" % str(error))
+        return 'developer_mode'
+    if len(output) != 1:
+        logger.debug("Unable to determine current USB mode")
+        return 'developer_mode'
+    match = re.match(b"mode = (.*)", output[0].strip())
+    if match is None:
+        # not match, possible ???
+        logger.debug("Unable to determine current USB mode")
+        return 'developer_mode'
+    # Save last usb mode
+    usb_mode = match.group(1)
+    return usb_mode.decode('utf-8')
+
+
+def set_current_usb_mode(mode):
+    if not isinstance(mode, str):
+        mode = mode.decode('utf-8')
+    if mode not in ['charging_only', 'pc_suite', 'developer_mode']:
+        logger.debug("Bad USB mode: %s" % mode)
+        return False
+    # Go to developer usb mode
+    command = subprocess.Popen("usb_moded_util -s %s" % mode,
+                               shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output =  command.stdout.readlines()
+    error = command.stderr.readlines()
+    if error:
+        logger.debug("Error setting USB mode: %s" % str(error))
+        return False
+    logger.debug("USB mode is now: %s" % mode)
+    return True
+
+def active_filter(password=''):
+    shell = pexpect.spawn('bash', timeout=2)
+    shell.expect('.*\$ ')
+    shell.sendline('devel-su')
+    shell.expect('Password: ')
+    shell.sendline(password)
+    auth_state = shell.expect(['Auth failed.*\$ ', '.*# '])
+    if auth_state == 0:
+        logger.debug('Bad root password')
+        return False
+
+#    shell.sendline('/sbin/iwpriv wlan0 setMCBCFilter 3')

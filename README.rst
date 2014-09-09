@@ -16,7 +16,7 @@ Feature list
 * Receive SMS on your computer (using your bonjour client) - DONE
 * Silent your phone when Squilla starts - DONE
 * Use Smssend to send SMS. Usefull if you can't send Sms wih standard method. (You need to install smssend package) - DELETED (useless on Sailfish OS)
-* Connect your phone to your computer using the USB cable - STARTED NOT FINISHED
+* Connect your phone to your computer using the USB cable - DONE
 * Connect your phone to your computer using Wifi - NOT STARTED (root rights seem needed ...)
 * Bonjour Bot to control your phone (called 'Controller') - NOT STARTED
 * Controller will notify you if someone call you (Usefull, if your Jolla is in silent mode) - NOT STARTED

@@ -40,23 +40,31 @@ from squilla.lib.logger import logger
 from squilla.lib.config import is_favorite, get_favorites
 from squilla.lib import get_presence_auth_user, friend_list
 from squilla.lib.presence_browser import zeroconf
+from squilla.lib.utils import get_interface_address
+from squilla.lib.config import get_interface_name
 
 
 port = 5299
 # NEED TO GET THE GOOD IP!!!!
 ip_address = '192.168.13.15'
+
+ip_address = get_interface_address(get_interface_name())
+
 #ip_address = '0.0.0.0'
 
 
 class Friend(Thread):
     def __init__(self, fullname, number, auth_user, parent=None):
         Thread.__init__(self)
+        global ip_address
         self.fullname = fullname
         self.number = number
         self.port = port
+        if ip_address == None:
+            ip_address = get_interface_address(get_interface_name())
         self.ip_address = ip_address
         self.auth_user = auth_user
-        self.node = "%s@jolla" % fullname
+        self.node = fullname + "@jolla"
         self.favorite = False
 
         self.parent = parent
@@ -84,13 +92,15 @@ class Friend(Thread):
         # Prepare properties
         txt = {}
         txt['1st'] = str(self.fullname)
+        txt['1st'] = self.fullname.encode('utf-8')
+        #txt['1st'] = "aaa"
         txt['last'] = ""
         txt['status'] = 'avail'
         txt['port.p2pj'] = 5299
-        txt['nick'] = str(self.fullname)
-        txt['node'] = self.node
-        txt['jid'] = str(self.node)
-        txt['email'] = str(self.node)
+        txt['nick'] = self.fullname.encode('utf-8')
+        txt['node'] = self.node.encode('utf-8')
+        txt['jid'] = self.node.encode('utf-8')
+        txt['email'] = self.node.encode('utf-8')
         txt['version'] = 1
         txt['txtvers'] = 1
         name = self.node + '._presence._tcp.local.'

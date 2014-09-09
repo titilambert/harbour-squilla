@@ -31,7 +31,8 @@ import mdns
 
 from squilla.lib import presence_auth_user, presence_users, friend_list, set_presence_auth_user, save_presence_users
 from squilla.lib.logger import logger
-from squilla.lib.utils import get_ip
+from squilla.lib.utils import get_interface_address
+from squilla.lib.config import get_interface_name
 
 
 
@@ -39,8 +40,16 @@ from squilla.lib.utils import get_ip
 # devel-su
 # iwpriv wlan0 setMCBCFilter 3
 
+# TODO MAKE A FUNCTION OF THAT
 # Get config
-zeroconf = Zeroconf((get_ip("usb"), ))
+interface_name = get_interface_name()
+logger.set_debug(True)
+logger.debug("Interface name: %s" % interface_name)
+interface_address = get_interface_address(interface_name)
+logger.debug("Interface address: %s" % interface_address)
+if interface_address is None:
+    interface_address = '0.0.0.0'
+zeroconf = Zeroconf((interface_address, ))
 
 
 #presence_auth_user = None

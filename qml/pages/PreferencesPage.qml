@@ -61,15 +61,6 @@ Page {
             }
 
             TextSwitch {
-                id: usbSwitch
-                text: "Activate USB networking (NOT WORKING)"
-                /*description: "Activates the Doomsday device"
-                /*onCheckedChanged: {
-                    device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)
-                }*/
-            }
-
-            TextSwitch {
                 id: controllerSwitch
                 text: "Active Controller Contact (NOT WORKING)"
                 /*description: "Activates the Doomsday device"
@@ -77,6 +68,59 @@ Page {
                     device.setStatus(checked ? DeviceState.Armed : DeviceState.Disarmed)
                 }*/
             }
+
+            Label {
+                text: "Connection used:"
+                x: Theme.paddingLarge
+                height: 10
+            }
+
+            IconTextSwitch {
+                id: wifi
+                icon.source: "image://theme/icon-m-wlan"
+                width: 270
+                text: "Wifi"
+                onCheckedChanged: {
+                    if (wifi.checked == true){
+                        usb.checked = false
+                        py.call('squilla.lib.config.set_interface_name', ['wifi'], function(result) {
+                        })
+                    }
+                    else {
+                        usb.checked = true
+                    }
+                }
+
+
+            }
+
+            IconTextSwitch {
+                id: usb
+                icon.source: "image://theme/icon-m-usb"
+                text: "USB"
+                width: 270
+                onCheckedChanged: {
+                    if (usb.checked == true){
+                        wifi.checked = false
+                        py.call('squilla.lib.config.set_interface_name', ['usb'], function(result) {
+                        })
+                    }
+                    else {
+                        wifi.checked = true
+                    }
+                }
+            }
+
         }
+    }
+    Component.onCompleted: {
+        py.call('squilla.lib.config.get_interface_name', [], function(result) {
+            if (result == 'wifi') {
+                wifi.checked = true
+            }
+            else {
+                usb.checked = true
+            }
+        })
     }
 }

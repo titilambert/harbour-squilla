@@ -202,6 +202,9 @@ Page {
                     setHandler('add_friend_list', function(friend) {
                         listModel2.append(friend);
                     })
+                    setHandler('set_selected_auth_user', function(auth_user) {
+                        presence_combo.reload(auth_user);
+                    })
                 }
 
             }

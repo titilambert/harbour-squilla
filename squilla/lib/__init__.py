@@ -32,6 +32,7 @@ import pyotherside
 from mdns.zeroconf import Zeroconf
 
 from squilla.lib.logger import logger
+from squilla.lib.config import save_presence_auth_user
 
 
 # contacts sqlite db uri
@@ -59,7 +60,7 @@ def set_presence_auth_user(selected_presence):
     global presence_users
     global presence_auth_user
     presence_auth_user = presence_users.get(selected_presence, None)
-    print(presence_auth_user)
+    save_presence_auth_user(presence_auth_user)
 
 
 def get_presence_auth_user():

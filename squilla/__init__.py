@@ -56,7 +56,7 @@ def main():
     try:
         os.setgid(grp.getgrnam("privileged").gr_gid)
     except Exception as e:
-        logger.debug(str(e))
+        logger.debug("Can't set privileged group: %s" % str(e))
     app = Application(interval=3)
     app.start()
 

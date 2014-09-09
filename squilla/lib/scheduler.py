@@ -31,9 +31,10 @@ import pyotherside
 
 from squilla.lib.logger import logger
 from squilla.lib.friend import Friend
-from squilla.lib.config import is_favorite
-from squilla.lib import get_presence_auth_user
+from squilla.lib.config import is_favorite, load_presence_auth_user
+from squilla.lib import get_presence_auth_user, set_presence_auth_user
 from squilla.lib import search_contact_by_number, friend_list
+from squilla.lib.presence_browser import load_presences
 
 
 # Queue of received sms
@@ -57,12 +58,23 @@ class Scheduler(Thread):
         self.must_run = True
         while self.must_run:
             sleep(0.1)
+            if get_presence_auth_user() is None:
+                save_auth_user = load_presence_auth_user()
+                logger.debug("No auth user set")
+                if save_auth_user is not None:
+                    logger.debug("Try to set the last one: "+ str(save_auth_user))
+                    if save_auth_user in [i['name'] for i in load_presences()]:
+                        set_presence_auth_user(save_auth_user)
+                        # emit signal to select the auth user the auth_user list 
+                        pyotherside.send('set_selected_auth_user', save_auth_user)
+            # Process received sms queue
             if not recv_sms_q.empty():
                 new_sms = recv_sms_q.get()
                 status = self.sms_received(new_sms['phone_number'],
                               new_sms['message'])
                 if status:
                     recv_sms_q.task_done()
+            # Process sms to send queue
             if not send_sms_q.empty():
                 new_sms = send_sms_q.get()
                 self.send_sms(new_sms['to'],
@@ -79,6 +91,7 @@ class Scheduler(Thread):
             i = node_list.index(to)
         except ValueError:
             # Impossible ?
+            print(node_list)
             logger.debug("User not find in list: %s" % to)
             return
         friend = friend_list[i]

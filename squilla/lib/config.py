@@ -113,7 +113,6 @@ def get_favorites():
 
 
 def set_silent_mode(state):
-    print(state)
     read_configuration()
 
     # Set empty general
@@ -135,4 +134,58 @@ def get_silent_mode():
         return False
 
     return bool(int(CONFIG['general'].get('silent_mode', 0)))
+
+
+def set_interface_name(connection):
+    read_configuration()
+
+    # Set empty general
+    if 'general' not in CONFIG:
+        CONFIG['general'] = {}
+
+    CONFIG['general']['connection'] = connection
+
+    # Save
+    write_configuration()
+
+
+def get_interface_name():
+    read_configuration()
+
+    # Set empty general
+    if 'general' not in CONFIG:
+        return 'usb'
+
+    connection = CONFIG['general'].get('connection', 'usb')
+    if connection not in ['usb', 'wifi']:
+        return 'usb'
+
+    return connection
+
+
+def save_presence_auth_user(auth_user):
+    read_configuration()
+
+    # Set empty general
+    if 'general' not in CONFIG:
+        CONFIG['general'] = {}
+
+    print(type(auth_user))
+    print(auth_user)
+    CONFIG['general']['auth_user'] = auth_user['name']
+
+    # Save
+    write_configuration()
+
+
+def load_presence_auth_user():
+    read_configuration()
+
+    # if general doesn't exist
+    if 'general' not in CONFIG:
+        return None
+
+    auth_user = CONFIG['general'].get('auth_user', None)
+
+    return auth_user
 
