@@ -26,13 +26,14 @@
     <script src="/static/core/lib/js/jquery.min.js"></script>
     <script src="/static/core/lib/js/bootstrap.min.js"></script>
  
+    <script src="/static/core/js/message-center.js"></script>
     <script src="/static/core/js/app.js"></script>
     <script src="/static/core/js/controllers.js"></script>
     <script src="/static/core/js/services.js"></script>
 
     {% for module in modules %}
         <script src="/static/{{module}}/js/app.js"></script>
-        <script src="/static/{{module}}/js/services.js"></script>
+        <script src="/static/{{module}}/js/controllers.js"></script>
     {% endfor %}
 
 </head>
@@ -43,6 +44,9 @@
 
   {# Page #}
   <div class="container page">
+    {# Messages #}
+    <div mc-messages></div>
+
     {# Dynamic page #}
     <div ng-view class="content"></div>
 

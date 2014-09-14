@@ -2,13 +2,17 @@ from functools import wraps
 from flask.ext import restful
 from flask import request, Response
 
+from squilla.libs.config import load_setting
+
 # auth for /
 
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
     """
-    return username == 'admin' and password == 'secret'
+    saved_username = load_setting(None, 'username', 'jolla')
+    saved_password = load_setting(None, 'password', 'squilla')
+    return username == saved_username and password == saved_password
 
 def authenticate():
     """Sends a 401 response that enables basic auth"""

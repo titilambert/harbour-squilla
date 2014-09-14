@@ -4,8 +4,8 @@
 *.changes
 *.dsc
 *.tar.gz
-old/dist/
-old/build/
-old/env/
+*/dist/
+*/build/
+*/env/
 daemon/env
 __pycache__

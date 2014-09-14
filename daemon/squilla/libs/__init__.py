@@ -46,7 +46,7 @@ def declare_module(module_name):
 
     blueprint = Blueprint(module_name,
                           ".".join(("squilla.modules", module_name)),
-                          static_url_path='/static/info',
+                          static_url_path='/static/' + module_name,
                           static_folder='static',
                           template_folder='templates',
                          )

@@ -10,10 +10,24 @@ squilla_controllers.controller('IndexCtrl', ['$scope', '$http',
             });
     }])
 
+    .controller('ConfigCtrl', ['$scope', '$http', 'messageCenterService',
+        function($scope, $http, messageCenterService) {
+            $http.get('/core/config').success(function(data) {
+                $scope.config = data;
+            });
+
+
+        $scope.save = function(config) {
+            $http.post('/core/config', config).success(function(data) {
+                messageCenterService.add(data.state, data.message);
+            });
+        }
+
+    }])
+
     .controller('EchoCtrl', ['$scope', '$http',
         function($scope, $http) {
             $scope.send = function(text) {
-            
                 if (text != null) {
                     $http.get('/echo/' + text).success(function(data) {
                         $scope.response = data['echo'];

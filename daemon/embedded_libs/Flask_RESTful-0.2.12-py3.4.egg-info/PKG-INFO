@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: Flask-RESTful
+Version: 0.2.12
+Summary: Simple framework for creating REST APIs
+Home-page: https://www.github.com/twilio/flask-restful/
+Author: Twilio API Team
+Author-email: help@twilio.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: any

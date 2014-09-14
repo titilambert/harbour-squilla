@@ -1,0 +1,13 @@
+squilla
+rpm
+run_squilla_daemon.py
+embedded_libs
+AUTHORS
+COPYING
+INSTALL
+Makefile
+MANIFEST
+NEWS
+README.rst
+RELEASING
+TODO
