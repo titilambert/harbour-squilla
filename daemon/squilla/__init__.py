@@ -21,6 +21,8 @@ for element in glob.glob("squilla/modules/*"):
     if not os.path.isdir(element):
         continue
     splitted_path = element.split("/")
+    if splitted_path[-1] == "__pycache__":
+        continue
     module_name = ".".join(splitted_path)
     app.module_list['available'].append(splitted_path[-1])
     try:
