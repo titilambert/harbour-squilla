@@ -25,7 +25,8 @@ mkdir -p %{buildroot}/%{_datadir}/%{name}/doc
 cp AUTHORS COPYING NEWS README.rst TODO %{buildroot}/%{_datadir}/%{name}/doc
 
 %preun
-if /sbin/pidof harbour-squilla-daemon > /dev/null; then
+# TODO make it work
+if /sbin/pidof harbour-squilla-daemon > /dev/null ; then
     killall harbour-squilla-daemon
 fi
 
@@ -33,7 +34,8 @@ fi
 rm -f %{_bindir}/harbour-squilla-daemon
 
 %pre
-if /sbin/pidof harbour-squilla-daemon > /dev/null; then
+# TODO make it work
+if /sbin/pidof harbour-squilla-daemon > /dev/null ; then
     killall harbour-squilla-daemon
 fi
 
