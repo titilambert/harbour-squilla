@@ -1,0 +1,39 @@
+# DEP
+## sure
+pyotherside-qml-plugin-python3-qt5
+dbus-python
+python-lxml-3
+mce-tools
+
+## maybe
+qt5-qtdeclarative-pim-contacts
+pygobject2
+
+## DEV 
+qt5-qtdeclarative-qmlscene
+
+
+
+# privileges
+sudo vim /usr/share/mapplauncherd/privileges 
+
+# send SMS
+dbus-send --system --print-reply --dest=org.ofono /ril_0 org.ofono.MessageManager.SendMessage string:"+1PHONENUMBER" string:"test sms"
+# receive
+signal sender=:1.25 -> dest=(null destination) serial=47 path=/org/freedesktop/Telepathy/Connection/ring/tel/ring/text12; interface=org.freedesktop.Telepathy.Channel.Type.Text; member=Received
+
+signal sender=:1.12 -> dest=(null destination) serial=370 path=/ril_0; interface=org.ofono.MessageManager; member=IncomingMessage
+   string "Rtgfu"
+   array [
+      dict entry(
+         string "LocalSentTime"
+         variant             string "2014-05-25T23:50:48+0000"
+      )
+      dict entry(
+         string "SentTime"
+         variant             string "2014-05-25T19:50:48-0400"
+      )
+      dict entry(
+         string "Sender"
+         variant             string "+15146253632"
+      )

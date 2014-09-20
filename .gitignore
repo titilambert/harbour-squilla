@@ -7,5 +7,6 @@
 */dist/
 */build/
 */env/
+*.rpm
 daemon/env
 __pycache__
