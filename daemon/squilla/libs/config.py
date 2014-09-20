@@ -30,6 +30,7 @@ try:
     import configparser
     CONFIG = configparser.ConfigParser()
 except Exception as exp:
+    print(exp)
     pass
 
 

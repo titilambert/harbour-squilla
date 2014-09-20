@@ -16,13 +16,14 @@ class Resource(restful.Resource):
 
 
 def declare_module(module_name):
-    # Import controllers
+    # Get controllers path
     controllers_path = os.path.join(os.path.dirname(__file__),
                                     "..",
                                     "modules",
                                     module_name,
                                     "controllers",
                                     "*.py")
+    # Import controllers
     for element in glob.glob(controllers_path):
         if not os.path.isfile(element):
             continue
@@ -38,12 +39,9 @@ def declare_module(module_name):
                                         module_name,
                                         "controllers",
                                         controller_name))
-        try:
-            __import__(controller_name)
-        except Exception as exp:
-            print(exp)
-
-
+        # Import controller
+        __import__(controller_name)
+    # Register blueprint
     blueprint = Blueprint(module_name,
                           ".".join(("squilla.modules", module_name)),
                           static_url_path='/static/' + module_name,

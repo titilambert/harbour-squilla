@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 
 from flask import Flask
 from flask.ext.restful import Resource, Api
@@ -14,20 +15,32 @@ app.menus = []
 from squilla import controllers
 
 # Import modules
+## Get declare_module function
+from squilla.libs import declare_module
+# Add modules dir to path
+embedded_libs_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                  'modules/')
+sys.path.append(embedded_libs_path)
+# Prepare module lists
 app.module_list = {"available": [],
                    "loaded": []
                   }
+# Browse avalaible modules
 for element in glob.glob("squilla/modules/*"):
     if not os.path.isdir(element):
         continue
     splitted_path = element.split("/")
     if splitted_path[-1] == "__pycache__":
         continue
-    module_name = ".".join(splitted_path)
-    app.module_list['available'].append(splitted_path[-1])
+    # Get module name
+    module_name = splitted_path[-1]
+    # Append it to avalaible module list
+    app.module_list['available'].append(module_name)
+    # Declare module 
     try:
-        __import__(module_name)
-        app.module_list['loaded'].append(splitted_path[-1])
+        declare_module(module_name)
+        # Append it to loaded module list
+        app.module_list['loaded'].append(module_name)
     except Exception as exp:
         print(exp)
 
