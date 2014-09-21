@@ -24,6 +24,7 @@ dist:
 	$(MAKE) clean
 	mkdir -p dist/$(name)-$(version)
 	cp -r `cat MANIFEST` dist/$(name)-$(version)
+	rm -rf dist/$(name)-$(version)/modules
 	tar -C dist -czf dist/$(name)-$(version).tar.gz $(name)-$(version)
 
 install:
@@ -31,6 +32,7 @@ install:
 	mkdir -p $(datadir)/squilla/
 	mkdir -p $(datadir)/embedded_libs
 	cp -r squilla/* $(datadir)/squilla/
+	rm -rf $(datadir)/squilla/modules
 	cp -r embedded_libs/* $(datadir)/embedded_libs/
 	cp -r run_squilla_daemon.py $(datadir)/
 

@@ -17,16 +17,16 @@ from squilla import controllers
 # Import modules
 ## Get declare_module function
 from squilla.libs import declare_module
-# Add modules dir to path
-embedded_libs_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+## Add modules dir to path
+modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                   'modules/')
-sys.path.append(embedded_libs_path)
-# Prepare module lists
+sys.path.append(modules_path)
+## Prepare module lists
 app.module_list = {"available": [],
                    "loaded": []
                   }
-# Browse avalaible modules
-for element in glob.glob("squilla/modules/*"):
+## Browse avalaible modules
+for element in glob.glob(modules_path + "/*"):
     if not os.path.isdir(element):
         continue
     splitted_path = element.split("/")

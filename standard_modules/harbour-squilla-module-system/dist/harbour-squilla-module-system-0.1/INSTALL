@@ -1,0 +1,13 @@
+Installation
+============
+
+To install, run command
+
+    make PREFIX=... install
+
+Uninstallation
+==============
+
+To uninstall, remove files and directories
+
+    .../share/harbour-squilla-daemon/

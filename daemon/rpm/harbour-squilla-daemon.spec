@@ -22,6 +22,7 @@ Squilla uses modules to add more features
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} PREFIX=/usr install
 mkdir -p %{buildroot}/%{_datadir}/%{name}/doc
+mkdir -p %{buildroot}/%{_datadir}/%{name}/squilla/modules
 cp AUTHORS COPYING NEWS README.rst TODO %{buildroot}/%{_datadir}/%{name}/doc
 
 %preun
