@@ -1,0 +1,120 @@
+<div>
+  <h2> SMS Configuration </h2>
+  <hr>
+  <h4>Control</h4>
+  <br/>
+  <form class="form-horizontal">
+    <div ng-switch on="sms_status" class="form-group">
+      <div ng-switch-when="true" class="col-sm-offset-2 col-sm-10 alert alert-success" role="alert">Service is STARTED</div> 
+      <div ng-switch-default class="col-sm-offset-2 col-sm-10 alert alert-danger" role="alert">Service is STOPPED</div> 
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-5 col-sm-1" ng-switch on="sms_status">
+        <button ng-switch-when="true" disabled="disabled" type="button" class="btn btn-success" ng-click="start()">Start</button>
+        <button ng-switch-default type="button" class="btn btn-success" ng-click="start()">Start</button>
+      </div>
+      <div class="col-sm-1" ng-switch on="sms_status">
+         <button ng-switch-when="true" type="button" class="btn btn-danger" ng-click="stop()">Stop</button>
+         <button ng-switch-default disabled="disabled" type="button" class="btn btn-danger" ng-click="stop()">Stop</button>
+      </div>
+      <div class="col-sm-1">
+         <button type="button" class="btn btn-warning" ng-click="restart()">Restart</button>
+      </div>
+    </div>
+  </form>
+  <hr>
+  <h4>Configuration</h4>
+  <br/>
+  <form class="form-horizontal" role="form">
+    <div class="form-group">
+      <div class="radio col-sm-offset-2 col-sm-10">
+        <label>
+          <input type="radio" name="connection" id="wifi" value="wifi" ng-model="config.connection" ng-true-value="wifi">
+          Use Wifi connnection
+        </label>
+      </div>
+      <div class="radio col-sm-offset-2 col-sm-10">
+        <label>
+         <input type="radio" name="connection" id="usb" value="usb" ng-model="config.connection" ng-true-value="usb">
+          Use USB connection
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input id="http" ng-model="config.http" type="checkbox" ng-checked="config.http" > Forward SMS to web interface (NOT WORKING)
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label >
+            <input id="bonjour" ng-model="config.bonjour" type="checkbox" ng-checked="config.bonjour" > Forward SMS to Bonjour/XMPP
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" ng-if="config.bonjour && sms_status">
+      <label for="presence" class="col-sm-offset-2 col-sm-2 control-label">Select your Bonjour contact ID</label>
+      <div class="col-sm-6">
+        <select id="presence" name="presence" class="form-control">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-1">
+        <button type="button" class="btn btn-primary" ng-click="config_save(config)">Save</button>
+      </div>
+      <div class="col-sm-1">
+        <button type="button" class="btn btn-success" ng-click="config_save_restart(config)">Save and Restart</button>
+      </div>
+    </div>
+  </form>
+  <hr>
+  <h4>Preferences</h4>
+  <br/>
+  <form class="form-horizontal" role="form">
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input id="autostart" ng-model="config.autostart" type="checkbox"> Start when Squilla starts
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input id="silent" ng-model="config.silent" type="checkbox"> Switch to Silent mode when Squilla starts
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input id="controller" ng-model="config.controller" type="checkbox"> Active Controller Contact (NOT WORKING)
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-primary" ng-click="config_save(config)">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
