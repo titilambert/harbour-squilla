@@ -22,7 +22,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-
+import re
 import os
 import inspect
 
@@ -33,8 +33,7 @@ except Exception as exp:
     print(exp)
     pass
 
-
-#from squilla.lib.logger import logger
+from squilla.libs.logger import logger
 
 # Squilla config folder
 CONFIG_FOLDER = os.path.join('/home/nemo/',
@@ -66,14 +65,28 @@ def write_configuration():
         CONFIG.write(config_f)
 
 
-def save_setting(setting, value, section=None):
-    read_configuration()
+def _detect_module_name():
     # Detect module_name
-    caller_file_name = inspect.stack()[1][1]
+    caller_file_name = inspect.stack()[2][1]
     if caller_file_name.find("modules") == -1:
         module_name = "core"
     else:
-        print("MODULE")
+        module_name_match = re.match(".*/modules/([^/]*).*", caller_file_name)
+        if not module_name_match:
+            logger.debug("Unable to find the module which call save setting")
+            return False
+        module_name = module_name_match.groups()[0]
+        logger.debug("Module %s need to save/load setting" % module_name)
+
+    return module_name
+
+
+def save_setting(setting, value, section=None):
+    read_configuration()
+    # Detect module_name
+    module_name = _detect_module_name()
+    if module_name == False:
+        return False
 
     # Set empty module_name
     if module_name not in CONFIG:
@@ -85,14 +98,15 @@ def save_setting(setting, value, section=None):
     # write
     write_configuration()
 
+    return True
+
 
 def load_setting(section=None, setting=None, default=None):
+    read_configuration()
     # Detect module_name
-    caller_file_name = inspect.stack()[1][1]
-    if caller_file_name.find("modules") == -1:
-        module_name = "core"
-    else:
-        print("MODULE")
+    module_name = _detect_module_name()
+    if module_name == False:
+        return False
 
     # We want a section
     if section is None and setting is None and default is None:

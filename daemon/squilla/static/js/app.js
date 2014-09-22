@@ -13,7 +13,7 @@ squilla_app.config(['$routeProvider', function($routeProvider) {
         $routeProvider.when('/core/echo', {templateUrl: '/static/core/partials/echo.html', controller: 'EchoCtrl'});
         $routeProvider.when('/core/menus', {templateUrl: '/static/core/partials/menus.html', controller: 'MenusCtrl'});
         $routeProvider.when('/core/modules', {templateUrl: '/static/core/partials/modules.html', controller: 'ModulesCtrl'});
-        $routeProvider.otherwise({redirectTo: '/'});
+        $routeProvider.otherwise({templateUrl: '/static/core/partials/404.html'});
 
     }]);
 
