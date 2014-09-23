@@ -57,15 +57,32 @@ squilla_controllers.controller('SMSConfigCtrl', ['$scope', '$http', 'messageCent
                 $scope.config_save(config)
                 $scope.restart()
             }
+            // Get bonjour auth user
+            $scope.get_bonjour_auth_user = function() {
+                $http.get('/sms/bonjour/auth_user').success(function(data) {
+                    $scope.last_bonjour_auth_user = data
+                });
+            }
             // Get bonjour users
             $scope.get_bonjour_users = function() {
-                $http.get('/sms/bonjour/users/get').success(function(data) {
-                    $scope.presence_users = data
+                $scope.get_bonjour_auth_user()
+                $http.get('/sms/bonjour/users').success(function(data) {
+                    $scope.bonjour_users = new Array();
+                    $scope.bonjour_selected_user = null;
+                    angular.forEach(data, function(bonjour_user) {
+                        if (bonjour_user.name != $scope.last_bonjour_auth_user.name){
+                            $scope.bonjour_users.push(bonjour_user)
+                        }
+                        else {
+                            $scope.bonjour_selected_user = bonjour_user 
+                            $scope.config.bonjour_selected_user = bonjour_user 
+                        }
+                    });
                 });
             }
 
 
             $scope.get_status();
             $scope.load_config();
-            $scope.get_bonjour_users()
+            $scope.get_bonjour_users();
     }]);

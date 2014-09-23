@@ -32,7 +32,7 @@ except Exception as exp:
     pass
 
 
-from squilla.libs.config import load_setting
+from squilla.libs.config import load_setting, save_setting
 from squilla.libs.logger import logger
 
 # Squilla config folder
@@ -68,14 +68,13 @@ def get_bridges():
     settings = load_setting()
     bridges = []
     for bridge in ['http', 'bonjour']:
-        if settings.get('http', False) == True:
+        if settings.get(bridge, False) == 'True':
             bridges.append(bridge)
     return bridges
 
 
 def get_favorites():
     settings = load_setting()
-
 
     if 'favorites' not in settings:
         return []
@@ -84,9 +83,22 @@ def get_favorites():
     return [f for f in settings['favorites'].items()]
 
 
+def get_last_presence_auth_user():
+    settings = load_setting()
+
+    if 'auth_user' not in settings:
+        return None
+
+    auth_user = settings.get('auth_user', None)
+
+    return auth_user
 
 
 
+def save_last_presence_auth_user(auth_user):
+    """ auth_user must be str or NoneType """
+    if auth_user is not None:
+        save_setting('auth_user', str(auth_user))
 
 
 

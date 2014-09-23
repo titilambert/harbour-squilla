@@ -69,7 +69,7 @@ def set_zeroconf():
     if interface_address is None:
         interface_address = '0.0.0.0'
     zeroconf = Zeroconf((interface_address, ))
-    print(zeroconf)
+    #print(zeroconf)
 
 
 def list_presence_contacts(application):

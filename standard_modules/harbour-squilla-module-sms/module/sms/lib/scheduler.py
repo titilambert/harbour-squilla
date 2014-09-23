@@ -30,7 +30,7 @@ from time import sleep
 
 from squilla.libs.logger import logger
 from .friend import Friend, add_friend
-from .config import is_favorite, load_presence_auth_user
+from .config import is_favorite, get_last_presence_auth_user
 from . import get_presence_auth_user, set_presence_auth_user
 from . import search_contact_by_number, friend_list
 from .presence_browser import load_presences
@@ -67,13 +67,15 @@ class Scheduler(Thread):
         while self.must_run:
             sleep(0.1)
             if 'bonjour' in self.application.bridges:
-                if get_presence_auth_user() is None:
-                    save_auth_user = load_presence_auth_user()
+                if self.application.presence_auth_user is None:
+                    save_auth_user = get_last_presence_auth_user()
                     logger.debug("No auth user set")
                     if save_auth_user is not None:
-                        logger.debug("Try to set the last one: "+ str(save_auth_user))
-                        if save_auth_user in [i['name'] for i in load_presences(application=self.application)]:
-                            set_presence_auth_user(save_auth_user)
+                        logger.debug("Try to set the last one: " + str(save_auth_user))
+                        # Reload available presence users on the network
+                        self.application.load_presences()
+                        if save_auth_user in [i['name'] for i in self.application.available_presence_users]:
+                            self.application.presence_auth_user =  save_auth_user
                             # emit signal to select the auth user the auth_user list 
                             #pyotherside.send('set_selected_auth_user', save_auth_user)
             # Process received sms queue

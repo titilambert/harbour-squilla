@@ -30,7 +30,7 @@ import re
 from mdns.zeroconf import Zeroconf
 
 from squilla.libs.logger import logger
-from .config import save_presence_auth_user
+from .config import save_last_presence_auth_user
 
 
 # contacts sqlite db uri
@@ -50,10 +50,14 @@ presence_users = {}
 
 def set_presence_auth_user(selected_presence):
     logger.debug("Set auth user: " + str(selected_presence))
+    # TODO do not global
     global presence_users
     global presence_auth_user
     presence_auth_user = presence_users.get(selected_presence, None)
-    save_presence_auth_user(presence_auth_user)
+    save_last_presence_auth_user(presence_auth_user)
+
+
+
 
 
 def get_presence_auth_user():

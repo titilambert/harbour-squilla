@@ -58,15 +58,18 @@
         </div>
       </div>
     </div>
-    <div class="form-group" ng-if="config.bonjour && sms_status">
-      <label for="presence" class="col-sm-offset-2 col-sm-2 control-label">Select your Bonjour contact ID</label>
+    <div class="form-group" ng-if="config.bonjour">
+      <label class="col-sm-offset-2 col-sm-3 control-label">Current bonjour authorized user</label>
       <div class="col-sm-6">
-        <select id="presence" name="presence" class="form-control">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
+        <input ng-model="last_bonjour_auth_user.name" ng-disabled="true">
+      </div>
+    </div>
+    <div class="form-group" ng-if="config.bonjour && sms_status">
+      <label for="bonjour_users" class="col-sm-offset-2 col-sm-3 control-label">Select your Bonjour contact ID</label>
+      <div class="col-sm-6">
+        <select id="bonjour_users" ng-model="config.bonjour_selected_user.name" name="bonjour" class="form-control" >
+          <option ng-repeat="bonjour_user in bonjour_users" value="{{ bonjour_user.name }}" >{{ bonjour_user.name }}</option>
+          <option ng-if="bonjour_selected_user" value="{{ bonjour_selected_user.name }}" selected="selected" >{{ bonjour_selected_user.name }}</option>
         </select>
       </div>
     </div>

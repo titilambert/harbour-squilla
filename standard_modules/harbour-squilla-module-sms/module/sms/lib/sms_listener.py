@@ -22,6 +22,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import sys
 
 import time
 from threading import Thread
@@ -60,3 +61,4 @@ class Sms_listener(Thread):
         bus = dbus.SystemBus()
         bus.add_signal_receiver(self.handle_sms, path='/ril_0',   dbus_interface='org.ofono.MessageManager', signal_name='IncomingMessage')
         glib.threads_init()
+        logger.debug("run sms_listener1")
