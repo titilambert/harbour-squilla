@@ -6,7 +6,8 @@
 *.tar.gz
 */dist/
 */build/
-*/env/
+env/
 *.rpm
-daemon/env
 __pycache__
+.eggs/
+*.egg-info/
